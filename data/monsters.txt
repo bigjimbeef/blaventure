@@ -1,0 +1,33 @@
+Rat
+Pig
+Boar
+Badger
+Antelope
+Donkey
+Kobold
+Goblin
+Were-badger
+Dire Pig
+Half-orc
+Orc
+Ogre
+Orc Captain
+Dire Donkey
+Elephant
+Ogre Berserker
+Pizza Elemental
+Shoe Elemental
+Giant Canary
+Goblin King
+Orc Warlord
+Wood Elemental
+Treant
+Dire Elephant
+Baby Wyvern
+Ogre Lord
+Ogre Mage
+Wyvern
+Despair Elemental
+Gelatinous Dodecahedron
+Giant
+Dragon
