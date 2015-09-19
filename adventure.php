@@ -11,7 +11,7 @@
 
 		N,S,E,W 	- Go in the direction specified
 		Attack		- Attack the enemy in the room (if there is one)
-		Spell		- Attack using MP with a random spell
+		Spell		- Attack using MP with a spell from the spellbook
 		Status		- Check stats, output in the form:
 			Level 3 Barbarian    HP 3/10    MP 2/5
 		Inventory	- Check what you're equipped with
@@ -351,6 +351,16 @@ function main() {
 				resting($input, $charData, $mapData);
 
 				$charDataDirty		= true;
+			}
+			break;
+
+			// IT'S CLOBBERING TIME
+			case GameStates::Combat: {
+
+				DEBUG_echo("Combat");
+
+				$input = readStdin();
+				
 			}
 			break;
 

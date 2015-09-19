@@ -11,9 +11,8 @@ class NameGenerator {
 		// Stay in the same vague area of difficulty as the level we're on.
 		$levelAbove	= 10;
 		$monster	= NameGenerator::GetSingleLine("data/monsters.txt", $level, $level + $levelAbove);
-		$article 	= NameGenerator::PrependArticle($adjective);
 
-		$output = $article . " " . $adjective . " " . $monster;
+		$output = $adjective . " " . $monster;
 
 		return $output;
 	}
@@ -28,18 +27,6 @@ class NameGenerator {
 
 	public function Attack($level) {
 
-	}
-
-	private static function PrependArticle($input) {
-
-		$vowels 	= array("a", "e", "i", "o", "u");
-
-		$firstChar 	= $input[0];
-		$firstChar	= strtolower($firstChar);
-
-		$article	= in_array($firstChar, $vowels) ? "an" : "a";
-
-		return $article;
 	}
 
 	private static function GetLinesFromFile($filePath) {

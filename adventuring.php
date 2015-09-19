@@ -76,6 +76,17 @@ function checkBounds($x, $y) {
 	return $inBounds;
 }
 
+function getArticle($monsterName) {
+	$vowels 	= array("a", "e", "i", "o", "u");
+
+	$firstChar 	= $monsterName[0];
+	$firstChar	= strtolower($firstChar);
+
+	$article	= in_array($firstChar, $vowels) ? "an" : "a";
+
+	return $article;
+}
+
 function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData) {
 
 	global $procGen;
@@ -93,15 +104,25 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData) {
 
 	$room = $mapData->map->GetRoom($newX, $newY);
 
-	if ( !isset($room) ) {
+	$seenBefore = isset($room);
+
+	if ( !$seenBefore ) {
 		$room = $procGen->GenerateRoomForMap($mapData->map, $mapData->playerX, $mapData->playerY, $charData->level);		
 	}
 	
 	if ( isset($room->occupant) ) {
 
-		$monster = $room->occupant;
+		$monster 		= $room->occupant;
+		$monsterName 	= $monster->name;
 
-		echo "You encounter $monster->name! [$newX, $newY]\n";
+		$article		= getArticle($monsterName);
+
+		if ( !$seenBefore ) {
+			echo "You encounter $article $monsterName!\n";			
+		}
+		else {
+			echo "You encounter the $monsterName again!\n";
+		}
 	}
 	else {
 		echo "This room appears to be empty.\n";
@@ -113,6 +134,8 @@ $adventuring->commands[] = new InputFragment(array("north", "n"), function($char
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
 
+	echo "You move to the North.\n";
+
 	// North means y++
 	moveToRoom($x, $y, 0, 1, $mapData, $charData);
 });
@@ -121,6 +144,8 @@ $adventuring->commands[] = new InputFragment(array("south", "s"), function($char
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
 
+	echo "You move to the South.\n";
+
 	// South means y--
 	moveToRoom($x, $y, 0, -1, $mapData, $charData);
 });
@@ -128,6 +153,8 @@ $adventuring->commands[] = new InputFragment(array("east", "e"), function($charD
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
+	
+	echo "You move to the East.\n";
 
 	// East means x++
 	moveToRoom($x, $y, 1, 0, $mapData, $charData);
@@ -136,6 +163,8 @@ $adventuring->commands[] = new InputFragment(array("west", "w"), function($charD
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
+
+	echo "You move to the West.\n";
 
 	// West means x--
 	moveToRoom($x, $y, -1, 0, $mapData, $charData);
