@@ -25,6 +25,14 @@ class CharacterSaveData {
 	public $restEnd		= 0;
 }
 
+class MapSaveData {
+
+	public $playerX		= 0;		// int
+	public $playerY		= 0;		// int
+
+	public $map			= null;		// Map
+}
+
 // Function Matches is called on each InputFragment, and the callback is called if it does match the input.
 class InputFragment {
 
@@ -123,6 +131,16 @@ class Monster {
 
 class Room {
 
-	private 	$id;	// int
+	public 	$id;		// int
+	public	$occupant;	// Monster
+}
 
+class Map {
+
+	public 	$grid;		// 2D array.
+
+	function __construct() {
+
+		$grid = array();
+	}
 }

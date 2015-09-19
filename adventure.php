@@ -21,6 +21,7 @@
 //-----------------------------------------------
 include_once("statics.php");
 include_once("class_definitions.php");
+include_once("procedural_generator.php");
 
 // Game mode InputFragments.
 include_once("class_select.php");
@@ -67,14 +68,12 @@ function initMapSaveData($nick) {
 
 	DEBUG_echo("initMapSave");
 
-	/*
-	$initialSaveData = new CharacterSaveData();
-	$initialSaveData->name = $nick;
+	$initialSaveData 			= new MapSaveData();
+	$mapHalfSize				= floor(ProcGen::GetMapSize() / 2);
+	$initialSaveData->playerX 	= $mapHalfSize;
+	$initialSaveData->playerY 	= $mapHalfSize;
 
 	return $initialSaveData;
-	*/
-
-	return array();
 }
 
 function writeSave($saveData, $filePath) {
@@ -249,22 +248,29 @@ function resting($input, $data) {
 // Input of the form !adv "action", with nick supplied from args
 function main() {
 
-	$nick = getNickFromArgs();
-	$data = null;
+	$nick 		= getNickFromArgs();
+	$mapData 	= null;
+	$charData 	= null;
 
 	if ( !checkIfNewGame($nick) ) {
 
 		// Load character save data.
-		$filePath 	= getSaveFilePath($nick, true);
-		$data 		= readSave($filePath);
+		$charFilePath 	= getSaveFilePath($nick, true);
+		$charData 		= readSave($charFilePath);
+		$charDataDirty	= false;
+
+		// Load map save data.
+		$mapFilePath 	= getSaveFilePath($nick, false);
+		$mapData 		= readSave($mapFilePath);
+		$mapDataDirty	= false;
 
 		// Ensure it's sane.
-		if ( empty($data) ) {
+		if ( empty($charData) || empty($mapData) ) {
 			echo "ERROR: Save data's fucked.\n";
 			exit(3);
 		}
 
-		switch ( $data->state ) {
+		switch ( $charData->state ) {
 
 			case GameStates::NameSelect: {
 
@@ -275,8 +281,10 @@ function main() {
 
 				echo "$nick, pick a class for $name: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard):\n";
 
-				$data->name 	= $name;
-				$data->state 	= GameStates::ClassSelect;
+				$charData->name 	= $name;
+				$charData->state 	= GameStates::ClassSelect;
+
+				$charDataDirty		= true;
 			}
 			break;
 
@@ -288,10 +296,11 @@ function main() {
 				$class = readStdin();
 				$class = strtolower($class);
 
-				$setClass = classSelect($class, $data, $data->name);
+				$setClass = classSelect($class, $charData, $charData->name);
 
 				if ( $setClass ) {
-					$data->state = GameStates::FirstPlay;					
+					$charData->state 	= GameStates::FirstPlay;
+					$charDataDirty		= true;
 				}
 			}
 			break;
@@ -301,9 +310,9 @@ function main() {
 
 				DEBUG_echo("FirstPlay");
 
-				firstPlay($data);
+				firstPlay($charData);
 
-				$data->state = GameStates::Adventuring;
+				$charData->state = GameStates::Adventuring;
 			} // purposeful fall-through!
 
 			// The main loop for when we're romping around.
@@ -313,7 +322,10 @@ function main() {
 
 				$input = readStdin();
 
-				adventuring($input, $data);
+				adventuring($input, $charData);
+
+				$charDataDirty		= true;
+				$mapDataDirty		= true;
 			}
 			break;
 
@@ -324,7 +336,9 @@ function main() {
 
 				$input = readStdin();
 
-				resting($input, $data);
+				resting($input, $charData);
+
+				$charDataDirty		= true;
 			}
 			break;
 
@@ -343,13 +357,13 @@ function main() {
 		echo "Welcome, $nick! Please choose a name for your character:\n";
 	}
 
-	if ( isset($data) ) {
+	if ( isset($charData) && $charDataDirty ) {
 
-		// TODO: Only saved /changed/ data
+		saveGame($nick, true, $charData);
+	}
+	if ( isset($mapData) && $mapDataDirty ) {
 
-		saveGame($nick, true, $data);
-		
-		//saveGame($nick, false, $data);
+		saveGame($nick, false, $mapData);
 	}
 }
 
