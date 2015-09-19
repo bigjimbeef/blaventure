@@ -22,6 +22,8 @@ class ProcGen {
 		}
 
 		$map->grid[$xVal][$yVal] = $room;
+
+		return $room;
 	}
 
 	public static function GetMapSize() {
@@ -29,7 +31,7 @@ class ProcGen {
 	}
 
 	private $seed;
-	private static $MAP_SIZE = 1001;
+	private static $MAP_SIZE = 101;
 }
 
 $procGen = new ProcGen();

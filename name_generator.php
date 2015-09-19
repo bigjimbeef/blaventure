@@ -37,7 +37,7 @@ class NameGenerator {
 		$firstChar 	= $input[0];
 		$firstChar	= strtolower($firstChar);
 
-		$article	= in_array($firstChar, $vowels) ? "An" : "A";
+		$article	= in_array($firstChar, $vowels) ? "an" : "a";
 
 		return $article;
 	}

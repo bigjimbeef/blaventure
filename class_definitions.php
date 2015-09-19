@@ -51,9 +51,9 @@ class InputFragment {
 		return $matchFound;
 	}
 
-	public function FireCallback($data) {
+	public function FireCallback($charData, $mapData) {
 
-		call_user_func($this->callback, $data);
+		call_user_func($this->callback, $charData, $mapData);
 	}
 
 	// ctor
@@ -87,7 +87,6 @@ class Monster {
 	private function InitLevel($playerLevel) {
 
 		$chanceInHundred = rand(1, 100);
-		echo "Roll: $chanceInHundred\n";
 
 		// Level +3 - 5%
 		if ( $chanceInHundred > 95 ) {
@@ -136,6 +135,16 @@ class Map {
 	function __construct() {
 
 		$grid = array();
+	}
+
+	public function GetRoom($x, $y) {
+
+		$room = null;
+		if ( isset($this->grid[$x][$y]) ) {
+			$room = $this->grid[$x][$y];
+		}
+
+		return $room;
 	}
 }
 

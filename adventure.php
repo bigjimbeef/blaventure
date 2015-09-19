@@ -177,7 +177,7 @@ function readStdin() {
 	return $input;
 }
 
-function checkInputFragments( $fragments, $input, $data ) {
+function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 
 	$tokens = array();
 	$match	= false;
@@ -188,7 +188,7 @@ function checkInputFragments( $fragments, $input, $data ) {
 
 		if ( $fragment->Matches($input) ) {
 
-			$fragment->FireCallback($data);
+			$fragment->FireCallback($charData, $mapData);
 			$match = true;
 
 			break;
@@ -209,20 +209,20 @@ function checkInputFragments( $fragments, $input, $data ) {
 	}
 }
 
-function classSelect($input, $data, $charName) {
+function classSelect($input, $charData, $charName) {
 
 	global $classSelect;
 
-	checkInputFragments($classSelect->classes, $input, $data);
+	checkInputFragments($classSelect->classes, $input, $charData, null);
 
 	$setClass = false;
 
 	// This should be set in a callback.
-	if ( !isset($data->class) ) {
+	if ( !isset($charData->class) ) {
 		echo "Enter a valid selection: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard)\n";
 	}
 	else {
-		echo "Greetings $charName, the level 1 $data->class! Your adventure begins now! ('help' for commands)\n";
+		echo "Greetings $charName, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
 		$setClass = true;
 	}
 
@@ -243,18 +243,18 @@ function firstPlay($data) {
 	$data->armourVal = 1;
 }
 
-function adventuring($input, $data) {
+function adventuring($input, $charData, $mapData) {
 
 	global $adventuring;
 
-	checkInputFragments($adventuring->commands, $input, $data);
+	checkInputFragments($adventuring->commands, $input, $charData, $mapData);
 }
 
-function resting($input, $data) {
+function resting($input, $charData, $mapData) {
 
 	global $resting;
 
-	checkInputFragments($resting->commands, $input, $data);
+	checkInputFragments($resting->commands, $input, $charData, $mapData);
 }
 
 // Input of the form !adv "action", with nick supplied from args
@@ -334,7 +334,7 @@ function main() {
 
 				$input = readStdin();
 
-				adventuring($input, $charData);
+				adventuring($input, $charData, $mapData);
 
 				$charDataDirty		= true;
 				$mapDataDirty		= true;
@@ -348,7 +348,7 @@ function main() {
 
 				$input = readStdin();
 
-				resting($input, $charData);
+				resting($input, $charData, $mapData);
 
 				$charDataDirty		= true;
 			}

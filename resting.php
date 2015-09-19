@@ -32,20 +32,20 @@ function getCurrentStats($data, $alsoSet = false) {
 }
 
 // Check the status of the rest
-$resting->commands[] = new InputFragment(array(""), function($data) {
+$resting->commands[] = new InputFragment(array(""), function($charData, $mapData) {
 
-	$restEnd 	= $data->restEnd;
-	$status 	= "You will wake up at " . date("H:i", $restEnd) . ". To wake up now enter 'wake'.    (" . getCurrentStats($data) . ")\n";
+	$restEnd 	= $charData->restEnd;
+	$status 	= "You will wake up at " . date("H:i", $restEnd) . ". To wake up now enter 'wake'.    (" . getCurrentStats($charData) . ")\n";
 
 	echo $status;
 });
 
-$resting->commands[] = new InputFragment(array("wake"), function($data) {
+$resting->commands[] = new InputFragment(array("wake"), function($charData, $mapData) {
 
-	echo "You wake up, ready to start the new day.    (" . getCurrentStats($data, true) . ")\n";
+	echo "You wake up, ready to start the new day.    (" . getCurrentStats($charData, true) . ")\n";
 
-	$data->restStart	= 0;
-	$data->restEnd		= 0;
+	$charData->restStart	= 0;
+	$charData->restEnd		= 0;
 
-	$data->state		= GameStates::Adventuring;
+	$charData->state		= GameStates::Adventuring;
 });
