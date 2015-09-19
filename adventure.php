@@ -25,6 +25,7 @@ include_once("class_definitions.php");
 // Game mode InputFragments.
 include_once("class_select.php");
 include_once("adventuring.php");
+include_once("resting.php");
 
 define("DEBUG", 1);
 
@@ -167,13 +168,33 @@ function readStdin() {
 
 function checkInputFragments( $fragments, $input, $data ) {
 
+	$tokens = array();
+	$match	= false;
+
 	foreach ( $fragments as $fragment ) {
+
+		$tokens = array_merge($tokens, $fragment->tokens);
 
 		if ( $fragment->Matches($input) ) {
 
 			$fragment->FireCallback($data);
+			$match = true;
+
 			break;
 		}
+	}
+
+	if ( !$match ) {
+		$warning = "Commands: ";
+
+		foreach ( $tokens as $token ) {
+			$warning .= "'$token', ";
+		}
+
+		$warning = rtrim($warning, ", ");
+		$warning .= ".\n";
+
+		echo $warning;
 	}
 }
 
@@ -199,7 +220,7 @@ function classSelect($input, $data, $charName) {
 
 function firstPlay($data) {
 
-	$data->hp = $data->hpMax;
+	$data->hp = 3;//$data->hpMax;
 	$data->mp = $data->mpMax;
 
 	$data->level = 1;
@@ -216,6 +237,13 @@ function adventuring($input, $data) {
 	global $adventuring;
 
 	checkInputFragments($adventuring->commands, $input, $data);
+}
+
+function resting($input, $data) {
+
+	global $resting;
+
+	checkInputFragments($resting->commands, $input, $data);
 }
 
 // Input of the form !adv "action", with nick supplied from args
@@ -286,6 +314,17 @@ function main() {
 				$input = readStdin();
 
 				adventuring($input, $data);
+			}
+			break;
+
+			// Sleepy nap time.
+			case GameStates::Resting: {
+
+				DEBUG_echo("Resting");
+
+				$input = readStdin();
+
+				resting($input, $data);
 			}
 			break;
 

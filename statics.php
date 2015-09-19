@@ -11,6 +11,8 @@ abstract class GameStates {
 	const ClassSelect	= 1;
 	const FirstPlay		= 2;
 	const Adventuring	= 3;
+	const Resting		= 4;
+	const Combat		= 5;
 }
 
 // classes
