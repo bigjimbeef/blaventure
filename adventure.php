@@ -57,10 +57,13 @@ function initCharacterSaveData($nick) {
 
 	DEBUG_echo("initCharacterSave");
 
+	global $procGen;
+
 	$initialSaveData = new CharacterSaveData();
 	$initialSaveData->name = $nick;
 
 	$initialSaveData->randomSeed = rand();
+	$procGen->InitFromSeed($initialSaveData->randomSeed);
 
 	return $initialSaveData;
 }
@@ -68,10 +71,19 @@ function initMapSaveData($nick) {
 
 	DEBUG_echo("initMapSave");
 
+	global $procGen;
+
 	$initialSaveData 			= new MapSaveData();
 	$mapHalfSize				= floor(ProcGen::GetMapSize() / 2);
-	$initialSaveData->playerX 	= $mapHalfSize;
-	$initialSaveData->playerY 	= $mapHalfSize;
+
+	$x = $y = $mapHalfSize;
+	$initialSaveData->playerX = $initialSaveData->playerY = $x;
+
+	$map						= new Map();
+	// Definitely do not spawn a monster in the first room.
+	$procGen->GenerateRoomForMap($map, $x, $y, 1, true);
+
+	$initialSaveData->map		= $map;
 
 	return $initialSaveData;
 }

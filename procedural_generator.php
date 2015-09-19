@@ -1,5 +1,7 @@
 <?php
 
+include_once("class_definitions.php");
+
 class ProcGen {
 
 	public function InitFromSeed($inSeed) {
@@ -7,9 +9,19 @@ class ProcGen {
 		srand($inSeed);
 	}
 
-	public function GenerateRoomForMap(&$map, $xVal, $yVal, $playerLevel) {
+	public function GenerateRoomForMap(&$map, $xVal, $yVal, $playerLevel, $noSpawning = false) {
 
+		$room = new Room($xVal, $yVal);
 
+		$chanceInHundred = rand(1, 100);
+
+		// 30% chance to spawn a monster.
+		if ( !$noSpawning && $chanceInHundred > 70 ) {
+
+			$room->occupant = new Monster($playerLevel);
+		}
+
+		$map->grid[$xVal][$yVal] = $room;
 	}
 
 	public static function GetMapSize() {
@@ -19,3 +31,5 @@ class ProcGen {
 	private $seed;
 	private static $MAP_SIZE = 1001;
 }
+
+$procGen = new ProcGen();

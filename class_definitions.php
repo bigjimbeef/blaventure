@@ -129,18 +129,25 @@ class Monster {
 	}
 }
 
-class Room {
-
-	public 	$id;		// int
-	public	$occupant;	// Monster
-}
-
 class Map {
 
-	public 	$grid;		// 2D array.
+	public 	$grid;		// 2D array of Rooms
 
 	function __construct() {
 
 		$grid = array();
+	}
+}
+
+class Room {
+
+	public 	$x = 0;				// int
+	public 	$y = 0;				// int
+	public	$occupant = null;	// Monster
+
+	function __construct($x, $y) {
+
+		$this->x = $x;
+		$this->y = $y;
 	}
 }
