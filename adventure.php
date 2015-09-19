@@ -27,6 +27,7 @@ include_once("procedural_generator.php");
 include_once("class_select.php");
 include_once("adventuring.php");
 include_once("resting.php");
+include_once("combat.php");
 
 define("DEBUG", 1);
 
@@ -257,6 +258,13 @@ function resting($input, $charData, $mapData) {
 	checkInputFragments($resting->commands, $input, $charData, $mapData);
 }
 
+function combat($input, $charData, $mapData) {
+
+	global $combat;
+
+	checkInputFragments($combat->commands, $input, $charData, $mapData);
+}
+
 // Input of the form !adv "action", with nick supplied from args
 function main() {
 
@@ -360,7 +368,11 @@ function main() {
 				DEBUG_echo("Combat");
 
 				$input = readStdin();
-				
+
+				combat($input, $charData, $mapData);
+
+				$charDataDirty	= true;
+				$mapDataDirty	= true;
 			}
 			break;
 

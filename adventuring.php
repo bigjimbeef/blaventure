@@ -87,7 +87,7 @@ function getArticle($monsterName) {
 	return $article;
 }
 
-function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData) {
+function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 
 	global $procGen;
 
@@ -118,15 +118,23 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData) {
 		$article		= getArticle($monsterName);
 
 		if ( !$seenBefore ) {
-			echo "You encounter $article $monsterName!\n";			
+			$moveText .= "and encounter $article level $monster->level $monsterName! It attacks!\n";
+
+			// Combat!
+			$charData->state = GameStates::Combat;
 		}
 		else {
-			echo "You encounter the $monsterName again!\n";
+			$moveText .= "and encounter the $monsterName again! It attacks again!\n";
+
+			// Combat!
+			$charData->state = GameStates::Combat;
 		}
 	}
 	else {
-		echo "This room appears to be empty.\n";
+		$moveText .= "but this room appears to be empty.\n";
 	}
+
+	echo $moveText;
 }
 
 $adventuring->commands[] = new InputFragment(array("north", "n"), function($charData, $mapData) {
@@ -134,38 +142,38 @@ $adventuring->commands[] = new InputFragment(array("north", "n"), function($char
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
 
-	echo "You move to the North.\n";
+	$moveText = "You move to the North, ";
 
 	// North means y++
-	moveToRoom($x, $y, 0, 1, $mapData, $charData);
+	moveToRoom($x, $y, 0, 1, $mapData, $charData, $moveText);
 });
 $adventuring->commands[] = new InputFragment(array("south", "s"), function($charData, $mapData) {
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
 
-	echo "You move to the South.\n";
+	$moveText = "You move to the South, ";
 
 	// South means y--
-	moveToRoom($x, $y, 0, -1, $mapData, $charData);
+	moveToRoom($x, $y, 0, -1, $mapData, $charData, $moveText);
 });
 $adventuring->commands[] = new InputFragment(array("east", "e"), function($charData, $mapData) {
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
 	
-	echo "You move to the East.\n";
+	$moveText = "You move to the East, ";
 
 	// East means x++
-	moveToRoom($x, $y, 1, 0, $mapData, $charData);
+	moveToRoom($x, $y, 1, 0, $mapData, $charData, $moveText);
 });
 $adventuring->commands[] = new InputFragment(array("west", "w"), function($charData, $mapData) {
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
 
-	echo "You move to the West.\n";
+	$moveText = "You move to the West, ";
 
 	// West means x--
-	moveToRoom($x, $y, -1, 0, $mapData, $charData);
+	moveToRoom($x, $y, -1, 0, $mapData, $charData, $moveText);
 });

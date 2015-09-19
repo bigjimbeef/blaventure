@@ -15,8 +15,8 @@ class ProcGen {
 
 		$chanceInHundred = rand(1, 100);
 
-		// 30% chance to spawn a monster.
-		if ( !$noSpawning && $chanceInHundred > 70 ) {
+		// 50% chance to spawn a monster.
+		if ( !$noSpawning && $chanceInHundred > 50 ) {
 
 			$room->occupant = new Monster($playerLevel);
 		}
