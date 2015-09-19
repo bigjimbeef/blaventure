@@ -58,6 +58,8 @@ function initCharacterSaveData($nick) {
 	$initialSaveData = new CharacterSaveData();
 	$initialSaveData->name = $nick;
 
+	$initialSaveData->randomSeed = rand();
+
 	return $initialSaveData;
 }
 function initMapSaveData($nick) {
@@ -181,13 +183,18 @@ function classSelect($input, $data, $charName) {
 
 	checkInputFragments($classSelect->classes, $input, $data);
 
+	$setClass = false;
+
 	// This should be set in a callback.
 	if ( !isset($data->class) ) {
 		echo "Enter a valid selection: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard)\n";
 	}
 	else {
 		echo "Greetings $charName, the level 1 $data->class! Your adventure begins now! ('help' for commands)\n";
+		$setClass = true;
 	}
+
+	return $setClass;
 }
 
 function firstPlay($data) {
@@ -253,9 +260,11 @@ function main() {
 				$class = readStdin();
 				$class = strtolower($class);
 
-				classSelect($class, $data, $data->name);
+				$setClass = classSelect($class, $data, $data->name);
 
-				$data->state = GameStates::FirstPlay;
+				if ( $setClass ) {
+					$data->state = GameStates::FirstPlay;					
+				}
 			}
 			break;
 
@@ -301,7 +310,7 @@ function main() {
 
 		saveGame($nick, true, $data);
 		
-		saveGame($nick, false, $data);
+		//saveGame($nick, false, $data);
 	}
 }
 

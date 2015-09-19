@@ -15,6 +15,7 @@ class CharacterSaveData {
 	public $gold		= 0;		// int
 
 	public $state		= GameStates::NameSelect;
+	public $randomSeed 	= 0;		// int
 }
 
 // Function Matches is called on each InputFragment, and the callback is called if it does match the input.
