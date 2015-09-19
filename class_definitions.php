@@ -25,7 +25,7 @@ class InputFragment {
 		
 		$matchFound = false;
 		foreach ( $this->tokens as $token ) {
-			
+
 			if ( strcasecmp($input, $token) == 0 ) {
 				$matchFound = true;
 				break;

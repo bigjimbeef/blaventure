@@ -15,7 +15,7 @@
 		Status		- Check stats, output in the form:
 			Level 3 Barbarian    HP 3/10    MP 2/5
 		Inventory	- Check what you're equipped with
-			 Dog Sword (**)    Massive Iron Armour (***)    1204GP
+			 Dog Sword (3A)    Massive Iron Armour (6D)    1204GP
 */
 
 //-----------------------------------------------
@@ -24,6 +24,16 @@ include_once("class_definitions.php");
 
 // Game mode InputFragments.
 include_once("class_select.php");
+include_once("adventuring.php");
+
+define("DEBUG", 1);
+
+function DEBUG_echo($string) {
+
+	if ( constant("DEBUG") ) {
+		echo "$string\n";
+	}
+}
 
 function getSaveFilePath($nick, $isCharSave) {
 
@@ -41,12 +51,27 @@ function getSaveFilePath($nick, $isCharSave) {
 	return $filePath;
 }
 
-function initSaveData($nick) {
+function initCharacterSaveData($nick) {
+
+	DEBUG_echo("initCharacterSave");
 
 	$initialSaveData = new CharacterSaveData();
 	$initialSaveData->name = $nick;
 
 	return $initialSaveData;
+}
+function initMapSaveData($nick) {
+
+	DEBUG_echo("initMapSave");
+
+	/*
+	$initialSaveData = new CharacterSaveData();
+	$initialSaveData->name = $nick;
+
+	return $initialSaveData;
+	*/
+
+	return array();
 }
 
 function writeSave($saveData, $filePath) {
@@ -91,7 +116,7 @@ function saveGame($nick, $isCharSave, $data = null) {
 	$filePath 	= getSaveFilePath($nick, $isCharSave);
 
 	if ( $newGame ) {
-		$saveData = initSaveData($nick);
+		$saveData = $isCharSave ? initCharacterSaveData($nick) : initMapSaveData($nick);
 	}
 	else {
 		
@@ -102,10 +127,6 @@ function saveGame($nick, $isCharSave, $data = null) {
 
 		$saveData = $data;
 	}
-
-	// Add new data to the save file, and write it out.
-
-	// TODO: Add new
 
 	writeSave($saveData, $filePath);
 }
@@ -142,29 +163,52 @@ function readStdin() {
 	return $input;
 }
 
-function selectClass($input, $data, $charName) {
+function checkInputFragments( $fragments, $input, $data ) {
 
-	global $classSelect;
-	if ( !isset($classSelect->classes) || empty($classSelect->classes) ) {
-		echo "ERROR: No classes selectable!\n";
-		exit(8);
-	}
+	foreach ( $fragments as $fragment ) {
 
-	foreach ( $classSelect->classes as $class ) {
+		if ( $fragment->Matches($input) ) {
 
-		if ( $class->Matches($input) ) {
-
-			$class->FireCallback($data);
+			$fragment->FireCallback($data);
 			break;
 		}
 	}
+}
 
+function classSelect($input, $data, $charName) {
+
+	global $classSelect;
+
+	checkInputFragments($classSelect->classes, $input, $data);
+
+	// This should be set in a callback.
 	if ( !isset($data->class) ) {
 		echo "Enter a valid selection: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard)\n";
 	}
 	else {
-		echo "Greetings $charName, the level 1 $data->class! Press 'start' to begin your adventure!\n";
+		echo "Greetings $charName, the level 1 $data->class! Your adventure begins now! ('help' for commands)\n";
 	}
+}
+
+function firstPlay($data) {
+
+	$data->hp = $data->hpMax;
+	$data->mp = $data->mpMax;
+
+	$data->level = 1;
+
+	$data->weapon = "Stick";
+	$data->weaponVal = 1;
+	
+	$data->armour = "Skin";
+	$data->armourVal = 1;
+}
+
+function adventuring($input, $data) {
+
+	global $adventuring;
+
+	checkInputFragments($adventuring->commands, $input, $data);
 }
 
 // Input of the form !adv "action", with nick supplied from args
@@ -189,6 +233,8 @@ function main() {
 
 			case GameStates::NameSelect: {
 
+				DEBUG_echo("NameSelect");
+
 				// Read input into name.
 				$name = readStdin();
 
@@ -201,11 +247,13 @@ function main() {
 
 			case GameStates::ClassSelect: {
 
+				DEBUG_echo("ClassSelect");
+
 				// Read class choice.
 				$class = readStdin();
 				$class = strtolower($class);
 
-				selectClass($class, $data, $data->name);
+				classSelect($class, $data, $data->name);
 
 				$data->state = GameStates::FirstPlay;
 			}
@@ -214,21 +262,25 @@ function main() {
 			// Initialise the characters
 			case GameStates::FirstPlay: {
 
-				// 
-				$input = readStdin();
+				DEBUG_echo("FirstPlay");
 
-			}
-			break;
+				firstPlay($data);
 
+				$data->state = GameStates::Adventuring;
+			} // purposeful fall-through!
+
+			// The main loop for when we're romping around.
 			case GameStates::Adventuring: {
 
-				// TODO: A game.
+				DEBUG_echo("Adventuring");
+
+				$input = readStdin();
+
+				adventuring($input, $data);
 			}
 			break;
 
-			default: {
-				echo "poo";
-			}
+			default:
 			break;
 		}
 	}

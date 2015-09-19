@@ -8,6 +8,7 @@ class ClassSelect {
 	public 	$classes = [];
 }
 
+// This will be accessed via "global" in the main file. Because lol.
 $classSelect = new ClassSelect();
 
 $classSelect->classes[] = new InputFragment(array("1", "barbarian"), function($data) {
