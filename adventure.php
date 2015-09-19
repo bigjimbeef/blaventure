@@ -19,73 +19,11 @@
 */
 
 //-----------------------------------------------
-// statics
+include_once("statics.php");
+include_once("class_definitions.php");
 
-abstract class SaveFileType {
-	const Character	= "char";
-	const Map		= "map";
-}
-
-// game state
-abstract class GameStates {
-	const NameSelect	= 0;
-	const ClassSelect	= 1;
-	const FirstPlay		= 2;
-	const Adventuring	= 3;
-}
-
-// classes
-abstract class Wizard {
-	const Name		= "Wizard";
-	const HP		= 10;
-	const MP		= 90;
-}
-abstract class Rogue {
-	const Name		= "Rogue";
-	const HP		= 70;
-	const MP		= 30;
-}
-abstract class Fighter {
-	const Name		= "Fighter";
-	const HP		= 90;
-	const MP		= 10;
-}
-abstract class Barbarian {
-	const Name		= "Barbarian";
-	const HP		= 100;
-	const MP		= 0;
-}
-abstract class Ranger {
-	const Name		= "Ranger";
-	const HP		= 50;
-	const MP		= 50;
-}
-abstract class Monk {
-	const Name		= "Monk";
-	const HP		= 30;
-	const MP		= 70;
-}
-// /classes
-
-// /statics
-//-----------------------------------------------
-
-class CharacterSaveData {
-	public $name		= null;		// str
-	public $class		= null;		// str
-	public $level		= 0;		// int
-	public $hp			= 0;		// int
-	public $hpMax		= 0;		// int
-	public $mp			= 0;		// int
-	public $mpMax		= 0;		// int
-	public $weapon		= null;		// str
-	public $weaponVal	= 0;		// int
-	public $armour		= null;		// str
-	public $armourVal	= 0;		// int
-	public $gold		= 0;		// int
-
-	public $state		= GameStates::NameSelect;
-}
+// Game mode InputFragments.
+include_once("class_select.php");
 
 function getSaveFilePath($nick, $isCharSave) {
 
@@ -145,7 +83,7 @@ function checkIfNewGame($nick) {
  *	Called every time the player moves, or gains an item.
  * 	Writes to two files at $HOME/.blaventure/$nick.[char/map]
  */
-function saveGame($nick, $isCharSave) {
+function saveGame($nick, $isCharSave, $data = null) {
 
 	$saveData	= null;
 	
@@ -156,7 +94,13 @@ function saveGame($nick, $isCharSave) {
 		$saveData = initSaveData($nick);
 	}
 	else {
-		$saveData = readSave($filePath);	
+		
+		if ( !isset($data) ) {
+			echo "ERROR: No save data supplied!\n";
+			exit(5);
+		}
+
+		$saveData = $data;
 	}
 
 	// Add new data to the save file, and write it out.
@@ -171,13 +115,13 @@ function getNickFromArgs() {
 
 	global $argv;
 
-	if ( !isset($argv) ) {
+	if ( !isset($argv[1]) ) {
 		echo "ERROR: No nick found. What?!\n";
 		exit(2);
 	}
 
 	// Convention states that the nick is the first input parameter.
-	$nick = $argv[1];
+	$nick = $argv[1];		
 
 	echo "nick: $nick\n";
 
@@ -193,13 +137,41 @@ function readStdin() {
 		exit(4);
 	}
 
+	$input = rtrim($input, "\n");
+
 	return $input;
+}
+
+function selectClass($input, $data, $charName) {
+
+	global $classSelect;
+	if ( !isset($classSelect->classes) || empty($classSelect->classes) ) {
+		echo "ERROR: No classes selectable!\n";
+		exit(8);
+	}
+
+	foreach ( $classSelect->classes as $class ) {
+
+		if ( $class->Matches($input) ) {
+
+			$class->FireCallback($data);
+			break;
+		}
+	}
+
+	if ( !isset($data->class) ) {
+		echo "Enter a valid selection: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard)\n";
+	}
+	else {
+		echo "Greetings $charName, the level 1 $data->class! Press 'start' to begin your adventure!\n";
+	}
 }
 
 // Input of the form !adv "action", with nick supplied from args
 function main() {
 
 	$nick = getNickFromArgs();
+	$data = null;
 
 	if ( !checkIfNewGame($nick) ) {
 
@@ -220,19 +192,31 @@ function main() {
 				// Read input into name.
 				$name = readStdin();
 
-				echo "NAME: $name\n\n";
+				echo "$nick, pick a class for $name: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard):\n";
+
+				$data->name 	= $name;
+				$data->state 	= GameStates::ClassSelect;
 			}
 			break;
 
 			case GameStates::ClassSelect: {
 
 				// Read class choice.
+				$class = readStdin();
+				$class = strtolower($class);
+
+				selectClass($class, $data, $data->name);
+
+				$data->state = GameStates::FirstPlay;
 			}
 			break;
 
+			// Initialise the characters
 			case GameStates::FirstPlay: {
 
-				// TODO: Necessary?!
+				// 
+				$input = readStdin();
+
 			}
 			break;
 
@@ -247,7 +231,6 @@ function main() {
 			}
 			break;
 		}
-
 	}
 	else {
 		// Initialise the character save.
@@ -258,6 +241,15 @@ function main() {
 
 		// Prompt for name select.
 		echo "Welcome, $nick! Please choose a name for your character:\n";
+	}
+
+	if ( isset($data) ) {
+
+		// TODO: Only saved /changed/ data
+
+		saveGame($nick, true, $data);
+		
+		saveGame($nick, false, $data);
 	}
 }
 
