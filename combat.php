@@ -18,10 +18,6 @@ function monsterDamaged($monster, $room, $damage, $charData) {
 
 	if ( $monster->hp <= 0 ) {
 
-		// Remove the enemy, and go back to adventuring.
-		unset($room->occupant);
-		$charData->state = GameStates::Adventuring;
-
 		$survived = false;
 	}
 
@@ -38,10 +34,18 @@ function playerDamaged(&$charData, $damage) {
 	}
 }
 
-function attackDamage($level, $attack) { 
+function attackDamage($level, $attack, $isMonster = false) { 
 
-	$minDamage 	= $level - floor( 0.3 * $level ) + $attack;
-	$maxDamage 	= $level + ceil( 0.3 * $level ) + $attack;
+	if ( !$isMonster ) {
+
+		$minDamage = $level;
+		$maxDamage = ceil(1.5 * $level);
+	}
+	else {
+
+		$minDamage 	= $level - floor( 0.3 * $level ) + $attack;
+		$maxDamage 	= $level + ceil( 0.3 * $level ) + $attack;
+	}
 
 	$damage		= rand($minDamage, $maxDamage);
 	$crit		= false;
@@ -58,14 +62,13 @@ function attackDamage($level, $attack) {
 
 function monsterAttack(&$charData, $monster) {
 
-	list($damage, $crit) = attackDamage($monster->level, $monster->attack);
+	list($damage, $crit) = attackDamage($monster->level, $monster->attack, true);
 	
 	$attackType = $crit ? "CRIT" : "hit";
-	$fightOutput = " It $attackType" . "s back for $damage!\n";
 
 	playerDamaged($charData, $damage);
 
-	return $fightOutput;
+	return array($attackType, $damage);
 }
 
 function playerAttack(&$charData, &$room, &$monster) {
@@ -78,15 +81,16 @@ function playerAttack(&$charData, &$room, &$monster) {
 	if ( monsterDamaged($monster, $room, $damage, $charData) ) {
 
 		// It survived. Attacks back.
-		$fightOutput .= monsterAttack($charData, $monster);
+		list ($attackType, $damage) = monsterAttack($charData, $monster);
+
+		$fightOutput .= (" It $attackType" . "s back for $damage damage!\n");
 	}
 	else {
 
 		$fightOutput .= " It dies!\n";
 
-		// TODO: Loot
-
-		// TODO: XP
+		// Move to the looting state.
+		$charData->state = GameStates::Looting;
 	}
 
 	$fightOutput .= "\n";
@@ -104,7 +108,7 @@ $combat->commands[] = new InputFragment(array("", "status"), function($charData,
 	echo $status;
 });
 
-$combat->commands[] = new InputFragment(array("attack"), function($charData, $mapData) {
+$combat->commands[] = new InputFragment(array("attack", "a"), function($charData, $mapData) {
 
 	$room = $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 
@@ -116,5 +120,30 @@ $combat->commands[] = new InputFragment(array("attack"), function($charData, $ma
 
 $combat->commands[] = new InputFragment(array("spellbook"), function($charData, $mapData) {
 
+	
+});
+
+$combat->commands[] = new InputFragment(array("run"), function($charData, $mapData) {
+
+	$chanceInSix = rand(1,6);
+	// 5+ to escape
+	if ( $chanceInSix < 5 ) {
+
+		$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
+		$monster 	= $room->occupant;
+
+		list ($attackType, $damage) = monsterAttack($charData, $monster);
+
+		echo "You get caught and $attackType for $damage damage!\n";
+	}
+	else {
+
+		echo "You scurry back to the last room!\n";
+
+		$charData->state = GameStates::Adventuring;
+
+		$mapData->playerX = $mapData->lastPlayerX;
+		$mapData->playerY = $mapData->lastPlayerY;
+	}
 	
 });

@@ -16,7 +16,7 @@ $adventuring = new Adventuring();
 // e.g. Level 3 Barbarian    HP 3/10    MP 2/5
 $adventuring->commands[] = new InputFragment(array("status"), function($charData, $mapData) {
 
-	$status = "Level $charData->level $charData->class    HP $charData->hp/$charData->hpMax    MP $charData->mp/$charData->mpMax\n";
+	$status = "Level $charData->level $charData->class    HP $charData->hp/$charData->hpMax    MP $charData->mp/$charData->mpMax    @[$mapData->playerX, $mapData->playerY]\n";
 
 	echo $status;
 });
@@ -99,6 +99,10 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 		return;
 	}
 
+	// Cache the current position, for running away.
+	$mapData->lastPlayerX = $mapData->playerX;
+	$mapData->lastPlayerY = $mapData->playerY;
+
 	$mapData->playerX = $newX;
 	$mapData->playerY = $newY;
 
@@ -144,8 +148,8 @@ $adventuring->commands[] = new InputFragment(array("north", "n"), function($char
 
 	$moveText = "You move to the North, ";
 
-	// North means y++
-	moveToRoom($x, $y, 0, 1, $mapData, $charData, $moveText);
+	// North means y--
+	moveToRoom($x, $y, 0, -1, $mapData, $charData, $moveText);
 });
 $adventuring->commands[] = new InputFragment(array("south", "s"), function($charData, $mapData) {
 
@@ -154,8 +158,8 @@ $adventuring->commands[] = new InputFragment(array("south", "s"), function($char
 
 	$moveText = "You move to the South, ";
 
-	// South means y--
-	moveToRoom($x, $y, 0, -1, $mapData, $charData, $moveText);
+	// South means y++
+	moveToRoom($x, $y, 0, 1, $mapData, $charData, $moveText);
 });
 $adventuring->commands[] = new InputFragment(array("east", "e"), function($charData, $mapData) {
 

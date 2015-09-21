@@ -13,6 +13,8 @@ abstract class GameStates {
 	const Adventuring	= 3;
 	const Resting		= 4;
 	const Combat		= 5;
+	const Looting		= 6;
+	const LevelUp		= 7;
 }
 
 // classes

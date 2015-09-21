@@ -5,6 +5,7 @@ include_once("name_generator.php");
 class CharacterSaveData {
 	public $name		= null;		// str
 	public $class		= null;		// str
+	public $xp			= 0;
 	public $level		= 0;		// int
 	public $hp			= 0;		// int
 	public $hpMax		= 0;		// int
@@ -27,10 +28,14 @@ class CharacterSaveData {
 
 class MapSaveData {
 
-	public $playerX		= 0;		// int
-	public $playerY		= 0;		// int
+	public $playerX			= 0;		// int
+	public $playerY			= 0;		// int
 
-	public $map			= null;		// Map
+	// Used for retreating.
+	public $lastPlayerX		= 0;		// int
+	public $lastPlayerY		= 0;		// int
+
+	public $map				= null;		// Map
 }
 
 // Function Matches is called on each InputFragment, and the callback is called if it does match the input.

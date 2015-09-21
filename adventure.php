@@ -28,6 +28,8 @@ include_once("class_select.php");
 include_once("adventuring.php");
 include_once("resting.php");
 include_once("combat.php");
+include_once("looting.php");
+include_once("levelup.php");
 
 define("DEBUG", 1);
 
@@ -220,7 +222,7 @@ function classSelect($input, $charData, $charName) {
 
 	// This should be set in a callback.
 	if ( !isset($charData->class) ) {
-		echo "Enter a valid selection: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard)\n";
+		echo "Enter a valid selection: Barbarian (1) Fighter (2) Monk (3) Ranger (4) Rogue (5) Wizard (6)\n";
 	}
 	else {
 		echo "Greetings $charName, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
@@ -232,7 +234,7 @@ function classSelect($input, $charData, $charName) {
 
 function firstPlay($data) {
 
-	$data->hp = 3;//$data->hpMax;
+	$data->hp = $data->hpMax;
 	$data->mp = $data->mpMax;
 
 	$data->level = 1;
@@ -263,6 +265,20 @@ function combat($input, $charData, $mapData) {
 	global $combat;
 
 	checkInputFragments($combat->commands, $input, $charData, $mapData);
+}
+
+function looting($input, $charData, $mapData) {
+
+	global $looting;
+
+	checkInputFragments($looting->commands, $input, $charData, $mapData);
+}
+
+function levelUp($input, $charData, $mapData) {
+
+	global $levelUp;
+
+	checkInputFragments($levelUp->commands, $input, $charData, $mapData);
 }
 
 // Input of the form !adv "action", with nick supplied from args
@@ -299,7 +315,7 @@ function main() {
 				// Read input into name.
 				$name = readStdin();
 
-				echo "$nick, pick a class for $name: 1 (Barbarian) 2 (Fighter) 3 (Monk) 4 (Ranger) 5 (Rogue) 6 (Wizard):\n";
+				echo "$nick, pick a class for $name: Barbarian (1) Fighter (2) Monk (3) Ranger (4) Rogue (5) Wizard (6):\n";
 
 				$charData->name 	= $name;
 				$charData->state 	= GameStates::ClassSelect;
@@ -375,6 +391,30 @@ function main() {
 				$mapDataDirty	= true;
 			}
 			break;
+
+			case GameStates::Looting: {
+
+				DEBUG_echo("Looting");
+
+				$input = readStdin();
+
+				looting($input, $charData, $mapData);
+
+				$charDataDirty	= true;
+				$mapDataDirty	= true;
+			}
+			break;
+
+			case GameStates::LevelUp: {
+
+				DEBUG_echo("LevelUp");
+
+				$input = readStdin();
+
+				levelUp($input, $charData, $mapData);
+
+				$charDataDirty	= true;
+			}
 
 			default:
 			break;
