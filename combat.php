@@ -34,6 +34,7 @@ function playerDamaged(&$charData, $damage) {
 	}
 }
 
+// Note: check spreadsheet for reference to these arcane formulae!
 function attackDamage($level, $attack, $isMonster = false) { 
 
 	if ( !$isMonster ) {
@@ -87,7 +88,7 @@ function playerAttack(&$charData, &$room, &$monster) {
 	}
 	else {
 
-		$fightOutput .= " It dies!\n";
+		$fightOutput .= " It dies! Maybe it has some loot?\n";
 
 		// Move to the looting state.
 		$charData->state = GameStates::Looting;

@@ -1,0 +1,33 @@
+Sharp Stick
+Rock
+Flint Axe
+Club
+Saucepan
+Baseball Bat
+Nail Bat
+Knife
+Razor
+Bayonet
+Spear
+Short Bow
+Short Sword
+Handaxe
+Long Bow
+Two-handed Axe
+Long Sword
+Bastard Sword
+Crossbow
+Pistol
+Musket
+Claymore
+Double Axe
+Pair of Daggers
+Scimitar
+Sabre
+Shotgun
+Hand Cannon
+Laser Pistol
+Plasma Pistol
+Laser Rifle
+Plasma Rifle
+Lightsaber

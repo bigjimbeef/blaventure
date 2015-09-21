@@ -4,6 +4,7 @@ include_once("statics.php");
 include_once("class_definitions.php");
 
 include_once("procedural_generator.php");
+include_once("name_generator.php");
 
 class Adventuring {
 
@@ -76,17 +77,6 @@ function checkBounds($x, $y) {
 	return $inBounds;
 }
 
-function getArticle($monsterName) {
-	$vowels 	= array("a", "e", "i", "o", "u");
-
-	$firstChar 	= $monsterName[0];
-	$firstChar	= strtolower($firstChar);
-
-	$article	= in_array($firstChar, $vowels) ? "an" : "a";
-
-	return $article;
-}
-
 function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 
 	global $procGen;
@@ -119,7 +109,7 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 		$monster 		= $room->occupant;
 		$monsterName 	= $monster->name;
 
-		$article		= getArticle($monsterName);
+		$article		= NameGenerator::GetArticle($monsterName);
 
 		if ( !$seenBefore ) {
 			$moveText .= "and encounter $article level $monster->level $monsterName! It attacks!\n";
