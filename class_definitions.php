@@ -179,7 +179,12 @@ class Spell {
 	public $mpCost;	
 	public $isHeal;
 
-	public $damageCallback;
+	private $damageCallback;
+
+	public function Cast($charData) {
+
+		return call_user_func($this->damageCallback, $charData);
+	}
 
 	function __construct($name, $mp, $isHeal, $damageCallback) {
 

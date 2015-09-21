@@ -14,5 +14,5 @@ $defaultSpells = array(
 
 	"Rogue" => array($backstab->name),
 
-	"Wizard" => array($fireblast->name, $fireball->name)
+	"Wizard" => array($fireblast->name, $fireball->name, $thorsLightning->name)
 );

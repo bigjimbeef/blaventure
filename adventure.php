@@ -187,13 +187,13 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 	$tokens = array();
 	$match	= false;
 
-	foreach ( $fragments as $fragment ) {
+	foreach ( $fragments as $key => $fragment ) {
 
 		$tokens = array_merge($tokens, $fragment->tokens);
 
 		if ( $fragment->Matches($input) ) {
 
-			$fragment->FireCallback($charData, $mapData);
+			$fragment->FireCallback($charData, $mapData, $key);
 			$match = true;
 
 			break;

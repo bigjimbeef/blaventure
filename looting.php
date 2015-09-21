@@ -98,7 +98,7 @@ function giveLoot($monster, &$charData) {
 	// 1,2: Spell
 	else {
 
-		
+		// TODO: Spell awarding.
 	}
 
 	return $textOutput;
