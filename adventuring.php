@@ -34,7 +34,7 @@ $adventuring->commands[] = new InputFragment(array("inventory", "items"), functi
 });
 
 // Get the character's spells
-$adventuring->commands[] = new InputFragment(array("spellbook"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment(array("book"), function($charData, $mapData) {
 
 	if ( empty($charData->spellbook) ) {
 		echo "You don't have any spells in your spellbook.\n";
@@ -56,7 +56,7 @@ $adventuring->commands[] = new InputFragment(array("spellbook"), function($charD
 });
 
 // Cast a non-combat spell
-$adventuring->commands[] = new InputFragment(array("cast", "spell"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment(array("spell", "s"), function($charData, $mapData) {
 
 	if ( empty($charData->spellbook) ) {
 		echo "You don't have any spells in your spellbook.\n";
@@ -65,13 +65,15 @@ $adventuring->commands[] = new InputFragment(array("cast", "spell"), function($c
 
 	// Check if we have a heal spell.
 	$haveNonCombat = false;
+	$nonCombatSpells = array();
+
 	foreach ( $charData->spellbook as $spellName ) {
 
 		$spell = findSpell($spellName);
 		if ( $spell->isHeal ) {
 
 			$haveNonCombat = true;
-			break;
+			$nonCombatSpells[] = $spellName;
 		}
 	}
 
@@ -88,6 +90,19 @@ $adventuring->commands[] = new InputFragment(array("cast", "spell"), function($c
 		echo "You don't have enough MP to cast any spells!\n";
 		return;
 	}
+
+	$output = "Choose a spell: ";
+
+	$spellNum = 1;
+	foreach ($nonCombatSpells as $spellName) {
+
+		$output .= " $spellName ($spellNum) ";
+
+		++$spellNum;
+	}
+
+	$output = rtrim($output) . "\n";
+	echo $output;
 	
 	// Begin non-combat casting.
 	$charData->state = GameStates::NonCombatSpellcasting;
