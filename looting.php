@@ -80,10 +80,10 @@ function giveLoot($monster, &$charData) {
 
 		$currentAmrVal = $charData->armourVal;
 
-		// Only equip weapons that are better.
+		// Only equip armour that is better.
 		if ( $armourLvl > $currentAmrVal ) {
 
-			$textOutput = "You find some $armourName and equip it immediately! ";
+			$textOutput = "The monster was armoured! You steal the $armourName and equip it immediately! ";
 
 			$charData->armour = $armourName;
 			$charData->armourVal = $armourLvl;
@@ -91,6 +91,7 @@ function giveLoot($monster, &$charData) {
 		else {
 
 			$textOutput = giveGold($monster, $charData);
+		}
 	}
 	// 1,2: Spell
 	else {

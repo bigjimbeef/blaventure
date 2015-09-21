@@ -80,6 +80,10 @@ class Monster {
 		$this->InitStats($playerLevel);
 
 		$this->name = NameGenerator::Monster($playerLevel);
+
+		if ( $this->elite ) {
+			$this->name = "ELITE " . $this->name;
+		}
 	}
 
 	public		$level;			// int

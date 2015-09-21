@@ -35,18 +35,10 @@ function playerDamaged(&$charData, $damage) {
 }
 
 // Note: check spreadsheet for reference to these arcane formulae!
-function attackDamage($level, $attack, $isMonster = false) { 
+function attackDamage($level, $attack) { 
 
-	if ( !$isMonster ) {
-
-		$minDamage = $level;
-		$maxDamage = ceil(1.5 * $level);
-	}
-	else {
-
-		$minDamage 	= $level - floor( 0.3 * $level ) + $attack;
-		$maxDamage 	= $level + ceil( 0.3 * $level ) + $attack;
-	}
+	$minDamage = floor(1.5 * ($level + 1)) + $attack;
+	$maxDamage = (2 * ($level + 1)) + $attack;
 
 	$damage		= rand($minDamage, $maxDamage);
 	$crit		= false;
@@ -63,7 +55,7 @@ function attackDamage($level, $attack, $isMonster = false) {
 
 function monsterAttack(&$charData, $monster) {
 
-	list($damage, $crit) = attackDamage($monster->level, $monster->attack, true);
+	list($damage, $crit) = attackDamage($monster->level, $monster->attack);
 	
 	$attackType = $crit ? "CRIT" : "hit";
 
@@ -84,11 +76,11 @@ function playerAttack(&$charData, &$room, &$monster) {
 		// It survived. Attacks back.
 		list ($attackType, $damage) = monsterAttack($charData, $monster);
 
-		$fightOutput .= (" It $attackType" . "s back for $damage damage!\n");
+		$fightOutput .= (" It $attackType" . "s back for $damage!\n");
 	}
 	else {
 
-		$fightOutput .= " It dies! Maybe it has some loot?\n";
+		$fightOutput .= " It dies! Check the body for loot!\n";
 
 		// Move to the looting state.
 		$charData->state = GameStates::Looting;
@@ -119,7 +111,7 @@ $combat->commands[] = new InputFragment(array("attack", "a"), function($charData
 	playerAttack($charData, $room, $monster);
 });
 
-$combat->commands[] = new InputFragment(array("spellbook"), function($charData, $mapData) {
+$combat->commands[] = new InputFragment(array("spell", "s"), function($charData, $mapData) {
 
 	
 });
@@ -146,5 +138,4 @@ $combat->commands[] = new InputFragment(array("run"), function($charData, $mapDa
 		$mapData->playerX = $mapData->lastPlayerX;
 		$mapData->playerY = $mapData->lastPlayerY;
 	}
-	
 });
