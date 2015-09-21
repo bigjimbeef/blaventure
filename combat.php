@@ -3,6 +3,8 @@
 include_once("statics.php");
 include_once("class_definitions.php");
 
+include_once("spellcasting.php");
+
 class Combat {
 
 	public $commands = [];
@@ -138,17 +140,8 @@ $combat->commands[] = new InputFragment(array("spell", "s"), function($charData,
 	$spellList = $charData->spellbook;
 
 	// Check we have enough mana to cast one of them.
-	$canCast = false;
-	$mp = $charData->mp;
-	foreach ($spellList as $spellName) {
-
-		$spell = findSpell($spellName);
-
-		if ( $spell->mpCost <= $mp ) {
-			$canCast = true;
-			break;
-		}
-	}
+	global $spellcasting;
+	$canCast = $spellcasting->canCastSpell($charData);
 
 	if ( !$canCast ) {
 		echo "You don't have enough MP to cast any spells!\n";

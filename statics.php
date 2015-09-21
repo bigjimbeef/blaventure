@@ -7,15 +7,16 @@ abstract class SaveFileType {
 
 // game state
 abstract class GameStates {
-	const NameSelect	= 0;
-	const ClassSelect	= 1;
-	const FirstPlay		= 2;
-	const Adventuring	= 3;
-	const Resting		= 4;
-	const Combat		= 5;
-	const Spellcasting	= 6;
-	const Looting		= 7;
-	const LevelUp		= 8;
+	const NameSelect			= 0;
+	const ClassSelect			= 1;
+	const FirstPlay				= 2;
+	const Adventuring			= 3;
+	const Resting				= 4;
+	const Combat				= 5;
+	const Spellcasting			= 6;
+	const Looting				= 7;
+	const LevelUp				= 8;
+	const NonCombatSpellcasting	= 9;
 }
 
 // classes

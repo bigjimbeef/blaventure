@@ -187,11 +187,13 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 	$tokens = array();
 	$match	= false;
 
+	$isHelp = strcasecmp($input, "help") == 0;
+
 	foreach ( $fragments as $key => $fragment ) {
 
 		$tokens = array_merge($tokens, $fragment->tokens);
 
-		if ( $fragment->Matches($input) ) {
+		if ( !$isHelp && $fragment->Matches($input) ) {
 
 			$fragment->FireCallback($charData, $mapData, $key);
 			$match = true;
@@ -200,7 +202,7 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 		}
 	}
 
-	if ( !$match ) {
+	if ( $isHelp || !$match ) {
 		$warning = "Commands: ";
 
 		foreach ( $tokens as $token ) {
@@ -269,11 +271,11 @@ function combat($input, $charData, $mapData) {
 	checkInputFragments($combat->commands, $input, $charData, $mapData);
 }
 
-function spellcasting($input, $charData, $mapData) {
+function spellcasting($input, $charData, $mapData, $nonCombat = false) {
 
 	global $spellcasting;
 
-	$spellcasting->generateInputFragments($charData);
+	$spellcasting->generateInputFragments($charData, $nonCombat);
 
 	checkInputFragments($spellcasting->commands, $input, $charData, $mapData);
 }
@@ -413,6 +415,18 @@ function main() {
 
 				$charDataDirty	= true;
 				$mapDataDirty	= true;
+			}
+			break;
+
+			case GameStates::NonCombatSpellcasting: {
+
+				DEBUG_echo("NonCombatSpellcasting");
+
+				$input = readStdin();
+
+				spellcasting($input, $charData, $mapData, true);
+
+				$charDataDirty	= true;
 			}
 			break;
 

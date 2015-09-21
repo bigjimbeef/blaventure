@@ -10,7 +10,31 @@ class Spellcasting {
 
 	public $commands = [];
 
-	private function castSpell($spellName, $charData, $mapData) {
+	public function canCastSpell($charData, $nonCombatOnly = false) {
+		
+		// Check we have enough mana to cast one of them.
+		$canCast = false;
+		$mp = $charData->mp;
+
+		foreach ($charData->spellbook as $spellName) {
+
+			$spell = findSpell($spellName);
+
+			// Ignore damaging spells if searching for heals.
+			if ( $nonCombatOnly && !$spell->isHeal ) {
+				continue;
+			}
+
+			if ( $spell->mpCost <= $mp ) {
+				$canCast = true;
+				break;
+			}
+		}
+
+		return $canCast;
+	}
+
+	private function castSpell($spellName, $charData, $mapData, $outOfCombat) {
 
 		$spell = findSpell($spellName);
 
@@ -54,37 +78,64 @@ class Spellcasting {
 			$fightOutput =  "You heal yourself for $totalHeal! Now at $charData->hp/$charData->hpMax.";
 
 			// Combat step.
-			global $combat;
+			if ( !$outOfCombat ) {
+				global $combat;
 
-			$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
-			$monster 	= $room->occupant;
+				$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
+				$monster 	= $room->occupant;
 
-			list ($attackType, $damage) = $combat->monsterAttack($charData, $monster);
+				list ($attackType, $damage) = $combat->monsterAttack($charData, $monster);
 
-			$fightOutput .= (" It $attackType" . "s back for $damage!\n");
+				$fightOutput .= (" It $attackType" . "s back for $damage!\n");
 
-			echo $fightOutput;
+				echo $fightOutput;
 
-			$charData->state = GameStates::Combat;
+				$charData->state = GameStates::Combat;
+			}
+			else {
+				echo "$fightOutput\n";
+
+				$charData->state = GameStates::Adventuring;
+			}
 		}
 
 		$charData->mp -= $spell->mpCost;
 	}
 
-	public function generateInputFragments($charData) {
+	public function generateInputFragments($charData, $outOfCombat = false) {
 
 		$spellList = $charData->spellbook;
 
 		$spellNum = 1;
-		foreach( $spellList as $spell ) {
+		foreach( $spellList as $spellName ) {
 
-			$this->commands[] = new InputFragment(array($spell, strval($spellNum)), function($charData, $mapData) use ($spell) {
+			// Can only cast heal spells.
+			if ( $outOfCombat ) {
+
+				$spell = findSpell($spellName);
+
+				if ( !$spell->isHeal ) {
+					continue;
+				}
+			}
+
+			$this->commands[] = new InputFragment(array($spellName, strval($spellNum)), function($charData, $mapData) use ($spellName, $outOfCombat) {
 				
-				$this->castSpell($spell, $charData, $mapData);
+				$this->castSpell($spellName, $charData, $mapData, $outOfCombat);
 			});
 
 			++$spellNum;
 		}
+
+		$this->commands[] = new InputFragment(array("cancel"), function($charData, $mapData) use ($outOfCombat) {
+		
+			if ( !$outOfCombat ) {
+				$charData->state = GameStates::Combat;
+			}
+			else {
+				$charData->state = GameStates::Adventuring;
+			}
+		});
 	}
 }
 

@@ -7,6 +7,7 @@ include_once("procedural_generator.php");
 include_once("name_generator.php");
 
 include_once("spell_list.php");
+include_once("spellcasting.php");
 
 class Adventuring {
 
@@ -25,7 +26,6 @@ $adventuring->commands[] = new InputFragment(array("status"), function($charData
 });
 
 // Get the character inventory
-// e.g. Level 3 Barbarian    HP 3/10    MP 2/5
 $adventuring->commands[] = new InputFragment(array("inventory", "items"), function($charData, $mapData) {
 
 	$inventory = "$charData->weapon ($charData->weaponVal)    $charData->armour ($charData->armourVal)    $charData->gold GP\n";
@@ -34,7 +34,6 @@ $adventuring->commands[] = new InputFragment(array("inventory", "items"), functi
 });
 
 // Get the character's spells
-// e.g. Level 3 Barbarian    HP 3/10    MP 2/5
 $adventuring->commands[] = new InputFragment(array("spellbook"), function($charData, $mapData) {
 
 	if ( empty($charData->spellbook) ) {
@@ -54,6 +53,44 @@ $adventuring->commands[] = new InputFragment(array("spellbook"), function($charD
 	$spells = rtrim($spells) . "\n";
 
 	echo $spells;
+});
+
+// Cast a non-combat spell
+$adventuring->commands[] = new InputFragment(array("cast", "spell"), function($charData, $mapData) {
+
+	if ( empty($charData->spellbook) ) {
+		echo "You don't have any spells in your spellbook.\n";
+		return;
+	}
+
+	// Check if we have a heal spell.
+	$haveNonCombat = false;
+	foreach ( $charData->spellbook as $spellName ) {
+
+		$spell = findSpell($spellName);
+		if ( $spell->isHeal ) {
+
+			$haveNonCombat = true;
+			break;
+		}
+	}
+
+	if ( !$haveNonCombat ) {
+		echo "You don't have any spells you can cast outside of combat!\n";
+		return;
+	}
+
+	// Check if we have enough mana for one of the spells.
+	global $spellcasting;
+
+	$canCastOne = $spellcasting->canCastSpell($charData, true);
+	if ( !$canCastOne ) {
+		echo "You don't have enough MP to cast any spells!\n";
+		return;
+	}
+	
+	// Begin non-combat casting.
+	$charData->state = GameStates::NonCombatSpellcasting;
 });
 
 // Begin resting. 
