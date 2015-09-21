@@ -21,15 +21,49 @@ class Spellcasting {
 
 		$spellDmg = $spell->Cast($charData);
 
-		global $combat;
+		// Damage spells.
+		if ( !$spell->isHeal ) {
 
-		$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
-		$monster 	= $room->occupant;
+			global $combat;
 
-		$spellText = "You cast $spellName on the $monster->name for $spellDmg damage!";
-		$killedEnemy = $combat->playerAttack($charData, $room, $monster, $spellDmg, $spellText);
+			$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
+			$monster 	= $room->occupant;
 
-		if ( !$killedEnemy ) {
+			$spellText = "You cast $spellName on the $monster->name for $spellDmg damage!";
+			$killedEnemy = $combat->playerAttack($charData, $room, $monster, $spellDmg, $spellText);
+
+			if ( !$killedEnemy ) {
+
+				$charData->state = GameStates::Combat;
+			}
+		}
+		// Healing spells.
+		else {
+
+			if ( $charData->hp == $charData->hpMax ) {
+				echo "You're already at full health!\n";
+				return;
+			}
+
+			$beforeHP = $charData->hp;
+
+			$charData->hp += $spellDmg;
+			$charData->hp = min($charData->hp, $charData->hpMax);
+
+			$totalHeal = $charData->hp - $beforeHP;
+			$fightOutput =  "You heal yourself for $totalHeal! Now at $charData->hp/$charData->hpMax.";
+
+			// Combat step.
+			global $combat;
+
+			$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
+			$monster 	= $room->occupant;
+
+			list ($attackType, $damage) = $combat->monsterAttack($charData, $monster);
+
+			$fightOutput .= (" It $attackType" . "s back for $damage!\n");
+
+			echo $fightOutput;
 
 			$charData->state = GameStates::Combat;
 		}

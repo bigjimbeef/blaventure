@@ -102,14 +102,22 @@ function giveLoot($monster, &$charData) {
 		global $spellDrops;
 
 		$currentSpells = $charData->spellbook;
-		$spellsNotKnown = array_diff($spellDrops, $currentSpells);
 
-		$canAwardSpell = !empty($spellsNotKnown);
+		$possibleSpells = array();
+		foreach ( $spellDrops as $dropSpell ) {
+
+			if ( !in_array($dropSpell, $currentSpells) ) {
+
+				$possibleSpells[] = $dropSpell;
+			}
+		}
+
+		$canAwardSpell = !empty($possibleSpells);
 
 		if ( $canAwardSpell ) {
 
-			$spellIdx = rand(0, count($spellsNotKnown) - 1);
-			$newSpell = $spellsNotKnown[$spellIdx];
+			$spellIdx = rand(0, count($possibleSpells) - 1);
+			$newSpell = $possibleSpells[$spellIdx];
 
 			$textOutput = "You find a scroll of $newSpell on the body! Lucky you! ";
 
