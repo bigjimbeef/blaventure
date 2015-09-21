@@ -78,10 +78,12 @@ $allSpells[] = $quiveringPalm;
 
 $backstab = new Spell("Backstab", 10, false, function($charData) {
 
+	global $combat;
+
 	// Does weapon damage with a 1 in 3 chance for double damage.
 	$oneInThree = rand(1, 3);
 	
-	$damage = attackDamage($charData->level, $charData->weaponVal);
+	list($damage, $crit) = $combat->attackDamage($charData->level, $charData->weaponVal);
 	if ( $oneInThree == 3 ) {
 		$damage *= 2;
 	}
@@ -122,7 +124,7 @@ $rayOfFrost = new Spell("Ray of Frost", 10, false, function($charData) {
 	return getSpellDamage($charData->level, 2, 4);
 });
 $allSpells[] = $rayOfFrost;
-$spellDrops[] = $rayOfFrost;
+$spellDrops[] = $rayOfFrost->name;
 
 $lightningBolt = new Spell("Lightning Bolt", 50, false, function($charData) {
 
@@ -131,7 +133,7 @@ $lightningBolt = new Spell("Lightning Bolt", 50, false, function($charData) {
 	return getSpellDamage($charData->level, 1, 15);
 });
 $allSpells[] = $lightningBolt;
-$spellDrops[] = $lightningBolt;
+$spellDrops[] = $lightningBolt->name;
 
 $fireBomb = new Spell("Fire Bomb", 60, false, function($charData) {
 
@@ -140,7 +142,7 @@ $fireBomb = new Spell("Fire Bomb", 60, false, function($charData) {
 	return getSpellDamage($charData->level, 10, 14, 8);
 });
 $allSpells[] = $fireBomb;
-$spellDrops[] = $fireBomb;
+$spellDrops[] = $fireBomb->name;
 
 $lightningStorm = new Spell("Lightning Storm", 80, false, function($charData) {
 
@@ -149,7 +151,7 @@ $lightningStorm = new Spell("Lightning Storm", 80, false, function($charData) {
 	return getSpellDamage($charData->level, 2, 22);
 });
 $allSpells[] = $lightningStorm;
-$spellDrops[] = $lightningStorm;
+$spellDrops[] = $lightningStorm->name;
 
 $disintegrate = new Spell("Disintegrate", 100, false, function($charData) {
 
@@ -158,7 +160,7 @@ $disintegrate = new Spell("Disintegrate", 100, false, function($charData) {
 	return getSpellDamage($charData->level, 12, 24);
 });
 $allSpells[] = $disintegrate;
-$spellDrops[] = $disintegrate;
+$spellDrops[] = $disintegrate->name;
 
 $thorsLightning = new Spell("Thor's Lightning", 150, false, function($charData) {
 
@@ -167,7 +169,7 @@ $thorsLightning = new Spell("Thor's Lightning", 150, false, function($charData) 
 	return getSpellDamage($charData->level, 4, 42);
 });
 $allSpells[] = $thorsLightning;
-$spellDrops[] = $thorsLightning;
+$spellDrops[] = $thorsLightning->name;
 
 //-----------------------------------------------
 // Healing.
@@ -180,7 +182,7 @@ $lesserHeal = new Spell("Lesser Heal", 30, true, function($charData) {
 	return getSpellDamage($charData->level, 3, 5);
 });
 $allSpells[] = $lesserHeal;
-$spellDrops[] = $lesserHeal;
+$spellDrops[] = $lesserHeal->name;
 
 $heal = new Spell("Heal", 50, true, function($charData) {
 
@@ -189,7 +191,7 @@ $heal = new Spell("Heal", 50, true, function($charData) {
 	return getSpellDamage($charData->level, 4, 8);
 });
 $allSpells[] = $heal;
-$spellDrops[] = $heal;
+$spellDrops[] = $heal->name;
 
 $greaterHeal = new Spell("Greater Heal", 75, true, function($charData) {
 
@@ -198,7 +200,7 @@ $greaterHeal = new Spell("Greater Heal", 75, true, function($charData) {
 	return getSpellDamage($charData->level, 5, 10);
 });
 $allSpells[] = $greaterHeal;
-$spellDrops[] = $greaterHeal;
+$spellDrops[] = $greaterHeal->name;
 
 $fullHeal = new Spell("Full Heal", 120, true, function($charData) {
 
@@ -206,4 +208,4 @@ $fullHeal = new Spell("Full Heal", 120, true, function($charData) {
 	return getSpellDamage($charData->level, 9999, 9999);
 });
 $allSpells[] = $fullHeal;
-$spellDrops[] = $fullHeal;
+$spellDrops[] = $fullHeal->name;

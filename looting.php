@@ -53,7 +53,7 @@ function giveLoot($monster, &$charData) {
 	$chanceInSix	= rand(1, 6);
 
 	// 5,6: Weapon
-	if ( false && $chanceInSix >= 5 ) {
+	if ( $chanceInSix >= 5 ) {
 
 		$weaponName = NameGenerator::Weapon($monsterLevel);
 		$weaponLvl	= lootLevel($monsterLevel);
@@ -75,7 +75,7 @@ function giveLoot($monster, &$charData) {
 		}
 	}
 	// 3,4: Armour
-	else if ( false && $chanceInSix >= 3 ) {
+	else if ( $chanceInSix >= 3 ) {
 
 		$armourName = NameGenerator::Armour($monsterLevel);
 		$armourLvl	= lootLevel($monsterLevel);
@@ -98,7 +98,27 @@ function giveLoot($monster, &$charData) {
 	// 1,2: Spell
 	else {
 
-		// TODO: Spell awarding.
+		// Check if we CAN award a spell.
+		global $spellDrops;
+
+		$currentSpells = $charData->spellbook;
+		$spellsNotKnown = array_diff($spellDrops, $currentSpells);
+
+		$canAwardSpell = !empty($spellsNotKnown);
+
+		if ( $canAwardSpell ) {
+
+			$spellIdx = rand(0, count($spellsNotKnown) - 1);
+			$newSpell = $spellsNotKnown[$spellIdx];
+
+			$textOutput = "You find a scroll of $newSpell on the body! Lucky you! ";
+
+			$charData->spellbook[] = $newSpell;
+		}
+		else {
+
+			$textOutput = giveGold($monster, $charData);
+		}
 	}
 
 	return $textOutput;
@@ -179,7 +199,7 @@ $looting->commands[] = new InputFragment(array("loot", ""), function($charData, 
 	$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 	$monster 	= $room->occupant;
 	
-	$lootText 	= checkForLootDrop($monster, $charData);
+	$lootText 	= checkForLootDrop($monster, $charData);	
 	$levelledUp	= giveXP($monster, $charData, $lootText);
 
 	echo "$lootText\n";

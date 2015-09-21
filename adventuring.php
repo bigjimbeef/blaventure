@@ -6,6 +6,8 @@ include_once("class_definitions.php");
 include_once("procedural_generator.php");
 include_once("name_generator.php");
 
+include_once("spell_list.php");
+
 class Adventuring {
 
 	public $commands = [];
@@ -29,6 +31,29 @@ $adventuring->commands[] = new InputFragment(array("inventory", "items"), functi
 	$inventory = "$charData->weapon ($charData->weaponVal)    $charData->armour ($charData->armourVal)    $charData->gold GP\n";
 
 	echo $inventory;
+});
+
+// Get the character's spells
+// e.g. Level 3 Barbarian    HP 3/10    MP 2/5
+$adventuring->commands[] = new InputFragment(array("spellbook"), function($charData, $mapData) {
+
+	if ( empty($charData->spellbook) ) {
+		echo "You don't have any spells in your spellbook.\n";
+		return;
+	}
+
+	$spells = "";
+
+	foreach ( $charData->spellbook as $spellName ) {
+
+		$spell = findSpell($spellName);
+
+		$spells .= "$spellName ($spell->mpCost MP)  ";
+	}
+
+	$spells = rtrim($spells) . "\n";
+
+	echo $spells;
 });
 
 // Begin resting. 
