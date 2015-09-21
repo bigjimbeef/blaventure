@@ -3,6 +3,8 @@
 include_once("statics.php");
 include_once("class_definitions.php");
 
+include_once("spell_list.php");
+
 class Looting {
 
 	public $commands = [];
@@ -51,7 +53,7 @@ function giveLoot($monster, &$charData) {
 	$chanceInSix	= rand(1, 6);
 
 	// 5,6: Weapon
-	if ( $chanceInSix >= 5 ) {
+	if ( false && $chanceInSix >= 5 ) {
 
 		$weaponName = NameGenerator::Weapon($monsterLevel);
 		$weaponLvl	= lootLevel($monsterLevel);
@@ -73,7 +75,7 @@ function giveLoot($monster, &$charData) {
 		}
 	}
 	// 3,4: Armour
-	else if ( $chanceInSix >= 3 ) {
+	else if ( false && $chanceInSix >= 3 ) {
 
 		$armourName = NameGenerator::Armour($monsterLevel);
 		$armourLvl	= lootLevel($monsterLevel);
@@ -96,7 +98,7 @@ function giveLoot($monster, &$charData) {
 	// 1,2: Spell
 	else {
 
-		// TODO: Spells
+		
 	}
 
 	return $textOutput;

@@ -113,7 +113,26 @@ $combat->commands[] = new InputFragment(array("attack", "a"), function($charData
 
 $combat->commands[] = new InputFragment(array("spell", "s"), function($charData, $mapData) {
 
-	
+	// Barbarian check time!
+	if ( empty($charData->spellbook) ) {
+		echo "You don't have any spells to cast!\n";
+		return;
+	}
+
+	$spellList = $charData->spellbook;
+
+	$output = "Choose a spell: ";
+
+	$spellNum = 1;
+	foreach ($spellList as $spell) {
+
+		$output .= " $spell ($spellNum) ";
+	}
+
+	$output = rtrim($output) . "\n";
+	echo $output;
+
+	$charData->state = GameStates::Spellcasting;
 });
 
 $combat->commands[] = new InputFragment(array("run"), function($charData, $mapData) {

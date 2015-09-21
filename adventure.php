@@ -28,9 +28,11 @@ include_once("class_select.php");
 include_once("adventuring.php");
 include_once("resting.php");
 include_once("combat.php");
+include_once("spellcasting.php");
 include_once("looting.php");
 include_once("levelup.php");
 
+// DEBUG FLAG
 define("DEBUG", 1);
 
 function DEBUG_echo($string) {
@@ -222,7 +224,7 @@ function classSelect($input, $charData, $charName) {
 
 	// This should be set in a callback.
 	if ( !isset($charData->class) ) {
-		echo "Enter a valid selection: Barbarian (1) Fighter (2) Monk (3) Ranger (4) Rogue (5) Wizard (6)\n";
+		echo "Enter a valid selection: Barbarian (1) Cleric (2) Fighter (3) Monk (4) Rogue (5) Wizard (6)\n";
 	}
 	else {
 		echo "Greetings $charName, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
@@ -265,6 +267,15 @@ function combat($input, $charData, $mapData) {
 	global $combat;
 
 	checkInputFragments($combat->commands, $input, $charData, $mapData);
+}
+
+function spellcasting($input, $charData, $mapData) {
+
+	global $spellcasting;
+
+	$spellcasting->generateInputFragments($charData);
+
+	checkInputFragments($spellcasting->commands, $input, $charData, $mapData);
 }
 
 function looting($input, $charData, $mapData) {
@@ -315,7 +326,7 @@ function main() {
 				// Read input into name.
 				$name = readStdin();
 
-				echo "$nick, pick a class for $name: Barbarian (1) Fighter (2) Monk (3) Ranger (4) Rogue (5) Wizard (6):\n";
+				echo "$nick, pick a class for $name: Barbarian (1) Cleric (2) Fighter (3) Monk (4) Rogue (5) Wizard (6):\n";
 
 				$charData->name 	= $name;
 				$charData->state 	= GameStates::ClassSelect;
@@ -386,6 +397,19 @@ function main() {
 				$input = readStdin();
 
 				combat($input, $charData, $mapData);
+
+				$charDataDirty	= true;
+				$mapDataDirty	= true;
+			}
+			break;
+
+			case GameStates::Spellcasting: {
+
+				DEBUG_echo("Spellcasting");
+
+				$input = readStdin();
+
+				spellcasting($input, $charData, $mapData);
 
 				$charDataDirty	= true;
 				$mapDataDirty	= true;

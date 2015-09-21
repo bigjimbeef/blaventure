@@ -24,6 +24,8 @@ class CharacterSaveData {
 
 	public $restStart	= 0;
 	public $restEnd		= 0;
+
+	public $spellbook	= null;
 }
 
 class MapSaveData {
@@ -167,5 +169,23 @@ class Room {
 
 		$this->x = $x;
 		$this->y = $y;
+	}
+}
+
+class Spell {
+
+	public $name;
+
+	public $mpCost;	
+	public $isHeal;
+
+	public $damageCallback;
+
+	function __construct($name, $mp, $isHeal, $damageCallback) {
+
+		$this->name				= $name;
+		$this->mpCost 			= $mp;
+		$this->isHeal 			= $isHeal;
+		$this->damageCallback 	= $damageCallback;
 	}
 }
