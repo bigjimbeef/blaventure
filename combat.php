@@ -102,7 +102,8 @@ class Combat {
 		
 		$attackType = $crit ? "CRIT" : "hit";
 
-		$this->playerDamaged($charData, $damage);
+		$mitigatedDamage = $damage - $charData->armourVal;
+		$this->playerDamaged($charData, $mitigatedDamage);
 
 		return array($attackType, $damage);
 	}
