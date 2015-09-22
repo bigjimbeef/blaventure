@@ -54,11 +54,11 @@ class Combat {
 
 			fclose($handle);
 
-			return " You set a new record!\n";
+			return " On the plus side, you set a new personal best!\n";
 		}
 
 		// Must be a loser
-		return " You failed to set a new record.\n";
+		return " That wasn't your best.\n";
 	}
 
 	public function playerDamaged(&$charData, $damage) {

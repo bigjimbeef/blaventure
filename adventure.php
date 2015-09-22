@@ -162,9 +162,7 @@ function getNickFromArgs() {
 	}
 
 	// Convention states that the nick is the first input parameter.
-	$nick = $argv[1];		
-
-	echo "nick: $nick\n";
+	$nick = $argv[1];
 
 	return $nick;
 }

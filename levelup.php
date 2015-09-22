@@ -17,7 +17,7 @@ $levelUp->commands[] = new InputFragment("hp", function($charData, $mapData) {
 	$charData->hp 		+= 10;
 	$charData->hpMax 	+= 10;
 
-	echo "HP increases by 10! ($charData->hp/$charData->hpMax)\n";
+	echo "HP increases by 10 to $charData->hp/$charData->hpMax. You go back to Adventuring.\n";
 
 	$charData->state = GameStates::Adventuring;
 });
@@ -27,7 +27,7 @@ $levelUp->commands[] = new InputFragment("mp", function($charData, $mapData) {
 	$charData->mp 		+= 10;
 	$charData->mpMax 	+= 10;
 
-	echo "MP increases by 10! ($charData->mp/$charData->mpMax)\n";
+	echo "MP increases by 10! to $charData->mp/$charData->mpMax. You go back to Adventuring.\n";
 
 	$charData->state = GameStates::Adventuring;
 });
