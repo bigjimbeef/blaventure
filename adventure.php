@@ -185,14 +185,11 @@ function readStdin() {
 
 function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 
-	$tokens = array();
 	$match	= false;
 
 	$isHelp = strcasecmp($input, "help") == 0;
 
 	foreach ( $fragments as $key => $fragment ) {
-
-		$tokens = array_merge($tokens, $fragment->tokens);
 
 		if ( !$isHelp && $fragment->Matches($input) ) {
 
@@ -206,8 +203,9 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 	if ( $isHelp || !$match ) {
 		$warning = "Commands: ";
 
-		foreach ( $tokens as $token ) {
-			$warning .= "'$token', ";
+		foreach ( $fragments as $fragment ) {
+
+			$warning .= "$fragment->displayString, ";
 		}
 
 		$warning = rtrim($warning, ", ");
@@ -221,15 +219,13 @@ function classSelect($input, $charData, $charName) {
 
 	global $classSelect;
 
-	checkInputFragments($classSelect->classes, $input, $charData, null);
+	checkInputFragments($classSelect->commands, $input, $charData, null);
 
 	$setClass = false;
 
 	// This should be set in a callback.
-	if ( !isset($charData->class) ) {
-		echo "Enter a valid selection: Barbarian (1) Cleric (2) Fighter (3) Monk (4) Rogue (5) Wizard (6)\n";
-	}
-	else {
+	if ( isset($charData->class) ) {
+
 		echo "Greetings $charName, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
 		$setClass = true;
 	}
@@ -329,7 +325,21 @@ function main() {
 				// Read input into name.
 				$name = readStdin();
 
-				echo "$nick, pick a class for $name: Barbarian (1) Cleric (2) Fighter (3) Monk (4) Rogue (5) Wizard (6):\n";
+				if ( strcmp($name, "") == 0 ) {
+					echo "Please enter a name!\n";
+					exit(13);
+				}
+
+				$output = "Please choose a class for $name: ";
+
+				global $classSelect;
+				foreach ( $classSelect->commands as $fragment ) {
+
+					$output .= "$fragment->displayString, ";
+				}
+				$output = rtrim($output, ", ") . "\n";
+
+				echo $output;
 
 				$charData->name 	= $name;
 				$charData->state 	= GameStates::ClassSelect;

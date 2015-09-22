@@ -10,23 +10,6 @@ class Spellcasting {
 
 	public $commands = [];
 
-	public function getOverflowSpellNum($spellNum) {
-		$spellNumText = strval($spellNum);
-
-		if ( $spellNum == 10 ) {
-			$spellNumText = "0";
-		}
-		else if ( $spellNum > 10 ) {
-			$overflow = array("q","w","e","r","t","y","u","i","o","p");
-
-			// 11 should be q
-			$overflowVal = $spellNum - 11;
-			$spellNumText = $overflow[$overflowVal];
-		}
-
-		return $spellNumText;
-	}
-
 	public function canCastSpell($charData, $nonCombatOnly = false) {
 		
 		// Check we have enough mana to cast one of them.
@@ -136,9 +119,7 @@ class Spellcasting {
 				}
 			}
 
-			$spellNumText = $this->getOverflowSpellNum($spellNum);
-
-			$this->commands[] = new InputFragment(array($spellName, $spellNumText), function($charData, $mapData) use ($spellName, $outOfCombat) {
+			$this->commands[] = new InputFragment($spellName, function($charData, $mapData) use ($spellName, $outOfCombat) {
 				
 				$this->castSpell($spellName, $charData, $mapData, $outOfCombat);
 			});
@@ -146,7 +127,7 @@ class Spellcasting {
 			++$spellNum;
 		}
 
-		$this->commands[] = new InputFragment(array("cancel"), function($charData, $mapData) use ($outOfCombat) {
+		$this->commands[] = new InputFragment("cancel", function($charData, $mapData) use ($outOfCombat) {
 		
 			if ( !$outOfCombat ) {
 				$charData->state = GameStates::Combat;
@@ -155,18 +136,21 @@ class Spellcasting {
 				$charData->state = GameStates::Adventuring;
 			}
 		});
+
+		// Add unique identifiers to commands.
+		$allocator = new UIDAllocator($this->commands);
+		$allocator->Allocate();
 	}
 }
 
 $spellcasting = new Spellcasting();
 
-$spellcasting->commands[] = new InputFragment(array("list"), function($charData, $mapData) {
+$spellcasting->commands[] = new InputFragment("book", function($charData, $mapData) {
 	
 	$spellList = $charData->spellbook;
 
 	$output = "";
 
-	$spellNum = 1;
 	foreach( $spellList as $spellName ) {
 
 		$spell = findSpell($spellName);
@@ -174,9 +158,7 @@ $spellcasting->commands[] = new InputFragment(array("list"), function($charData,
 			continue;
 		}
 
-		$output .= "$spellNum: $spellName ($spell->mpCost/$charData->mp MP)  ";
-
-		$spellNum++;
+		$output .= "$spellName ($spell->mpCost/$charData->mp MP)  ";
 	}
 
 	$output = rtrim($output) . "\n";

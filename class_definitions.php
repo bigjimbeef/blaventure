@@ -45,19 +45,17 @@ class MapSaveData {
 // Function Matches is called on each InputFragment, and the callback is called if it does match the input.
 class InputFragment {
 
-	public 			$tokens;
+	public 			$token; // str
+	public			$uid;	// str
+
+	public			$displayString;	// str
+
 	public function Matches($input) {
 		
-		$matchFound = false;
-		foreach ( $this->tokens as $token ) {
+		$tokenMatch = strcasecmp($input, $this->token) == 0;
+		$uidMatch = strcasecmp($input, $this->uid) == 0;
 
-			if ( strcasecmp($input, $token) == 0 ) {
-				$matchFound = true;
-				break;
-			}
-		}
-
-		return $matchFound;
+		return $tokenMatch || $uidMatch;
 	}
 
 	public function FireCallback($charData, $mapData) {
@@ -66,8 +64,8 @@ class InputFragment {
 	}
 
 	// ctor
-	function __construct($inTokens, $inCallback) {
-		$this->tokens 	= $inTokens;
+	function __construct($inToken, $inCallback) {
+		$this->token 	= $inToken;
 		$this->callback = $inCallback;
 	}
 
@@ -194,5 +192,65 @@ class Spell {
 		$this->mpCost 			= $mp;
 		$this->isHeal 			= $isHeal;
 		$this->damageCallback 	= $damageCallback;
+	}
+}
+
+class UIDAllocator {
+
+	public $fragments;
+
+	function __construct(&$fragments) {
+
+		$this->fragments = $fragments;
+	}
+
+	public function Allocate() {
+
+		$uids = array();
+
+		foreach( $this->fragments as $fragment ) {
+
+			$fragmentName 	= $fragment->token;
+
+			$uidSet 		= false;
+			$currentChar 	= 0;
+
+			do {
+				if ( $currentChar > ( strlen($fragmentName) - 1 ) ) {
+					echo "ERROR: Cannot set up UID for $fragmentName!\n";
+					exit(12);
+				}
+
+				$char = strtolower($fragmentName[$currentChar]);
+
+				// UNIQUE identifier.
+				if ( !in_array($char, $uids) ) {
+
+					$fragment->uid 	= $char;
+					$uidSet 		= true;
+
+					$uids[]			= $char;
+
+					$this->SetNameWithUID($fragment);
+				}
+
+				$currentChar++;
+
+			} while ( !$uidSet );
+		}
+	}
+
+	private function SetNameWithUID(&$fragment) {
+
+		$str = $fragment->token;
+		$uid = $fragment->uid;
+
+		$uidIndicator = "($uid)";
+
+		$pos = stripos($str, $uid);
+		if ($pos !== false) {
+
+    		$fragment->displayString = substr_replace($str, $uidIndicator, $pos, strlen($uid));
+		}
 	}
 }

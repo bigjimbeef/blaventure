@@ -202,7 +202,7 @@ function giveXP($monster, &$charData, &$lootText) {
 	return false;
 }
 
-$looting->commands[] = new InputFragment(array("loot"), function($charData, $mapData) {
+$looting->commands[] = new InputFragment("loot", function($charData, $mapData) {
 
 	$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 	$monster 	= $room->occupant;
@@ -221,3 +221,7 @@ $looting->commands[] = new InputFragment(array("loot"), function($charData, $map
 
 	unset($room->occupant);
 });
+
+// Add unique identifiers to commands.
+$allocator = new UIDAllocator($looting->commands);
+$allocator->Allocate();

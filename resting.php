@@ -32,7 +32,7 @@ function getCurrentStats($data, $alsoSet = false) {
 }
 
 // Check the status of the rest
-$resting->commands[] = new InputFragment(array(""), function($charData, $mapData) {
+$resting->commands[] = new InputFragment("status", function($charData, $mapData) {
 
 	$restEnd 	= $charData->restEnd;
 	$status 	= "You will wake up at " . date("H:i", $restEnd) . ". To wake up now enter 'wake'.    (" . getCurrentStats($charData) . ")\n";
@@ -40,7 +40,7 @@ $resting->commands[] = new InputFragment(array(""), function($charData, $mapData
 	echo $status;
 });
 
-$resting->commands[] = new InputFragment(array("wake"), function($charData, $mapData) {
+$resting->commands[] = new InputFragment("wake", function($charData, $mapData) {
 
 	echo "You wake up, ready to start the new day.    (" . getCurrentStats($charData, true) . ")\n";
 
@@ -49,3 +49,7 @@ $resting->commands[] = new InputFragment(array("wake"), function($charData, $map
 
 	$charData->state		= GameStates::Adventuring;
 });
+
+// Add unique identifiers to commands.
+$allocator = new UIDAllocator($resting->commands);
+$allocator->Allocate();

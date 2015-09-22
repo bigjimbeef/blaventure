@@ -153,7 +153,7 @@ class Combat {
 
 $combat = new Combat();
 
-$combat->commands[] = new InputFragment(array("status"), function($charData, $mapData) {
+$combat->commands[] = new InputFragment("status", function($charData, $mapData) {
 
 	$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 	$monster 	= $room->occupant;
@@ -163,7 +163,7 @@ $combat->commands[] = new InputFragment(array("status"), function($charData, $ma
 	echo $status;
 });
 
-$combat->commands[] = new InputFragment(array("attack", "a"), function($charData, $mapData) use($combat) {
+$combat->commands[] = new InputFragment("attack", function($charData, $mapData) use($combat) {
 
 	$room = $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 
@@ -173,7 +173,7 @@ $combat->commands[] = new InputFragment(array("attack", "a"), function($charData
 	$combat->playerAttack($charData, $room, $monster);
 });
 
-$combat->commands[] = new InputFragment(array("spell", "s"), function($charData, $mapData) {
+$combat->commands[] = new InputFragment("magic", function($charData, $mapData) {
 
 	// Barbarian check time!
 	if ( empty($charData->spellbook) ) {
@@ -194,23 +194,21 @@ $combat->commands[] = new InputFragment(array("spell", "s"), function($charData,
 
 	$output = "Choose a spell: ";
 
-	$spellNum = 1;
-	foreach ($spellList as $spell) {
+	$spellcasting->generateInputFragments($charData);
 
-		$spellNumText = $spellcasting->getOverflowSpellNum($spellNum);
+	foreach ( $spellcasting->commands as $fragment ) {
 
-		$output .= " $spell ($spellNumText) ";
-
-		++$spellNum;
+		$output .= "$fragment->displayString, ";
 	}
 
-	$output = rtrim($output) . " or cancel\n";
+	$output = rtrim($output, ", ") . "\n";
+
 	echo $output;
 
 	$charData->state = GameStates::Spellcasting;
 });
 
-$combat->commands[] = new InputFragment(array("run"), function($charData, $mapData) use($combat) {
+$combat->commands[] = new InputFragment("run", function($charData, $mapData) use($combat) {
 
 	$chanceInSix = rand(1,6);
 	// 5+ to escape
@@ -233,3 +231,7 @@ $combat->commands[] = new InputFragment(array("run"), function($charData, $mapDa
 		$mapData->playerY = $mapData->lastPlayerY;
 	}
 });
+
+// Add unique identifiers to commands.
+$allocator = new UIDAllocator($combat->commands);
+$allocator->Allocate();

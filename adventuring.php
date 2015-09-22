@@ -18,7 +18,7 @@ $adventuring = new Adventuring();
 
 // Get the character status
 // e.g. Level 3 Barbarian    HP 3/10    MP 2/5
-$adventuring->commands[] = new InputFragment(array("status"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("char", function($charData, $mapData) {
 
 	$status = "Level $charData->level $charData->class    HP $charData->hp/$charData->hpMax    MP $charData->mp/$charData->mpMax    @[$mapData->playerX, $mapData->playerY]\n";
 
@@ -26,7 +26,7 @@ $adventuring->commands[] = new InputFragment(array("status"), function($charData
 });
 
 // Get the character inventory
-$adventuring->commands[] = new InputFragment(array("inventory", "items"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("items", function($charData, $mapData) {
 
 	$inventory = "$charData->weapon ($charData->weaponVal)    $charData->armour ($charData->armourVal)    $charData->gold GP\n";
 
@@ -34,7 +34,7 @@ $adventuring->commands[] = new InputFragment(array("inventory", "items"), functi
 });
 
 // Get the character's spells
-$adventuring->commands[] = new InputFragment(array("book"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("book", function($charData, $mapData) {
 
 	if ( empty($charData->spellbook) ) {
 		echo "You don't have any spells in your spellbook.\n";
@@ -56,7 +56,7 @@ $adventuring->commands[] = new InputFragment(array("book"), function($charData, 
 });
 
 // Cast a non-combat spell
-$adventuring->commands[] = new InputFragment(array("spell", "s"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("magic", function($charData, $mapData) {
 
 	if ( empty($charData->spellbook) ) {
 		echo "You don't have any spells in your spellbook.\n";
@@ -93,15 +93,20 @@ $adventuring->commands[] = new InputFragment(array("spell", "s"), function($char
 
 	$output = "Choose a spell: ";
 
-	$spellNum = 1;
-	foreach ($nonCombatSpells as $spellName) {
+	$spellcasting->generateInputFragments($charData);
 
-		$output .= " $spellName ($spellNum) ";
+	foreach ( $spellcasting->commands as $fragment ) {
 
-		++$spellNum;
+		$matchingSpell = findSpell($fragment->token);
+		if ( $matchingSpell && !$matchingSpell->isHeal ) {
+			continue;
+		}
+
+		$output .= "$fragment->displayString, ";
 	}
 
-	$output = rtrim($output) . "  or cancel\n";
+	$output = rtrim($output, ", ") . "\n";
+
 	echo $output;
 	
 	// Begin non-combat casting.
@@ -111,7 +116,7 @@ $adventuring->commands[] = new InputFragment(array("spell", "s"), function($char
 // Begin resting. 
 // 
 // Resting is tied into real time. It takes 1 real minute to regen one HP and MP.
-$adventuring->commands[] = new InputFragment(array("rest", "sleep"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("rest", function($charData, $mapData) {
 
 	$hpDeficit		= $charData->hpMax - $charData->hp;
 	$mpDeficit		= $charData->mpMax - $charData->mp;
@@ -208,7 +213,7 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 	echo $moveText;
 }
 
-$adventuring->commands[] = new InputFragment(array("north", "n"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("north", function($charData, $mapData) {
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
@@ -218,7 +223,7 @@ $adventuring->commands[] = new InputFragment(array("north", "n"), function($char
 	// North means y--
 	moveToRoom($x, $y, 0, -1, $mapData, $charData, $moveText);
 });
-$adventuring->commands[] = new InputFragment(array("south", "s"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("south", function($charData, $mapData) {
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
@@ -228,7 +233,7 @@ $adventuring->commands[] = new InputFragment(array("south", "s"), function($char
 	// South means y++
 	moveToRoom($x, $y, 0, 1, $mapData, $charData, $moveText);
 });
-$adventuring->commands[] = new InputFragment(array("east", "e"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("east", function($charData, $mapData) {
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
@@ -238,7 +243,7 @@ $adventuring->commands[] = new InputFragment(array("east", "e"), function($charD
 	// East means x++
 	moveToRoom($x, $y, 1, 0, $mapData, $charData, $moveText);
 });
-$adventuring->commands[] = new InputFragment(array("west", "w"), function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("west", function($charData, $mapData) {
 
 	$x = $mapData->playerX;
 	$y = $mapData->playerY;
@@ -248,3 +253,7 @@ $adventuring->commands[] = new InputFragment(array("west", "w"), function($charD
 	// West means x--
 	moveToRoom($x, $y, -1, 0, $mapData, $charData, $moveText);
 });
+
+// Add unique identifiers to commands.
+$allocator = new UIDAllocator($adventuring->commands);
+$allocator->Allocate();

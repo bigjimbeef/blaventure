@@ -7,13 +7,13 @@ include_once("default_spells.php");
 
 class ClassSelect {
 
-	public 	$classes = [];
+	public 	$commands = [];
 }
 
 // This will be accessed via "global" in the main file. Because lol.
 $classSelect = new ClassSelect();
 
-$classSelect->classes[] = new InputFragment(array("1", "barbarian"), function($charData, $mapData) {
+$classSelect->commands[] = new InputFragment("barbarian", function($charData, $mapData) {
 
 	if ( !property_exists($charData, "class") ) {
 		echo "ERROR: Cannot set class!\n";
@@ -27,7 +27,7 @@ $classSelect->classes[] = new InputFragment(array("1", "barbarian"), function($c
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Barbarian::Name];
 });
-$classSelect->classes[] = new InputFragment(array("2", "cleric"), function($charData, $mapData) {
+$classSelect->commands[] = new InputFragment("cleric", function($charData, $mapData) {
 
 	if ( !property_exists($charData, "class") ) {
 		echo "ERROR: Cannot set class!\n";
@@ -41,7 +41,7 @@ $classSelect->classes[] = new InputFragment(array("2", "cleric"), function($char
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Cleric::Name];
 });
-$classSelect->classes[] = new InputFragment(array("3", "fighter"), function($charData, $mapData) {
+$classSelect->commands[] = new InputFragment("fighter", function($charData, $mapData) {
 
 	if ( !property_exists($charData, "class") ) {
 		echo "ERROR: Cannot set class!\n";
@@ -55,7 +55,7 @@ $classSelect->classes[] = new InputFragment(array("3", "fighter"), function($cha
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Fighter::Name];
 });
-$classSelect->classes[] = new InputFragment(array("4", "monk"), function($charData, $mapData) {
+$classSelect->commands[] = new InputFragment("monk", function($charData, $mapData) {
 
 	if ( !property_exists($charData, "class") ) {
 		echo "ERROR: Cannot set class!\n";
@@ -69,7 +69,7 @@ $classSelect->classes[] = new InputFragment(array("4", "monk"), function($charDa
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Monk::Name];
 });
-$classSelect->classes[] = new InputFragment(array("5", "rogue"), function($charData, $mapData) {
+$classSelect->commands[] = new InputFragment("rogue", function($charData, $mapData) {
 
 	if ( !property_exists($charData, "class") ) {
 		echo "ERROR: Cannot set class!\n";
@@ -83,7 +83,7 @@ $classSelect->classes[] = new InputFragment(array("5", "rogue"), function($charD
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Rogue::Name];
 });
-$classSelect->classes[] = new InputFragment(array("6", "wizard"), function($charData, $mapData) {
+$classSelect->commands[] = new InputFragment("wizard", function($charData, $mapData) {
 
 	if ( !property_exists($charData, "class") ) {
 		echo "ERROR: Cannot set class!\n";
@@ -97,3 +97,7 @@ $classSelect->classes[] = new InputFragment(array("6", "wizard"), function($char
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Wizard::Name];
 });
+
+// Add unique identifiers to commands.
+$allocator = new UIDAllocator($classSelect->commands);
+$allocator->Allocate();

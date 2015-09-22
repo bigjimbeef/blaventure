@@ -12,7 +12,7 @@ $levelUp = new LevelUp();
 
 $PER_LEVEL_INCREASE = 10;
 
-$levelUp->commands[] = new InputFragment(array("HP", "1"), function($charData, $mapData) {
+$levelUp->commands[] = new InputFragment("hp", function($charData, $mapData) {
 
 	$charData->hp 		+= 10;
 	$charData->hpMax 	+= 10;
@@ -22,7 +22,7 @@ $levelUp->commands[] = new InputFragment(array("HP", "1"), function($charData, $
 	$charData->state = GameStates::Adventuring;
 });
 
-$levelUp->commands[] = new InputFragment(array("MP", "2"), function($charData, $mapData) {
+$levelUp->commands[] = new InputFragment("mp", function($charData, $mapData) {
 
 	$charData->mp 		+= 10;
 	$charData->mpMax 	+= 10;
@@ -31,3 +31,7 @@ $levelUp->commands[] = new InputFragment(array("MP", "2"), function($charData, $
 
 	$charData->state = GameStates::Adventuring;
 });
+
+// Add unique identifiers to commands.
+$allocator = new UIDAllocator($levelUp->commands);
+$allocator->Allocate();
