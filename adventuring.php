@@ -101,7 +101,7 @@ $adventuring->commands[] = new InputFragment(array("spell", "s"), function($char
 		++$spellNum;
 	}
 
-	$output = rtrim($output) . "\n";
+	$output = rtrim($output) . "  or cancel\n";
 	echo $output;
 	
 	// Begin non-combat casting.

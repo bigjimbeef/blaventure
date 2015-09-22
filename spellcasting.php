@@ -10,6 +10,23 @@ class Spellcasting {
 
 	public $commands = [];
 
+	public function getOverflowSpellNum($spellNum) {
+		$spellNumText = strval($spellNum);
+
+		if ( $spellNum == 10 ) {
+			$spellNumText = "0";
+		}
+		else if ( $spellNum > 10 ) {
+			$overflow = array("q","w","e","r","t","y","u","i","o","p");
+
+			// 11 should be q
+			$overflowVal = $spellNum - 11;
+			$spellNumText = $overflow[$overflowVal];
+		}
+
+		return $spellNumText;
+	}
+
 	public function canCastSpell($charData, $nonCombatOnly = false) {
 		
 		// Check we have enough mana to cast one of them.
@@ -119,7 +136,9 @@ class Spellcasting {
 				}
 			}
 
-			$this->commands[] = new InputFragment(array($spellName, strval($spellNum)), function($charData, $mapData) use ($spellName, $outOfCombat) {
+			$spellNumText = $this->getOverflowSpellNum($spellNum);
+
+			$this->commands[] = new InputFragment(array($spellName, $spellNumText), function($charData, $mapData) use ($spellName, $outOfCombat) {
 				
 				$this->castSpell($spellName, $charData, $mapData, $outOfCombat);
 			});

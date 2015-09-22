@@ -33,7 +33,7 @@ include_once("looting.php");
 include_once("levelup.php");
 
 // DEBUG FLAG
-define("DEBUG", 1);
+define("DEBUG", 0);
 
 function DEBUG_echo($string) {
 

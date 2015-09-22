@@ -17,6 +17,8 @@ abstract class GameStates {
 	const Looting				= 7;
 	const LevelUp				= 8;
 	const NonCombatSpellcasting	= 9;
+
+	const Dead					= 10;
 }
 
 // classes

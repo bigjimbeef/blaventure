@@ -29,7 +29,7 @@ class Combat {
 
 		if ( $charData->hp <= 0 ) {
 
-			// TODO: death.
+			// death
 		}
 	}
 
@@ -153,12 +153,14 @@ $combat->commands[] = new InputFragment(array("spell", "s"), function($charData,
 	$spellNum = 1;
 	foreach ($spellList as $spell) {
 
-		$output .= " $spell ($spellNum) ";
+		$spellNumText = $spellcasting->getOverflowSpellNum($spellNum);
+
+		$output .= " $spell ($spellNumText) ";
 
 		++$spellNum;
 	}
 
-	$output = rtrim($output) . "\n";
+	$output = rtrim($output) . " or cancel\n";
 	echo $output;
 
 	$charData->state = GameStates::Spellcasting;
