@@ -14,6 +14,10 @@ case $1 in
 		php check.php char 	> DEBUG/_char
 		less DEBUG/_char
 	;;
+	"sb")
+		php check.php scoreboard  > DEBUG/_sb
+		less DEBUG/_sb
+	;;
 	*)
 		echo "Enter either 'map' or 'char'"
 	;;

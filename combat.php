@@ -23,13 +23,57 @@ class Combat {
 		return $survived;
 	}
 
+	public function appendScoreboardInfo(&$charData) {
+
+		$home 		= getenv("HOME");
+		$filePath 	= "$home/.blaventure/$charData->nick.scoreboard";
+
+		// Delete the current save game.
+		$charFilePath 	= "$home/.blaventure/$charData->nick.char";
+		$mapFilePath 	= "$home/.blaventure/$charData->nick.map";
+
+		unlink($charFilePath);
+		unlink($mapFilePath);
+
+		$currentTop = null;
+
+		if ( file_exists($filePath) ) {
+			$handle		= fopen($filePath, "r");
+			$contents	= fread($handle, filesize($filePath));
+
+			$currentTop = unserialize($contents);
+			fclose($handle);
+		}
+
+		if ( is_null($currentTop) || $charData->level > $currentTop->level ) {
+
+			$handle		= fopen($filePath, "w");
+			$winner		= serialize($charData);
+
+			fwrite($handle, $winner);
+
+			fclose($handle);
+
+			return " You set a new record!\n";
+		}
+
+		// Must be a loser
+		return " You failed to set a new record.\n";
+	}
+
 	public function playerDamaged(&$charData, $damage) {
 
 		$charData->hp -= $damage;
 
 		if ( $charData->hp <= 0 ) {
 
-			// death
+			$deathMsg = "Oh no! $charData->name has died!";
+
+			$deathMsg .= $this->appendScoreboardInfo($charData);
+
+			echo $deathMsg;
+
+			exit(11);
 		}
 	}
 

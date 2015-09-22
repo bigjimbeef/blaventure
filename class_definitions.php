@@ -26,6 +26,8 @@ class CharacterSaveData {
 	public $restEnd		= 0;
 
 	public $spellbook	= null;
+
+	public $nick		= null;
 }
 
 class MapSaveData {

@@ -47,21 +47,6 @@ $powerAttack = new Spell("Power Attack", 10, false, function($charData) {
 });
 $allSpells[] = $powerAttack;
 
-$deathBlow = new Spell("Deathblow", 20, false, function($charData) {
-
-	// 300-450 at level 30
-	// 15-22.5 dmg/MP (if it hits)
-	$oneInTwo = rand(1, 2);
-	
-	$damage = 0;
-	if ( $oneInTwo == 2 ) {
-		$damage = getSpellDamage($charData->level, 10, 15);
-	}
-
-	return $damage;
-});
-$allSpells[] = $deathBlow;
-
 $quiveringPalm = new Spell("Quivering Palm", 50, false, function($charData) {
 
 	// Always does 9999 damage. 1 in 4 chance to hit.
@@ -134,6 +119,22 @@ $lightningBolt = new Spell("Lightning Bolt", 50, false, function($charData) {
 });
 $allSpells[] = $lightningBolt;
 $spellDrops[] = $lightningBolt->name;
+
+$deathBlow = new Spell("Deathblow", 20, false, function($charData) {
+
+	// 300-450 at level 30
+	// 15-22.5 dmg/MP (if it hits)
+	$oneInTwo = rand(1, 2);
+	
+	$damage = 0;
+	if ( $oneInTwo == 2 ) {
+		$damage = getSpellDamage($charData->level, 10, 15);
+	}
+
+	return $damage;
+});
+$allSpells[] = $deathBlow;
+$spellDrops[] = $deathBlow->name;
 
 $fireBomb = new Spell("Fire Bomb", 60, false, function($charData) {
 

@@ -66,6 +66,7 @@ function initCharacterSaveData($nick) {
 
 	$initialSaveData = new CharacterSaveData();
 	$initialSaveData->name = $nick;
+	$initialSaveData->nick = $nick;
 
 	$initialSaveData->randomSeed = rand();
 	$procGen->InitFromSeed($initialSaveData->randomSeed);
