@@ -6,7 +6,7 @@ $defaultSpells = array(
 
 	"Barbarian" => array(),
 
-	"Cleric" => array($lesserHeal->name, $fireblast->name),
+	"Cleric" => array($lesserHeal->name),
 
 	"Fighter" => array($powerAttack->name),
 
