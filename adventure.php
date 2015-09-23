@@ -35,6 +35,9 @@ include_once("levelup.php");
 // DEBUG FLAG
 define("DEBUG", 0);
 
+// We're in Europe!
+date_default_timezone_set("Europe/London");
+
 function DEBUG_echo($string) {
 
 	if ( constant("DEBUG") ) {

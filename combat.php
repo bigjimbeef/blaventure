@@ -105,7 +105,7 @@ class Combat {
 		$mitigatedDamage = $damage - $charData->armourVal;
 		$this->playerDamaged($charData, $mitigatedDamage);
 
-		return array($attackType, $damage);
+		return array($attackType, $mitigatedDamage);
 	}
 
 	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null) {
@@ -219,7 +219,6 @@ $combat->commands[] = new InputFragment("run", function($charData, $mapData) use
 		$monster 	= $room->occupant;
 
 		list ($attackType, $damage) = $combat->monsterAttack($charData, $monster);
-
 		echo "You get caught and $attackType for $damage damage!\n";
 	}
 	else {

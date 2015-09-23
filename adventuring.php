@@ -133,10 +133,11 @@ $adventuring->commands[] = new InputFragment("rest", function($charData, $mapDat
 		echo "You curl up in a ball and go to sleep. It will take $restDuration minutes to fully restore.\n";
 		$charData->state 		= GameStates::Resting;
 
-		$charData->restStart 	= time();
+		$date					= new DateTime();
+		$charData->restStart 	= $date->getTimeStamp();
+		$date->add(new DateInterval('PT' . $restDuration . 'M'));
 
-		$toMinutes				= 60;
-		$charData->restEnd		= time() + ( $restDuration * $toMinutes );
+		$charData->restEnd		= $date->getTimeStamp();
 	}
 });
 

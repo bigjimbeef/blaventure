@@ -9,6 +9,7 @@ class Resting {
 }
 
 $resting = new Resting();
+date_default_timezone_set('UTC');
 
 function getCurrentStats($data, $alsoSet = false) {
 
@@ -35,7 +36,11 @@ function getCurrentStats($data, $alsoSet = false) {
 $resting->commands[] = new InputFragment("status", function($charData, $mapData) {
 
 	$restEnd 	= $charData->restEnd;
-	$status 	= "You will wake up at " . date("H:i", $restEnd) . ". To wake up now enter 'wake'.    (" . getCurrentStats($charData) . ")\n";
+
+	$date 		= new DateTime();
+	$date->setTimestamp($restEnd);
+
+	$status 	= "You will wake up at " . $date->format("H:i") . ". To wake up now enter 'wake'.    (" . getCurrentStats($charData) . ")\n";
 
 	echo $status;
 });
