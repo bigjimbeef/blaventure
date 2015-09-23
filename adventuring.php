@@ -201,7 +201,7 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 			$charData->state = GameStates::Combat;
 		}
 		else {
-			$moveText .= "and encounter the $monsterName again! It attacks again!\n";
+			$moveText .= "and encounter the level $monster->level $monsterName again! It attacks again!\n";
 
 			// Combat!
 			$charData->state = GameStates::Combat;
