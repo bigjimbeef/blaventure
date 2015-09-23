@@ -156,7 +156,7 @@ class Combat {
 
 $combat = new Combat();
 
-$combat->commands[] = new InputFragment("status", function($charData, $mapData) {
+$combat->commands[] = new InputFragment("check", function($charData, $mapData) {
 
 	$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 	$monster 	= $room->occupant;

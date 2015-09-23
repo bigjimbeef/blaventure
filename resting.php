@@ -33,7 +33,7 @@ function getCurrentStats($data, $alsoSet = false) {
 }
 
 // Check the status of the rest
-$resting->commands[] = new InputFragment("status", function($charData, $mapData) {
+$resting->commands[] = new InputFragment("check", function($charData, $mapData) {
 
 	$restEnd 	= $charData->restEnd;
 
