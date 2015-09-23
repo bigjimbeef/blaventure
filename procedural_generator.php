@@ -18,7 +18,14 @@ class ProcGen {
 		// 50% chance to spawn a monster.
 		if ( !$noSpawning && $chanceInHundred > 50 ) {
 
-			$room->occupant = new Monster($playerLevel);
+			// Monster difficulty scales, in part, with distance from the start.
+			$midPoint		= floor($MAP_SIZE / 2);
+			$xDistFromStart = abs($xVal - $midPoint);
+			$yDistFromStart = abs($yVal - $midPoint);
+
+			$dist = max($xDistFromStart, $yDistFromStart);
+
+			$room->occupant = new Monster($playerLevel, $dist);
 		}
 
 		$map->grid[$xVal][$yVal] = $room;

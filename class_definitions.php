@@ -1,6 +1,7 @@
 <?php
 
 include_once("name_generator.php");
+include_once("procedural_generator.php");
 
 class CharacterSaveData {
 	public $name		= null;		// str
@@ -76,10 +77,10 @@ class InputFragment {
 
 class Monster {
 
-	function __construct($playerLevel) {
+	function __construct($playerLevel, $distance) {
 
-		// Randomly generate monster level based on player level.
-		$this->InitLevel($playerLevel);
+		// Randomly generate monster level based on player level and distance to the origin.
+		$this->InitLevel($playerLevel, $distance);
 
 		$this->InitStats($playerLevel);
 
@@ -97,29 +98,34 @@ class Monster {
 	public 		$elite; 		// bool
 	public		$attack = 0;	// 0, unless elite.
 
-	private function InitLevel($playerLevel) {
+	private function InitLevel($playerLevel, $distance) {
 
 		$chanceInHundred = rand(1, 100);
 
+		// e.g. 0 at 0 distance, 5 at max distance
+		$mapHalfSize 	= floor(ProcGen::GetMapSize() / 2);
+		$boundary 		= floor($mapHalfSize / 5);
+		$distanceFactor = floor($distance / $boundary);
+
 		// Level +3 - 5%
 		if ( $chanceInHundred > 95 ) {
-			$this->level = $playerLevel + 3;
+			$this->level = $playerLevel + 3 + $distanceFactor;
 		}
 		// Level +2 - 10%
 		else if ( $chanceInHundred > 85 ) {
-			$this->level = $playerLevel + 2;
+			$this->level = $playerLevel + 2 + $distanceFactor;
 		}
 		// Level +1 - 20%
 		else if ( $chanceInHundred > 70 ) {
-			$this->level = $playerLevel + 1;
+			$this->level = $playerLevel + 1 + $distanceFactor;
 		}
 		// Level == - 50%
 		else if ( $chanceInHundred > 20 ) {
-			$this->level = $playerLevel;
+			$this->level = $playerLevel + $distanceFactor;
 		}
 		// Level -1 - 15%
 		else {
-			$this->level = $playerLevel - 1;
+			$this->level = $playerLevel - 1 + $distanceFactor;
 			// Don't want level 0 monsters :P
 			$this->level = max($this->level, 1);
 		}
