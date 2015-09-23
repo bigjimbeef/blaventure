@@ -28,6 +28,8 @@ class CharacterSaveData {
 	public $spellbook	= null;
 
 	public $nick		= null;
+
+	public $kills		= 0;
 }
 
 class MapSaveData {

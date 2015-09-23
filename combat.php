@@ -138,6 +138,8 @@ class Combat {
 
 			$fightOutput .= " It dies! Check the body for loot!\n";
 
+			$charData->kills++;
+
 			// Move to the looting state.
 			$charData->state = GameStates::Looting;
 
