@@ -132,7 +132,7 @@ class Combat {
 			// It survived. Attacks back.
 			list ($attackType, $damage) = $this->monsterAttack($charData, $monster);
 
-			$fightOutput .= (" It $attackType" . "s back for $damage!\n");
+			$fightOutput .= (" It $attackType" . "s back for $damage! ($charData->hp/$charData->hpMax)\n");
 		}
 		else {
 
