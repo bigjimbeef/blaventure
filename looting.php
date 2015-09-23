@@ -40,7 +40,7 @@ function giveGold($monster, &$charData) {
 
 	$output = "On the corpse of the $monster->name, you find $gold GP! ";
 
-	$charData->gp += $gold;
+	$charData->gold += $gold;
 
 	return $output;
 }
