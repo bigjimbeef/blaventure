@@ -41,9 +41,19 @@ function findSpell($spellName) {
 
 $powerAttack = new Spell("Power Attack", 10, false, function($charData) {
 
-	// 60-150 at level 30
-	// 6-15 dmg/MP
-	return getSpellDamage($charData->level, 2, 5);
+	global $combat;
+
+	// Either does damage * 1.5, or misses 1 in 3.
+	list($damage, $crit) = $combat->attackDamage($charData->level, $charData->weaponVal);
+
+	$damage = ceil($damage * 1.5);
+	$oneInThree = rand(1, 3);
+
+	if ( $oneInThree == 3 ) {
+		$damage = 0;
+	}
+
+	return $damage;
 });
 $allSpells[] = $powerAttack;
 
