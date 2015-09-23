@@ -19,7 +19,7 @@ class ProcGen {
 		if ( !$noSpawning && $chanceInHundred > 50 ) {
 
 			// Monster difficulty scales, in part, with distance from the start.
-			$midPoint		= floor($MAP_SIZE / 2);
+			$midPoint		= floor(ProcGen::GetMapSize() / 2);
 			$xDistFromStart = abs($xVal - $midPoint);
 			$yDistFromStart = abs($yVal - $midPoint);
 
