@@ -26,10 +26,10 @@ class CharacterSaveData {
 	public $restEnd		= 0;
 
 	public $spellbook	= null;
-
 	public $nick		= null;
-
 	public $kills		= 0;
+
+	public $abilities	= null;
 }
 
 class MapSaveData {
@@ -181,7 +181,7 @@ class Spell {
 	public $mpCost;	
 	public $isHeal;
 
-	private $damageCallback;
+	protected $damageCallback;
 
 	public function Cast($charData) {
 
@@ -189,6 +189,17 @@ class Spell {
 	}
 
 	function __construct($name, $mp, $isHeal, $damageCallback) {
+
+		$this->name				= $name;
+		$this->mpCost 			= $mp;
+		$this->isHeal 			= $isHeal;
+		$this->damageCallback 	= $damageCallback;
+	}
+}
+
+class Ability extends Spell {
+
+	function __construct($name, $mp, $damageCallback) {
 
 		$this->name				= $name;
 		$this->mpCost 			= $mp;
