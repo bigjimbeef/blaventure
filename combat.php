@@ -4,6 +4,7 @@ include_once("statics.php");
 include_once("class_definitions.php");
 
 include_once("spellcasting.php");
+include_once("class_traits.php");
 
 class Combat {
 
@@ -96,16 +97,34 @@ class Combat {
 		return array($damage, $crit);
 	}
 
-	public function monsterAttack(&$charData, $monster) {
+	public function monsterAttack(&$charData, $monster, &$fightOutput) {
 
-		list($damage, $crit) = $this->attackDamage($monster->level, $monster->attack);
-		
+		list($damage, $crit) = $this->attackDamage($monster->level, $monster->attack);		
 		$attackType = $crit ? "CRIT" : "hit";
+
+		//---------------------------------------
+		// Monk trait: dodge, duck, dip, dive, dodge
+		//
+		global $traitMap;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::Dodge) ) {
+
+			$trait 		= $traitMap->GetTrait($charData, TraitName::Dodge);
+			$dodgePerc 	= $trait->GetScaledValue($charData);
+
+			$oneInHundred = rand(1, 100);
+
+			if ( $oneInHundred <= $dodgePerc ) {
+
+				$fightOutput .= " You dodge its return strike!\nn";
+				return;
+			}
+		}
+		//---------------------------------------
+
+		$fightOutput .= (" It $attackType" . "s back for $damage! ($charData->hp/$charData->hpMax)\n");
 
 		$mitigatedDamage = $damage - $charData->armourVal;
 		$this->playerDamaged($charData, $mitigatedDamage);
-
-		return array($attackType, $mitigatedDamage);
 	}
 
 	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null) {
@@ -122,6 +141,24 @@ class Combat {
 		$attackType = $crit ? "CRIT" : "hit";
 		$fightOutput = "You $attackType the $monster->name for $damage!";
 
+		//---------------------------------------
+		// Wiz trait.
+		global $traitMap;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::AttackForMana) ) {
+
+			$currentMP = $charData->mp;
+			
+			$charData->mp += $damage;
+			$charData->mp = min($charData->mp, $charData->mpMax);
+
+			$restoredMP = $charData->mp - $currentMP;
+			
+			if ( $restoredMP > 0 ) {
+				$fightOutput .= " It restores $restoredMP MP!";				
+			}
+		}
+		//---------------------------------------
+
 		// Used when spellcasting.
 		if ( $spellText ) {
 			$fightOutput = $spellText;
@@ -130,9 +167,7 @@ class Combat {
 		if ( $this->monsterDamaged($monster, $room, $damage, $charData) ) {
 
 			// It survived. Attacks back.
-			list ($attackType, $damage) = $this->monsterAttack($charData, $monster);
-
-			$fightOutput .= (" It $attackType" . "s back for $damage! ($charData->hp/$charData->hpMax)\n");
+			$this->monsterAttack($charData, $monster, $fightOutput);
 		}
 		else {
 

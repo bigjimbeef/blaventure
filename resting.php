@@ -3,6 +3,8 @@
 include_once("statics.php");
 include_once("class_definitions.php");
 
+include_once("class_traits.php");
+
 class Resting {
 
 	public $commands = [];
@@ -35,19 +37,33 @@ function getCurrentStats($data, $alsoSet = false) {
 // Check the status of the rest
 $resting->commands[] = new InputFragment("check", function($charData, $mapData) {
 
+	global $traitMap;
+	$isPray		= $traitMap->ClassHasTrait($charData, TraitName::Pray);
+
 	$restEnd 	= $charData->restEnd;
 
 	$date 		= new DateTime();
 	$date->setTimestamp($restEnd);
 
-	$status 	= "You will wake up at " . $date->format("H:i") . ". To wake up now enter 'wake'.    (" . getCurrentStats($charData) . ")\n";
+	$status = "You will wake up at " . $date->format("H:i") . ". To wake up now enter 'wake'. (" . getCurrentStats($charData) . ")\n";		
+
+	if ( $isPray ) {
+		$status = "You will stop praying at " . $date->format("H:i") . ". To stop now, enter 'wake'. (" . getCurrentStats($charData) . ")\n";
+	}
 
 	echo $status;
 });
 
 $resting->commands[] = new InputFragment("wake", function($charData, $mapData) {
 
-	echo "You wake up, ready to start the new day.    (" . getCurrentStats($charData, true) . ")\n";
+	global $traitMap;
+	$isPray		= $traitMap->ClassHasTrait($charData, TraitName::Pray);
+	if ( !$isPray ) {
+		echo "You wake up, ready to start the new day. (" . getCurrentStats($charData, true) . ")\n";
+	}
+	else {
+		echo "You stand up, feeling thoroughly refreshed. (" . getCurrentStats($charData, true) . ")\n";
+	}
 
 	$charData->restStart	= 0;
 	$charData->restEnd		= 0;

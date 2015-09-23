@@ -192,7 +192,7 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 
 	foreach ( $fragments as $key => $fragment ) {
 
-		if ( !$isHelp && $fragment->Matches($input) ) {
+		if ( !$isHelp && $fragment->Matches($input, $charData) ) {
 
 			$fragment->FireCallback($charData, $mapData, $key);
 			$match = true;

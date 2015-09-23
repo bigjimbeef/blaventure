@@ -103,9 +103,9 @@ class Monster {
 		$chanceInHundred = rand(1, 100);
 
 		// e.g. 0 at 0 distance, 5 at max distance
-		$mapHalfSize 	= floor(ProcGen::GetMapSize() / 2);
-		$boundary 		= floor($mapHalfSize / 5);
-		$distanceFactor = floor($distance / $boundary);
+		$mapHalfSize 	= floor(ProcGen::GetMapSize() / 2);	// 50
+		$boundary 		= floor($mapHalfSize / 5);			// 10
+		$distanceFactor = floor($distance / $boundary);		// 
 
 		// Level +3 - 5%
 		if ( $chanceInHundred > 95 ) {

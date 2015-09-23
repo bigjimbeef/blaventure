@@ -3,6 +3,8 @@
 include_once("class_definitions.php");
 include_once("combat.php");
 
+include_once("class_traits.php");
+
 function getSpellDamage($level, $minBase, $maxBase, $levelDecrease = 0) {
 
 	$targetLvl	= $levelDecrease > 0 ? max($level - $levelDecrease, 1) : $level;
@@ -28,6 +30,7 @@ function findSpell($spellName) {
 		if ( strcasecmp($spell->name, $spellName) == 0 ) {
 
 			$outSpell = $spell;
+
 			break;
 		}
 	}

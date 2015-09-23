@@ -6,6 +6,8 @@ include_once("class_definitions.php");
 include_once("spell_list.php");
 include_once("combat.php");
 
+include_once("class_traits.php");
+
 class Spellcasting {
 
 	public $commands = [];
@@ -48,6 +50,16 @@ class Spellcasting {
 		// Damage spells.
 		if ( !$spell->isHeal ) {
 
+			//---------------------------------------
+			// Wizard trait: increase damage of spell by weapon attack value
+			//
+			global $traitMap;
+			if ( $traitMap->ClassHasTrait($charData, TraitName::MagicUp) ) {
+
+				$spellDmg += $charData->weaponVal;
+			}
+			//---------------------------------------
+
 			global $combat;
 
 			$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
@@ -68,6 +80,16 @@ class Spellcasting {
 				echo "You're already at full health!\n";
 				return;
 			}
+
+			//---------------------------------------
+			// Cleric trait: increase healing of spell by weapon attack value
+			//
+			global $traitMap;
+			if ( $traitMap->ClassHasTrait($charData, TraitName::HealUp) ) {
+
+				$spellDmg += $charData->weaponVal;
+			}
+			//---------------------------------------
 
 			$beforeHP = $charData->hp;
 

@@ -9,6 +9,8 @@ include_once("name_generator.php");
 include_once("spell_list.php");
 include_once("spellcasting.php");
 
+include_once("class_traits.php");
+
 class Adventuring {
 
 	public $commands = [];
@@ -118,19 +120,34 @@ $adventuring->commands[] = new InputFragment("magic", function($charData, $mapDa
 // Resting is tied into real time. It takes 1 real minute to regen one HP and MP.
 $adventuring->commands[] = new InputFragment("rest", function($charData, $mapData) {
 
+	global $traitMap;
+	$isPray			= $traitMap->ClassHasTrait($charData, TraitName::Pray);
+
 	$hpDeficit		= $charData->hpMax - $charData->hp;
 	$mpDeficit		= $charData->mpMax - $charData->mp;
 
 	// Can't rest at max HP and MP.
 	if ( $hpDeficit == 0 && $mpDeficit == 0 ) {
 
-		echo "You're not really tired. Better find something else to do.\n";
+		if ( !$isPray ) {
+			echo "You're not really tired. Better find something else to do.\n";			
+		}
+		else {
+			echo "You're not feeling very pious at the minute. I guess you should go look around.\n";
+		}
 	}
 	else {
 
 		$restDuration 		= $hpDeficit > $mpDeficit ? $hpDeficit : $mpDeficit;
 
-		echo "You curl up in a ball and go to sleep. It will take $restDuration minutes to fully restore.\n";
+		if ( !$isPray ) {
+			echo "You curl up in a ball and go to sleep. It will take $restDuration minutes to fully restore.\n";
+		}
+		else {
+			$restDuration	= ceil($restDuration / 2);
+			echo "You kneel down on the ground, and pray fervently to your God(s). It will take $restDuration minutes.\n";
+		}
+
 		$charData->state 		= GameStates::Resting;
 
 		$date					= new DateTime();
