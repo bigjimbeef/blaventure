@@ -115,7 +115,7 @@ class Combat {
 		list($damage, $crit) = $this->attackDamage($charData->level, $charData->weaponVal);
 
 		// Used when spellcasting.
-		if ( $spellDmg ) {
+		if ( !is_null($spellDmg) ) {
 			$damage = $spellDmg;
 		}
 

@@ -130,9 +130,13 @@ class Spellcasting {
 		$this->commands[] = new InputFragment("cancel", function($charData, $mapData) use ($outOfCombat) {
 		
 			if ( !$outOfCombat ) {
+				echo "You decide against casting a spell, and go back to the fight.\n";
+
 				$charData->state = GameStates::Combat;
 			}
 			else {
+				echo "You decide not to cast a spell, and go back to Adventuring.\n";
+
 				$charData->state = GameStates::Adventuring;
 			}
 		});
