@@ -140,7 +140,7 @@ class Combat {
 
 		// Also they're angry sometimes.
 		if ( $charData->rageTurns > 0 ) {
-			$damage *= 2;
+			$damage = floor($damage / 2);
 		}
 
 		$mitigatedDamage = $damage - $armourVal;
@@ -163,7 +163,7 @@ class Combat {
 			exit(11);
 		}
 
-		$fightOutput .= (" It $attackType" . "s back for $mitigatedDamage! ($charData->hp/$charData->hpMax)\n");
+		$fightOutput .= (" It $attackType" . "s back for $mitigatedDamage! ($charData->hp/$charData->hpMax)");
 
 		return array($attackType, $mitigatedDamage);
 	}
@@ -242,6 +242,11 @@ class Combat {
 			if ( $isAngryBarbarian ) {
 
 				$charData->rageTurns--;
+
+				if ( $charData->rageTurns <= 0 ) {
+
+					$fightOutput .= " Your rage subsides.";
+				}
 			}
 		}
 		else {
