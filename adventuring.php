@@ -30,7 +30,21 @@ $adventuring->commands[] = new InputFragment("char", function($charData, $mapDat
 // Get the character inventory
 $adventuring->commands[] = new InputFragment("items", function($charData, $mapData) {
 
-	$inventory = "$charData->weapon ($charData->weaponVal)    $charData->armour ($charData->armourVal)    $charData->gold GP\n";
+	$inventory = "$charData->weapon ($charData->weaponVal)    ";
+
+	//---------------------------------------
+	// Barbarian trait.
+	global $traitMap;
+	$isBarbarian = $traitMap->ClassHasTrait($charData, TraitName::DualWield);
+
+	if ( !$isBarbarian ) {
+		$inventory .= "$charData->armour ($charData->armourVal)";
+	}
+	else {
+		$inventory .= "$charData->weapon2 ($charData->weapon2Val)";
+	}
+
+	$inventory .= "    $charData->gold GP\n";
 
 	echo $inventory;
 });
@@ -69,9 +83,11 @@ $adventuring->commands[] = new InputFragment("magic", function($charData, $mapDa
 	$haveNonCombat = false;
 	$nonCombatSpells = array();
 
+	global $spellcasting;
+
 	foreach ( $charData->spellbook as $spellName ) {
 
-		$spell = findSpell($spellName);
+		$spell = $spellcasting->findSpellOrAbility($spellName);
 		if ( $spell->isHeal ) {
 
 			$haveNonCombat = true;

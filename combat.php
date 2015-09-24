@@ -6,6 +6,8 @@ include_once("class_definitions.php");
 include_once("spellcasting.php");
 include_once("class_traits.php");
 
+include_once("ability_list.php");
+
 class Combat {
 
 	public $commands = [];
@@ -79,7 +81,7 @@ class Combat {
 	}
 
 	// Note: check spreadsheet for reference to these arcane formulae!
-	public function attackDamage($level, $attack) { 
+	public function attackDamage($level, $attack, $critThreatOverride = -1) { 
 
 		$minDamage = floor(1.5 * ($level + 1)) + $attack;
 		$maxDamage = (2 * ($level + 1)) + $attack;
@@ -88,10 +90,17 @@ class Combat {
 		$crit		= false;
 
 		$chanceIn20	= rand(1, 20);
-		if ( $chanceIn20 == 20 ) {
+
+		$critNumber = 20;
+		if ( $critThreatOverride > 0 ) {
+			$critNumber = $critThreatOverride;
+		}
+
+		if ( $chanceIn20 >= $critNumber ) {
 			$crit = true;
 
-			$damage *= 2;
+			$critDmgMultiplier = 2;
+			$damage *= $critDmgMultiplier;
 		}
 
 		return array($damage, $crit);
@@ -121,17 +130,68 @@ class Combat {
 		}
 		//---------------------------------------
 
-		$fightOutput .= (" It $attackType" . "s back for $damage! ($charData->hp/$charData->hpMax)\n");
+		// Barbarians don't use armour.
+		$armourVal = $charData->armourVal;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::DualWield) ) {
 
-		$mitigatedDamage = $damage - $charData->armourVal;
+			$armourVal = 0;
+		}
+
+		// Also they're angry sometimes.
+		if ( $charData->rageTurns > 0 ) {
+			$damage *= 2;
+		}
+
+		$mitigatedDamage = $damage - $armourVal;
+
+		//---------------------------------------
+		// Fighter trait: yawn, fighters
+		//
+		if ( $traitMap->ClassHasTrait($charData, TraitName::ArmourUp) ) {
+
+			$mitigatedDamage -= $charData->level;
+			$mitigatedDamage = max(0, $mitigatedDamage);
+		}
+		//---------------------------------------
+
 		$this->playerDamaged($charData, $mitigatedDamage);
+
+		$fightOutput .= (" It $attackType" . "s back for $mitigatedDamage! ($charData->hp/$charData->hpMax)\n");
 	}
 
 	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null) {
 
 		$changedState = false;
+		$critThreatOverride = null;
 
-		list($damage, $crit) = $this->attackDamage($charData->level, $charData->weaponVal);
+		$isAngryBarbarian = $charData->rageTurns > 0;
+
+		//---------------------------------------
+		// Rogue trait.
+		global $traitMap;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::CritChanceUp) ) {
+
+			$trait = $traitMap->GetTrait($charData, TraitName::CritLvlScale);
+			
+			$critThreatOverride = 20 - $trait->GetScaledValue($charData);
+		}
+		//---------------------------------------
+
+		//---------------------------------------
+		// Barbarian trait.
+		$weaponDamage = $charData->weaponVal;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::DualWield) ) {
+
+			$weaponDamage += $charData->weapon2Val;
+		}
+		//---------------------------------------
+
+		list($damage, $crit) = $this->attackDamage($charData->level, $weaponDamage, $critThreatOverride);
+
+		// Angry barbarian? (don't double spell damage)
+		if ( $isAngryBarbarian && is_null($spellDmg) ){
+			$damage *= 2;
+		}
 
 		// Used when spellcasting.
 		if ( !is_null($spellDmg) ) {
@@ -168,12 +228,20 @@ class Combat {
 
 			// It survived. Attacks back.
 			$this->monsterAttack($charData, $monster, $fightOutput);
+
+			// Barbarians get a little less angry
+			if ( $isAngryBarbarian ) {
+
+				$charData->rageTurns--;
+			}
 		}
 		else {
 
 			$fightOutput .= " It dies! Check the body for loot!\n";
 
 			$charData->kills++;
+
+			clearAllAbilityLocks($charData);
 
 			// Move to the looting state.
 			$charData->state = GameStates::Looting;

@@ -1,10 +1,11 @@
 <?php
 
 include_once("spell_list.php");
+include_once("ability_list.php");
 
 $defaultSpells = array(
 
-	"Barbarian" => array(),
+	"Barbarian" => array($rage->name),
 
 	"Cleric" => array($lesserHeal->name),
 

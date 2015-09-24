@@ -246,6 +246,9 @@ function firstPlay($data) {
 	
 	$data->armour = "Skin";
 	$data->armourVal = 1;
+
+	$data->weapon2 = "Smaller Stick";
+	$data->weapon2Val = 1;
 }
 
 function adventuring($input, $charData, $mapData) {

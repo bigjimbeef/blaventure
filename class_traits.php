@@ -4,31 +4,31 @@
 // C - Heals add weapon val, Pray replaces rest - rest at double speed
 // F - Armour +level, Slam ability - stun enemy for n levels
 // M - Dodge attacks - 2.5% per level, QP cost down 5 per 5 levels
-// R - Crit on 19-20, 1.5 x crit damage, crit range increases by 1 per 5 levels
+// R - Crit on 19-20, crit range increases by 1 per 5 levels, Backstab cost down 2 per 5 levels
 // W - Spell dmg adds weapon val, attack to restore mana (1 MP / damage)
 
 abstract class TraitName {
 
 	// Barbarian
-	const Ability_Rage	= "Rage";				//
-	const DoubleWeapon 	= "DoubleWeapon";		//
+	const Ability_Rage	= "Rage";				// done
+	const DualWield 	= "DualWield";			// done
 
 	// Cleric
 	const HealUp		= "HealUp";				// done
 	const Pray			= "Pray";				// done
 
 	// Fighter
-	const ArmourUp		= "ArmourUp";			// 
-	const Ability_Slam	= "Slam";				// done
+	const ArmourUp		= "ArmourUp";			// done
+	const Ability_Slam	= "Slam";				// 
 
 	// Monk
 	const Dodge			= "Dodge";				// done
 	const PalmLvlScale	= "PalmLvlScale";		// 
 
 	// Rogue
-	const CritChanceUp	= "CritChanceUp";		// 
-	const CritDmgUp		= "CritDmgUp";			// 
-	const CritLvlScale	= "CritLvlScale";		// 
+	const CritChanceUp	= "CritChanceUp";		// done
+	const CritLvlScale	= "CritLvlScale";		// done
+	const StabLvlScale	= "StabLvlScale";		// 
 
 	// Wizard
 	const MagicUp		= "MagicUp";			// done
@@ -93,7 +93,7 @@ $barbTraits = array();
 $barbTraits[] = new ClassTrait(TraitName::Ability_Rage, function(&$charData) {
 	// Do nothing.
 });
-$barbTraits[] = new ClassTrait(TraitName::DoubleWeapon, function(&$charData) {
+$barbTraits[] = new ClassTrait(TraitName::DualWield, function(&$charData) {
 	// Do nothing.
 });
 
@@ -154,9 +154,6 @@ $traitMap->map[Monk::Name] = $monkTraits;
 $rogueTraits = array();
 
 $rogueTraits[] = new ClassTrait(TraitName::CritChanceUp, function(&$charData) {
-	// Do nothing.
-});
-$rogueTraits[] = new ClassTrait(TraitName::CritDmgUp, function(&$charData) {
 	// Do nothing.
 });
 $rogueTraits[] = new ClassTrait(TraitName::CritLvlScale, function(&$charData) {

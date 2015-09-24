@@ -4,6 +4,7 @@ include_once("statics.php");
 include_once("class_definitions.php");
 
 include_once("spell_list.php");
+include_once("ability_list.php");
 include_once("combat.php");
 
 include_once("class_traits.php");
@@ -11,6 +12,17 @@ include_once("class_traits.php");
 class Spellcasting {
 
 	public $commands = [];
+
+	public function findSpellOrAbility($spellName) {
+
+		$spell = findSpell($spellName);
+		if ( is_null($spell) ) {
+
+			$spell = findAbility($spellName);
+		}
+
+		return $spell;
+	}
 
 	public function canCastSpell($charData, $nonCombatOnly = false) {
 		
@@ -20,7 +32,7 @@ class Spellcasting {
 
 		foreach ($charData->spellbook as $spellName) {
 
-			$spell = findSpell($spellName);
+			$spell = $this->findSpellOrAbility($spellName);
 
 			// Ignore damaging spells if searching for heals.
 			if ( $nonCombatOnly && !$spell->isHeal ) {
@@ -38,7 +50,7 @@ class Spellcasting {
 
 	private function castSpell($spellName, $charData, $mapData, $outOfCombat) {
 
-		$spell = findSpell($spellName);
+		$spell = $this->findSpellOrAbility($spellName);
 
 		if ( $charData->mp < $spell->mpCost ) {
 			echo "You don't have enough MP to cast $spellName! ($charData->mp of $spell->mpCost needed)\n";
@@ -47,8 +59,18 @@ class Spellcasting {
 
 		$spellDmg = $spell->Cast($charData);
 
+		// Abilities.
+		if ( $spell->isAbility ) {
+			
+			if ( $outOfCombat ) {
+				$charData->state = GameStates::Adventuring;
+			}
+			else {
+				$charData->state = GameStates::Combat;
+			}
+		}
 		// Damage spells.
-		if ( !$spell->isHeal ) {
+		else if ( !$spell->isHeal ) {
 
 			//---------------------------------------
 			// Wizard trait: increase damage of spell by weapon attack value
@@ -134,7 +156,7 @@ class Spellcasting {
 			// Can only cast heal spells.
 			if ( $outOfCombat ) {
 
-				$spell = findSpell($spellName);
+				$spell = $this->findSpellOrAbility($spellName);
 
 				if ( !$spell->isHeal ) {
 					continue;
@@ -179,7 +201,8 @@ $spellcasting->commands[] = new InputFragment("book", function($charData, $mapDa
 
 	foreach( $spellList as $spellName ) {
 
-		$spell = findSpell($spellName);
+		$spell = $this->findSpellOrAbility($spellName);
+
 		if ( is_null($spell) ) {
 			continue;
 		}

@@ -4,6 +4,7 @@ include_once("statics.php");
 include_once("class_definitions.php");
 
 include_once("spell_list.php");
+include_once("class_traits.php");
 
 class Looting {
 
@@ -45,6 +46,49 @@ function giveGold($monster, &$charData) {
 	return $output;
 }
 
+function giveWeapon($monster, &$charData) {
+
+	//---------------------------------------
+	// Barbarian trait: :D
+	//
+	global $traitMap;
+	$isBarbarian = $traitMap->ClassHasTrait($charData, TraitName::DualWield);
+	//---------------------------------------
+
+	$textOutput 	= "";
+	$monsterLevel	= $monster->level;
+
+	$weaponName = NameGenerator::Weapon($monsterLevel);
+	$weaponLvl	= lootLevel($monsterLevel);
+
+	$currentWpnVal = $charData->weaponVal;
+
+	// Only equip weapons that are better.
+	if ( $weaponLvl > $currentWpnVal ) {
+
+		$article 	= NameGenerator::GetArticle($weaponName);
+		$textOutput = "You find $article $weaponName and equip it immediately! ";
+
+		$charData->weapon = $weaponName;
+		$charData->weaponVal = $weaponLvl;
+	}
+	// Check the second weapon slot, for barbarians
+	else if ( $isBarbarian && ( $weaponLvl > $charData->weapon2Val ) ) {
+
+		$article 	= NameGenerator::GetArticle($weaponName);
+		$textOutput = "You find $article $weaponName and equip it immediately in your off-hand! ";
+
+		$charData->weapon2 		= $weaponName;
+		$charData->weapon2Val 	= $weaponLvl;
+	}
+	else {
+
+		$textOutput = giveGold($monster, $charData);
+	}
+
+	return $textOutput;
+}
+
 function giveLoot($monster, &$charData) {
 
 	$textOutput		= "";
@@ -55,24 +99,7 @@ function giveLoot($monster, &$charData) {
 	// 5,6: Weapon
 	if ( $chanceInSix >= 5 ) {
 
-		$weaponName = NameGenerator::Weapon($monsterLevel);
-		$weaponLvl	= lootLevel($monsterLevel);
-
-		$currentWpnVal = $charData->weaponVal;
-
-		// Only equip weapons that are better.
-		if ( $weaponLvl > $currentWpnVal ) {
-
-			$article 	= NameGenerator::GetArticle($weaponName);
-			$textOutput = "You find $article $weaponName and equip it immediately! ";
-
-			$charData->weapon = $weaponName;
-			$charData->weaponVal = $weaponLvl;
-		}
-		else {
-
-			$textOutput = giveGold($monster, $charData);
-		}
+		$textOutput = giveWeapon($monster, $charData);
 	}
 	// 3,4: Armour
 	else if ( $chanceInSix >= 3 ) {

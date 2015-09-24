@@ -14,6 +14,11 @@ class CharacterSaveData {
 	public $mpMax		= 0;		// int
 	public $weapon		= null;		// str
 	public $weaponVal	= 0;		// int
+
+	// Used for Barbarians
+	public $weapon2		= null;		// str
+	public $weapon2Val	= 0;
+
 	public $armour		= null;		// str
 	public $armourVal	= 0;		// int
 	public $gold		= 0;		// int
@@ -30,7 +35,10 @@ class CharacterSaveData {
 	public $nick		= null;
 	public $kills		= 0;
 
-	public $abilities	= null;
+	public $rageTurns	= 0;
+
+	// Abilities are locked after use in combat (and unlocked on leaving combat)
+	public $lockedAbilities = null;
 }
 
 class MapSaveData {
@@ -188,8 +196,9 @@ class Spell {
 	public $isHeal;
 
 	protected $damageCallback;
+	public $isAbility;
 
-	public function Cast($charData) {
+	public function Cast(&$charData) {
 
 		return call_user_func($this->damageCallback, $charData);
 	}
@@ -200,17 +209,21 @@ class Spell {
 		$this->mpCost 			= $mp;
 		$this->isHeal 			= $isHeal;
 		$this->damageCallback 	= $damageCallback;
+
+		$this->isAbility 		= false;
 	}
 }
 
 class Ability extends Spell {
 
-	function __construct($name, $mp, $damageCallback) {
+	function __construct($name, $mp, $isHeal, $damageCallback) {
 
 		$this->name				= $name;
 		$this->mpCost 			= $mp;
 		$this->isHeal 			= $isHeal;
 		$this->damageCallback 	= $damageCallback;
+		
+		$this->isAbility 		= true;
 	}
 }
 
