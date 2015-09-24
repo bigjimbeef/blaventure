@@ -157,6 +157,8 @@ class Combat {
 		$this->playerDamaged($charData, $mitigatedDamage);
 
 		$fightOutput .= (" It $attackType" . "s back for $mitigatedDamage! ($charData->hp/$charData->hpMax)\n");
+
+		return array($attackType, $damage);
 	}
 
 	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null) {
