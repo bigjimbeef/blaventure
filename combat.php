@@ -210,7 +210,7 @@ class Combat {
 
 			$currentMP = $charData->mp;
 			
-			$charData->mp += $damage;
+			$charData->mp += ( $damage / 2 );
 			$charData->mp = min($charData->mp, $charData->mpMax);
 
 			$restoredMP = $charData->mp - $currentMP;
