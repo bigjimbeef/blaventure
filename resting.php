@@ -52,7 +52,7 @@ $resting->commands[] = new InputFragment("check", function($charData, $mapData) 
 	$status = "You will wake up at " . $date->format("H:i") . ". To wake up now enter 'wake'. (" . getCurrentStats($charData) . ")\n";		
 
 	if ( $isPray ) {
-		$status = "You will stop praying at " . $date->format("H:i") . ". To stop now, enter 'wake'. (" . getCurrentStats($charData) . ")\n";
+		$status = "You will stop praying at " . $date->format("H:i") . ". To stop now, enter 'wake'. (" . getCurrentStats($charData, false, true) . ")\n";
 	}
 
 	echo $status;
