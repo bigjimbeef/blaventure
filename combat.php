@@ -143,7 +143,7 @@ class Combat {
 			$damage = floor($damage / 2);
 		}
 
-		$mitigatedDamage = $damage - $armourVal;
+		$mitigatedDamage = max($damage - $armourVal, 0);
 
 		//---------------------------------------
 		// Fighter trait: yawn, fighters
