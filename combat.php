@@ -64,20 +64,21 @@ class Combat {
 		return " That wasn't your best.\n";
 	}
 
-	public function playerDamaged(&$charData, $damage) {
+	public function playerDamaged(&$charData, $damage, $attackType, &$fightOutput) {
 
 		$charData->hp -= $damage;
 
+		$died = false;
+
 		if ( $charData->hp <= 0 ) {
 
-			$deathMsg = "Oh no! $charData->name has died!";
+			$fightOutput .= " Oh no! It $attackType you for $damage, killing you!";
+			$fightOutput .= $this->appendScoreboardInfo($charData);
 
-			$deathMsg .= $this->appendScoreboardInfo($charData);
-
-			echo $deathMsg;
-
-			exit(11);
+			$died = true;
 		}
+
+		return $died;
 	}
 
 	// Note: check spreadsheet for reference to these arcane formulae!
@@ -154,7 +155,13 @@ class Combat {
 		}
 		//---------------------------------------
 
-		$this->playerDamaged($charData, $mitigatedDamage);
+		$didPlayerDie = $this->playerDamaged($charData, $mitigatedDamage, $attackType, $fightOutput);
+
+		if ( $didPlayerDie ) {
+
+			echo $fightOutput . "\n";
+			exit(11);
+		}
 
 		$fightOutput .= (" It $attackType" . "s back for $mitigatedDamage! ($charData->hp/$charData->hpMax)\n");
 
