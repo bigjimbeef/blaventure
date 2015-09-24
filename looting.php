@@ -104,22 +104,36 @@ function giveLoot($monster, &$charData) {
 	// 3,4: Armour
 	else if ( $chanceInSix >= 3 ) {
 
-		$armourName = NameGenerator::Armour($monsterLevel);
-		$armourLvl	= lootLevel($monsterLevel);
+		//---------------------------------------
+		// Barbarian trait: :D
+		//
+		global $traitMap;
+		$isBarbarian = $traitMap->ClassHasTrait($charData, TraitName::DualWield);
+		//---------------------------------------
 
-		$currentAmrVal = $charData->armourVal;
+		if ( !$isBarbarian ) {
+			
+			$armourName = NameGenerator::Armour($monsterLevel);
+			$armourLvl	= lootLevel($monsterLevel);
 
-		// Only equip armour that is better.
-		if ( $armourLvl > $currentAmrVal ) {
+			$currentAmrVal = $charData->armourVal;
 
-			$textOutput = "The monster was armoured! You steal the $armourName and equip it immediately! ";
+			// Only equip armour that is better.
+			if ( $armourLvl > $currentAmrVal ) {
 
-			$charData->armour = $armourName;
-			$charData->armourVal = $armourLvl;
+				$textOutput = "The monster was armoured! You steal the $armourName and equip it immediately! ";
+
+				$charData->armour = $armourName;
+				$charData->armourVal = $armourLvl;
+			}
+			else {
+
+				$textOutput = giveGold($monster, $charData);
+			}
 		}
 		else {
 
-			$textOutput = giveGold($monster, $charData);
+			$textOutput = giveWeapon($monster, $charData);
 		}
 	}
 	// 1,2: Spell
