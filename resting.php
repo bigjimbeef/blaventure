@@ -13,10 +13,14 @@ class Resting {
 $resting = new Resting();
 date_default_timezone_set('UTC');
 
-function getCurrentStats($data, $alsoSet = false) {
+function getCurrentStats($data, $alsoSet = false, $isPray = false) {
 
 	$restedTimeInS 	= time() - $data->restStart;
 	$restedTimeInM 	= floor($restedTimeInS / 60);
+
+	if ( $isPray ) {
+		$restedTimeInM *= 2;
+	}
 
 	$restedHP		= $data->hp + $restedTimeInM;
 	$restedHP		= min($restedHP, $data->hpMax);
@@ -59,10 +63,10 @@ $resting->commands[] = new InputFragment("wake", function($charData, $mapData) {
 	global $traitMap;
 	$isPray		= $traitMap->ClassHasTrait($charData, TraitName::Pray);
 	if ( !$isPray ) {
-		echo "You wake up, ready to start the new day. (" . getCurrentStats($charData, true) . ")\n";
+		echo "You wake up, ready to start the new day. (" . getCurrentStats($charData, true, $isPray) . ")\n";
 	}
 	else {
-		echo "You stand up, feeling thoroughly refreshed. (" . getCurrentStats($charData, true) . ")\n";
+		echo "You stand up, feeling thoroughly refreshed. (" . getCurrentStats($charData, true, $isPray) . ")\n";
 	}
 
 	$charData->restStart	= 0;
