@@ -239,9 +239,17 @@ class Combat {
 		}
 		else {
 
-			$fightOutput .= " It dies! Check the body for loot!\n";
+			$fightOutput .= " It dies! ";
 
 			$charData->kills++;
+
+			if ( $isAngryBarbarian ) {
+
+				$charData->rageTurns = 0;
+				$fightOutput .= "Your rage subsides. ";
+			}
+
+			$fightOutput .= "Check the body for loot!\n";
 
 			clearAllAbilityLocks($charData);
 
