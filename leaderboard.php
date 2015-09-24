@@ -106,6 +106,11 @@ function getLeadersAsString($leaders) {
 		$level 	= $leader["data"]->level;
 		$class 	= $leader["data"]->class;
 
+		$maxCharacters = 16;
+		if ( strlen($name) > $maxCharacters ) {
+			$name = substr($name, 0, $maxCharacters) . "...";
+		}
+
 		$output .= "$i. $name, level $level $class ($nick)  ";
 	}
 
