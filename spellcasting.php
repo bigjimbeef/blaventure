@@ -78,7 +78,7 @@ class Spellcasting {
 			global $traitMap;
 			if ( $traitMap->ClassHasTrait($charData, TraitName::MagicUp) ) {
 
-				$spellDmg += $charData->weaponVal;
+				$spellDmg += floor($charData->weaponVal / 2);
 			}
 			//---------------------------------------
 
