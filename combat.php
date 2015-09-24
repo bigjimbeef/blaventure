@@ -325,7 +325,7 @@ $combat->commands[] = new InputFragment("run", function($charData, $mapData) use
 		$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 		$monster 	= $room->occupant;
 
-		list ($attackType, $damage) = $combat->monsterAttack($charData, $monster);
+		list ($attackType, $damage) = $combat->monsterAttack($charData, $monster, $output);
 		echo "You get caught and $attackType for $damage damage!\n";
 	}
 	else {
