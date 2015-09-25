@@ -237,7 +237,9 @@ function giveXP($monster, &$charData, &$lootText) {
 		$carryOverXP 	= $xpForNextLevel - $currentXP;
 		$charData->xp 	= $carryOverXP;
 
-		$lootText .= "LEVEL UP! Choose to increase your (h)p or (m)p:\n";
+		$levelUpColoured = "\x0312L\x03\x033E\x03\x037V\x03\x035E\x03\x036L\x03 \x039U\x03\x0310P\x03\x038!\x03";
+
+		$lootText .= "$levelUpColoured Choose to increase your (h)p or (m)p:\n";
 
 		return true;
 	}
