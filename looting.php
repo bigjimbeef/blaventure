@@ -107,7 +107,7 @@ function giveLoot($monster, &$charData) {
 	$chanceInSix	= rand(1, 6);
 
 	// 5,6: Weapon
-	if ( true || $chanceInSix >= 5 ) {
+	if ( $chanceInSix >= 5 ) {
 
 		$textOutput = giveWeapon($monster, $charData);
 	}
@@ -193,7 +193,7 @@ function checkForLootDrop($monster, &$charData) {
 	$output = "";
 
 	// 5,6:	Loot
-	if ( true || $chanceInSix > 4 ) {
+	if ( $chanceInSix > 4 ) {
 
 		$output = giveLoot($monster, $charData);
 	}
