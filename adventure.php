@@ -214,6 +214,42 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 
 		echo $warning;
 	}
+
+	return $match;
+}
+
+function passiveHealthRegen( &$charData ) {
+
+	// We don't passively regenerate in combat.
+	if ( $charData->state == GameStates::Combat ) {
+		return;
+	}
+
+	$date		= new DateTime();
+	$timestamp	= $date->getTimeStamp();
+
+	// We haven't performed an action before.
+	if ( $charData->lastInputD <= 0 ) {
+
+		// Now we have.
+		$charData->lastInputD 	= $timestamp;
+		return;
+	}
+
+	$deltaTime	= $timestamp - $charData->lastInputD;
+
+	// Regen at rate of 1 HP/MP per 3 minutes
+	$sIn3m		= 3 * 60;
+	$regen		= floor($deltaTime / $sIn3m);
+
+	$charData->hp += $regen;
+	$charData->hp = min($charData->hp, $charData->hpMax);
+
+	$charData->mp += $regen;
+	$charData->mp = min($charData->mp, $charData->mpMax);
+	
+	// Mark when we last interacted.
+	$charData->lastInputD 	= $timestamp;
 }
 
 function classSelect($input, $charData, $charName) {
@@ -485,6 +521,9 @@ function main() {
 	}
 
 	if ( isset($charData) && $charDataDirty ) {
+
+		// Regenerate health based on time since last input.
+		passiveHealthRegen($charData);
 
 		saveGame($nick, true, $charData);
 	}

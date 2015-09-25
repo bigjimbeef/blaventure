@@ -67,7 +67,17 @@ function giveWeapon($monster, &$charData) {
 	if ( $weaponLvl > $currentWpnVal ) {
 
 		$article 	= NameGenerator::GetArticle($weaponName);
-		$textOutput = "You find $article $weaponName and equip it immediately! ";
+		$textOutput = "You find $article $weaponName and equip it immediately";
+
+		if ( $isBarbarian && ( $charData->weaponVal > $charData->weapon2Val ) ) {
+
+			$textOutput .= ", moving your $charData->weapon to your off-hand";
+
+			$charData->weapon2 = $charData->weapon;
+			$charData->weapon2Val = $charData->weaponVal;
+		}
+
+		$textOutput .= "! ";
 
 		$charData->weapon = $weaponName;
 		$charData->weaponVal = $weaponLvl;
@@ -97,7 +107,7 @@ function giveLoot($monster, &$charData) {
 	$chanceInSix	= rand(1, 6);
 
 	// 5,6: Weapon
-	if ( $chanceInSix >= 5 ) {
+	if ( true || $chanceInSix >= 5 ) {
 
 		$textOutput = giveWeapon($monster, $charData);
 	}
@@ -131,6 +141,7 @@ function giveLoot($monster, &$charData) {
 				$textOutput = giveGold($monster, $charData);
 			}
 		}
+		// Barbarians can't wear armour, so they always get weapons.
 		else {
 
 			$textOutput = giveWeapon($monster, $charData);
@@ -182,7 +193,7 @@ function checkForLootDrop($monster, &$charData) {
 	$output = "";
 
 	// 5,6:	Loot
-	if ( $chanceInSix > 4 ) {
+	if ( true || $chanceInSix > 4 ) {
 
 		$output = giveLoot($monster, $charData);
 	}

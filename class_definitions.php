@@ -30,6 +30,7 @@ class CharacterSaveData {
 
 	public $restStart	= 0;
 	public $restEnd		= 0;
+	public $lastInputD	= 0;		// int (timestamp)
 
 	public $spellbook	= null;
 	public $nick		= null;
@@ -149,10 +150,12 @@ class Monster {
 
 		// Elite monsters simply hit much harder.
 		if ( $this->elite ) {
+			
 			$this->attack = $this->level;
 		}
 
-		$this->hpMax		= $this->level * 10;
+		// Monsters scale in a very slightly non-linear way.
+		$this->hpMax		= floor(pow($this->level, 1.1) * 10);
 		$this->hp			= $this->hpMax;
 	}
 }

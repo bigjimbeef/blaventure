@@ -260,15 +260,7 @@ class Combat {
 			$this->monsterAttack($charData, $monster, $fightOutput);
 
 			// Barbarians get a little less angry
-			if ( $isAngryBarbarian ) {
-
-				$charData->rageTurns--;
-
-				if ( $charData->rageTurns <= 0 ) {
-
-					$fightOutput .= " Your rage subsides.";
-				}
-			}
+			reduceRage($charData, $fightOutput);
 		}
 		else {
 
@@ -286,8 +278,12 @@ class Combat {
 
 function reduceRage(&$charData, &$textOutput, $setValue = -1) {
 
-	if ( $setValue ) {
-		$charData->rageTurns	= 0;
+	if ( $charData->rageTurns <= 0 ) {
+		return;
+	}
+
+	if ( $setValue > -1 ) {
+		$charData->rageTurns	= $setValue;
 	}
 	else {
 		$charData->rageTurns--;
@@ -295,7 +291,8 @@ function reduceRage(&$charData, &$textOutput, $setValue = -1) {
 	
 	// Indicate if we're no longer angry.
 	if ( $charData->rageTurns <= 0 ) {
-		$textOutput 			.= "Your rage subsides. ";
+
+		$textOutput 			.= " Your rage subsides. ";
 	}
 }
 
@@ -388,6 +385,13 @@ $combat->commands[] = new InputFragment("run", function($charData, $mapData) use
 	else {
 
 		echo "You scurry back to the last room!\n";
+
+		// Unlock once-per-combat abilities.
+		clearAllAbilityLocks($charData);
+
+		// Calm down the Barbarians.
+		$dummyOutput = "";
+		reduceRage($charData, $dummyOutput, 0);
 
 		$charData->state = GameStates::Adventuring;
 
