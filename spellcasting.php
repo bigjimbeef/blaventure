@@ -13,12 +13,63 @@ class Spellcasting {
 
 	public $commands = [];
 
-	public function findSpellOrAbility($spellName) {
+	private function reduceMPIfNeeded(&$spell, $charData) {
 
-		$spell = findSpell($spellName);
+		global $traitMap;
+
+		// Fighter trait.
+		global $powerAttack;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::PwAtkLvlScale) ) {
+
+			$trait 			= $traitMap->GetTrait($charData, TraitName::PwAtkLvlScale);
+			$mpReduction 	= $trait->GetScaledValue($charData);
+
+			if ( strcasecmp($spell->name, $powerAttack->name) == 0 ){
+
+				$spell->mpCost = max($spell->mpCost - $mpReduction, 0);
+			}
+		}
+
+		// Monk trait.
+		global $quiveringPalm;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::PalmLvlScale) ) {
+
+			$trait 			= $traitMap->GetTrait($charData, TraitName::PalmLvlScale);
+			$mpReduction 	= $trait->GetScaledValue($charData);
+
+			if ( strcasecmp($spellName, $quiveringPalm->name) == 0 ){
+
+				$spell->mpCost = max($spell->mpCost - $mpReduction, 0);
+			}
+		}
+
+		// Rogue trait.
+		global $backstab;
+		if ( $traitMap->ClassHasTrait($charData, TraitName::StabLvlScale) ) {
+
+			$trait 			= $traitMap->GetTrait($charData, TraitName::StabLvlScale);
+			$mpReduction 	= $trait->GetScaledValue($charData);
+
+			if ( strcasecmp($spellName, $backstab->name) == 0 ){
+
+				$spell->mpCost = max($spell->mpCost - $mpReduction, 0);
+			}
+		}
+
+		return $spell;
+	}
+
+	public function findSpellOrAbility($spellName, $charData) {
+
+		$spell = findSpell($spellName, $charData);
 		if ( is_null($spell) ) {
 
-			$spell = findAbility($spellName);
+			$spell = findAbility($spellName, $charData);
+		}
+
+		if ( !is_null($spell) ) {
+
+			$this->reduceMPIfNeeded($spell, $charData);
 		}
 
 		return $spell;
@@ -32,7 +83,7 @@ class Spellcasting {
 
 		foreach ($charData->spellbook as $spellName) {
 
-			$spell = $this->findSpellOrAbility($spellName);
+			$spell = $this->findSpellOrAbility($spellName, $charData);
 
 			// Ignore damaging spells if searching for heals.
 			if ( $nonCombatOnly && !$spell->isHeal ) {
@@ -50,7 +101,7 @@ class Spellcasting {
 
 	private function castSpell($spellName, $charData, $mapData, $outOfCombat) {
 
-		$spell = $this->findSpellOrAbility($spellName);
+		$spell = $this->findSpellOrAbility($spellName, $charData);
 
 		if ( $charData->mp < $spell->mpCost ) {
 			echo "You don't have enough MP to cast $spellName! ($charData->mp of $spell->mpCost needed)\n";
@@ -195,22 +246,24 @@ $spellcasting = new Spellcasting();
 
 $spellcasting->commands[] = new InputFragment("book", function($charData, $mapData) {
 	
+	global $spellcasting;
+
 	$spellList = $charData->spellbook;
 
 	$output = "";
 
 	foreach( $spellList as $spellName ) {
 
-		$spell = $this->findSpellOrAbility($spellName);
+		$spell = $spellcasting->findSpellOrAbility($spellName, $charData);
 
 		if ( is_null($spell) ) {
 			continue;
 		}
 
-		$output .= "$spellName ($spell->mpCost/$charData->mp MP)  ";
+		$output .= "$spellName ($spell->mpCost MP), ";
 	}
 
-	$output = rtrim($output) . "\n";
+	$output = rtrim($output, ", ") . "\n";
 
 	echo $output;
 });

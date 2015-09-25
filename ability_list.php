@@ -7,7 +7,7 @@ include_once("class_traits.php");
 
 $allAbilites = array();
 
-function findAbility($abilityName) {
+function findAbility($abilityName, $charData) {
 
 	global $allAbilites;
 
@@ -41,12 +41,13 @@ $rage = new Ability("Rage", 0, false, function(&$charData) {
 		return;
 	}
 	else if ( !is_null($charData->lockedAbilities) && in_array("Rage", $charData->lockedAbilities) ) {
+		
 		echo "You're too tired to get super angry again so soon!\n";
 		return;
 	}
 
 	// Starts the barbarian berserking, for a number of rounds based on their level.
-	$numRounds = ceil($charData->level / 3);
+	$numRounds = 1 + ceil($charData->level / 5);
 
 	$charData->rageTurns = $numRounds;
 
@@ -56,6 +57,7 @@ $rage = new Ability("Rage", 0, false, function(&$charData) {
 	}
 	$charData->lockedAbilities[] = "Rage";
 
-	echo "You get angry. Real angry.\n";
+	$plural = $numRounds > 1 ? "s" : "";
+	echo "You get angry. Seems like you'll be angry for about $numRounds turn$plural. Grr.\n";
 });
 $allAbilites[] = $rage;

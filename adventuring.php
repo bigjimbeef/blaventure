@@ -59,14 +59,16 @@ $adventuring->commands[] = new InputFragment("book", function($charData, $mapDat
 
 	$spells = "";
 
+	global $spellcasting;
+
 	foreach ( $charData->spellbook as $spellName ) {
 
-		$spell = findSpell($spellName);
+		$spell = $spellcasting->findSpellOrAbility($spellName, $charData);
 
-		$spells .= "$spellName ($spell->mpCost MP)  ";
+		$spells .= "$spellName ($spell->mpCost MP), ";
 	}
 
-	$spells = rtrim($spells) . "\n";
+	$spells = rtrim($spells, ", ") . "\n";
 
 	echo $spells;
 });
@@ -87,7 +89,7 @@ $adventuring->commands[] = new InputFragment("magic", function($charData, $mapDa
 
 	foreach ( $charData->spellbook as $spellName ) {
 
-		$spell = $spellcasting->findSpellOrAbility($spellName);
+		$spell = $spellcasting->findSpellOrAbility($spellName, $charData);
 		if ( $spell->isHeal ) {
 
 			$haveNonCombat = true;
@@ -115,7 +117,7 @@ $adventuring->commands[] = new InputFragment("magic", function($charData, $mapDa
 
 	foreach ( $spellcasting->commands as $fragment ) {
 
-		$matchingSpell = findSpell($fragment->token);
+		$matchingSpell = findSpellOrAbility($fragment->token, $charData);
 		if ( $matchingSpell && !$matchingSpell->isHeal ) {
 			continue;
 		}

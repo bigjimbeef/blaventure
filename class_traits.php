@@ -2,7 +2,7 @@
 
 // B - Rage ability, two weapons instead of armour
 // C - Heals add weapon val, Pray replaces rest - rest at double speed
-// F - Armour +level, Slam ability - stun enemy for n levels
+// F - Armour +level, Power Attack cost down 2 per 5 levels
 // M - Dodge attacks - 2.5% per level, QP cost down 5 per 5 levels
 // R - Crit on 19-20, crit range increases by 1 per 5 levels, Backstab cost down 2 per 5 levels
 // W - Spell dmg adds weapon val, attack to restore mana (1 MP / damage)
@@ -19,7 +19,7 @@ abstract class TraitName {
 
 	// Fighter
 	const ArmourUp		= "ArmourUp";			// done
-	const Ability_Slam	= "Slam";				// 
+	const PwAtkLvlScale	= "PwAtkLvlScale";		// 
 
 	// Monk
 	const Dodge			= "Dodge";				// done
@@ -119,8 +119,14 @@ $fighterTraits = array();
 $fighterTraits[] = new ClassTrait(TraitName::ArmourUp, function(&$charData) {
 	// Do nothing.
 });
-$fighterTraits[] = new ClassTrait(TraitName::Ability_Slam, function(&$charData) {
-	// Do nothing.
+$fighterTraits[] = new ClassTrait(TraitName::PwAtkLvlScale, function(&$charData) {
+	
+	// -2MP per 5 levels
+	$perLevel		= 2;
+	$levelsBy5		= floor($charData->level / 5);
+	$mpReduction	= $levelsBy5 * $perLevel;
+
+	return $mpReduction;
 });
 
 $traitMap->map[Fighter::Name] = $fighterTraits;
@@ -140,7 +146,7 @@ $monkTraits[] = new ClassTrait(TraitName::Dodge, function(&$charData) {
 $monkTraits[] = new ClassTrait(TraitName::PalmLvlScale, function(&$charData) {
 	
 	// -5MP per 5 levels
-	$perLevel		= -5;
+	$perLevel		= 5;
 	$levelsBy5		= floor($charData->level / 5);
 	$mpReduction	= $levelsBy5 * $perLevel;
 
@@ -165,6 +171,15 @@ $rogueTraits[] = new ClassTrait(TraitName::CritLvlScale, function(&$charData) {
 	$critThreat		= 1 + ( $levelsBy5 * $perLevel );
 
 	return $critThreat;
+});
+$rogueTraits[] = new ClassTrait(TraitName::StabLvlScale, function(&$charData) {
+	
+	// -2MP per 5 levels
+	$perLevel		= 2;
+	$levelsBy5		= floor($charData->level / 5);
+	$mpReduction	= $levelsBy5 * $perLevel;
+
+	return $mpReduction;
 });
 
 $traitMap->map[Rogue::Name] = $rogueTraits;

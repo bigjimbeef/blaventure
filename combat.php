@@ -8,6 +8,8 @@ include_once("class_traits.php");
 
 include_once("ability_list.php");
 
+define("DEBUG_noDamage", 0);
+
 class Combat {
 
 	public $commands = [];
@@ -16,7 +18,9 @@ class Combat {
 
 		$survived = true;
 
-		$monster->hp -= $damage;
+		if ( !constant("DEBUG_noDamage") ) {
+			$monster->hp -= $damage;
+		}
 
 		if ( $monster->hp <= 0 ) {
 
@@ -66,7 +70,9 @@ class Combat {
 
 	public function playerDamaged(&$charData, $damage, $attackType, &$fightOutput) {
 
-		$charData->hp -= $damage;
+		if ( !constant("DEBUG_noDamage") ) {
+			$charData->hp -= $damage;
+		}
 
 		$died = false;
 
@@ -82,7 +88,7 @@ class Combat {
 	}
 
 	// Note: check spreadsheet for reference to these arcane formulae!
-	public function attackDamage($level, $attack, $critThreatOverride = -1) { 
+	public function attackDamage($level, $attack, $critThreatOverride = -1, $missChance = 0) { 
 
 		$minDamage = floor(1.5 * ($level + 1)) + $attack;
 		$maxDamage = (2 * ($level + 1)) + $attack;
@@ -102,6 +108,13 @@ class Combat {
 
 			$critDmgMultiplier = 2;
 			$damage *= $critDmgMultiplier;
+		}
+
+		// Sometimes we can miss.
+		$oneInHundred = rand(1, 100);
+		if ( $oneInHundred <= $missChance ) {
+
+			$damage = 0;
 		}
 
 		return array($damage, $crit);
@@ -138,11 +151,6 @@ class Combat {
 			$armourVal = 0;
 		}
 
-		// Also they're angry sometimes.
-		if ( $charData->rageTurns > 0 ) {
-			$damage = floor($damage / 2);
-		}
-
 		$mitigatedDamage = max($damage - $armourVal, 0);
 
 		//---------------------------------------
@@ -170,10 +178,13 @@ class Combat {
 
 	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null) {
 
+		global $traitMap;
+
 		$changedState = false;
 		$critThreatOverride = null;
 
-		$isAngryBarbarian = $charData->rageTurns > 0;
+		$isBarbarian		= $traitMap->ClassHasTrait($charData, TraitName::DualWield);
+		$isAngryBarbarian 	= $charData->rageTurns > 0;
 
 		//---------------------------------------
 		// Rogue trait.
@@ -186,20 +197,23 @@ class Combat {
 		}
 		//---------------------------------------
 
-		//---------------------------------------
-		// Barbarian trait.
-		$weaponDamage = $charData->weaponVal;
-		if ( $traitMap->ClassHasTrait($charData, TraitName::DualWield) ) {
+		$weaponDamage 	= $charData->weaponVal;
+		$missChance		= 0;
+
+		if ( $isBarbarian ) {
 
 			$weaponDamage += $charData->weapon2Val;
 		}
-		//---------------------------------------
+		if ( $isAngryBarbarian ) {
 
-		list($damage, $crit) = $this->attackDamage($charData->level, $weaponDamage, $critThreatOverride);
+			$missChance		= 33;
+		}
 
-		// Angry barbarian? (don't double spell damage)
-		if ( $isAngryBarbarian && is_null($spellDmg) ){
-			$damage *= 2;
+		list($damage, $crit) = $this->attackDamage($charData->level, $weaponDamage, $critThreatOverride, $missChance);
+
+		if ( $isAngryBarbarian ) {
+
+			$damage = ceil($damage * 2);
 		}
 
 		// Used when spellcasting.
@@ -207,8 +221,15 @@ class Combat {
 			$damage = $spellDmg;
 		}
 
-		$attackType = $crit ? "CRIT" : "hit";
-		$fightOutput = "You $attackType the $monster->name for $damage!";
+		if ( $damage > 0 ) {
+
+			$attackType 	= $crit ? "CRIT" : "hit";
+			$fightOutput 	= "You $attackType the $monster->name for $damage!";
+		}
+		else {
+
+			$fightOutput	= "You swing wildly at the $monster->name, but miss!";
+		}
 
 		//---------------------------------------
 		// Wiz trait.
@@ -251,32 +272,48 @@ class Combat {
 		}
 		else {
 
-			$fightOutput .= " It dies! ";
-
-			$charData->kills++;
-
-			if ( $isAngryBarbarian ) {
-
-				$charData->rageTurns = 0;
-				$fightOutput .= "Your rage subsides. ";
-			}
-
-			$fightOutput .= "Check the body for loot!\n";
-
-			clearAllAbilityLocks($charData);
-
-			// Move to the looting state.
-			$charData->state = GameStates::Looting;
+			exitCombat($charData, $fightOutput);
 
 			$changedState = true;
 		}
 
 		$fightOutput .= "\n";
-
 		echo $fightOutput;
 
 		return $changedState;
 	}
+}
+
+function reduceRage(&$charData, &$textOutput, $setValue = -1) {
+
+	if ( $setValue ) {
+		$charData->rageTurns	= 0;
+	}
+	else {
+		$charData->rageTurns--;
+	}
+	
+	// Indicate if we're no longer angry.
+	if ( $charData->rageTurns <= 0 ) {
+		$textOutput 			.= "Your rage subsides. ";
+	}
+}
+
+function exitCombat(&$charData, &$textOutput) {
+
+	// We killed the enemy.
+	$textOutput .= " It dies! ";
+	$charData->kills++;
+
+	// Unlock once-per-combat abilities.
+	clearAllAbilityLocks($charData);
+
+	// Calm down the Barbarians.
+	reduceRage($charData, $fightOutput, 0);
+
+	// Move to the looting state.
+	$charData->state = GameStates::Looting;
+	$textOutput 	.= "Check the body for loot!\n";
 }
 
 $combat = new Combat();

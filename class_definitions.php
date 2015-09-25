@@ -39,6 +39,8 @@ class CharacterSaveData {
 
 	// Abilities are locked after use in combat (and unlocked on leaving combat)
 	public $lockedAbilities = null;
+
+	public $manaCostReductions = null;
 }
 
 class MapSaveData {
