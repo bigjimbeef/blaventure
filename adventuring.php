@@ -117,7 +117,7 @@ $adventuring->commands[] = new InputFragment("magic", function($charData, $mapDa
 
 	foreach ( $spellcasting->commands as $fragment ) {
 
-		$matchingSpell = findSpellOrAbility($fragment->token, $charData);
+		$matchingSpell = $spellcasting->findSpellOrAbility($fragment->token, $charData);
 		if ( $matchingSpell && !$matchingSpell->isHeal ) {
 			continue;
 		}
