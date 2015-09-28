@@ -68,12 +68,14 @@ class Inventory {
 
 		$this->items = [];
 
+		/*
 		$healthPotion = findItem("health potion");
 
 		if ( $healthPotion ) {
 
 			$this->addItem($healthPotion);
 		}
+		*/
 	}
 }
 
