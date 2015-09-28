@@ -222,7 +222,7 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 function passiveHealthRegen( &$charData ) {
 
 	// We don't passively regenerate in combat.
-	if ( $charData->state == GameStates::Combat ) {
+	if ( $charData->state != GameStates::Combat ) {
 		return;
 	}
 
@@ -392,7 +392,7 @@ function main() {
 				echo $output;
 
 				$charData->name 	= $input;
-				$charData->state 	= GameStates::ClassSelect;
+				StateManager::ChangeState($charData, GameStates::ClassSelect);
 
 				$charDataDirty		= true;
 			}
@@ -407,7 +407,7 @@ function main() {
 				$setClass = classSelect($input, $charData, $charData->name);
 
 				if ( $setClass ) {
-					$charData->state 	= GameStates::FirstPlay;
+					StateManager::ChangeState($charData, GameStates::FirstPlay);
 					$charDataDirty		= true;
 				}
 			}
@@ -420,7 +420,7 @@ function main() {
 
 				firstPlay($charData);
 
-				$charData->state = GameStates::Adventuring;
+				StateManager::ChangeState($charData, GameStates::Adventuring);
 			} // purposeful fall-through!
 
 			// The main loop for when we're romping around.

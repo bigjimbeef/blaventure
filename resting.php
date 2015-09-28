@@ -72,7 +72,7 @@ $resting->commands[] = new InputFragment("wake", function($charData, $mapData) {
 	$charData->restStart	= 0;
 	$charData->restEnd		= 0;
 
-	$charData->state		= GameStates::Adventuring;
+	StateManager::ChangeState($charData, GameStates::Adventuring);
 });
 
 // Add unique identifiers to commands.

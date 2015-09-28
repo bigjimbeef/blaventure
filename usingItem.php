@@ -19,7 +19,12 @@ class UsingItem {
 			exit(14);
 		}
 
-		$item->useItem($charData, $mapData);
+		$usedItem = $item->useItem($charData, $mapData);
+
+		if ( $usedItem ) {
+
+			$inventory = $charData->inventory;
+		}
 	}
 
 	public function generateInputFragments(&$charData, $nonCombat = false) {
@@ -58,12 +63,12 @@ class UsingItem {
 			if ( !$nonCombat ) {
 				echo "You close your bag, and go back to the fight.\n";
 
-				$charData->state = GameStates::Combat;
+				StateManager::ChangeState(GameStates::Combat);
 			}
 			else {
 				echo "Deciding against using an item, you go back to Adventuring.\n";
 
-				$charData->state = GameStates::Adventuring;
+				StateManager::ChangeState(GameStates::Adventuring);
 			}
 		});
 

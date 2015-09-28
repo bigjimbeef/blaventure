@@ -23,6 +23,11 @@ class Inventory {
 		return $addedOk;
 	}
 
+	public function removeItem($itemName) {
+
+		
+	}
+
 	public function getContentsAsString() {
 
 		$output = "";

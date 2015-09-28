@@ -267,10 +267,10 @@ $looting->commands[] = new InputFragment("loot", function($charData, $mapData) {
 	echo "$lootText\n";
 
 	if ( $levelledUp ) {
-		$charData->state = GameStates::LevelUp;
+		StateManager::ChangeState($charData, GameStates::LevelUp);
 	}
 	else {
-		$charData->state = GameStates::Adventuring;
+		StateManager::ChangeState($charData, GameStates::Adventuring);
 	}
 
 	unset($room->occupant);

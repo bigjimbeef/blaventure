@@ -3,6 +3,17 @@
 include_once("name_generator.php");
 include_once("procedural_generator.php");
 
+class StateManager {
+
+	static function ChangeState(&$charData, $newState) {
+
+		// TODO: Validate state?
+
+		$charData->previousState 	= $charData->state;
+		$charData->state			= $newState;
+	}
+}
+
 class CharacterSaveData {
 	public $name		= null;		// str
 	public $class		= null;		// str
@@ -24,7 +35,8 @@ class CharacterSaveData {
 	public $gold		= 0;		// int
 	public $inventory	= null;
 
-	public $state		= GameStates::NameSelect;
+	public $state			= GameStates::NameSelect;
+	public $previousState	= null;
 
 	// Used for procedural generation.
 	public $randomSeed 	= 0;		// int

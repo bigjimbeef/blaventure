@@ -19,7 +19,7 @@ $levelUp->commands[] = new InputFragment("hp", function($charData, $mapData) {
 
 	echo "HP increases by 10 to $charData->hp/$charData->hpMax. You go back to Adventuring.\n";
 
-	$charData->state = GameStates::Adventuring;
+	StateManager::ChangeState($charData, GameStates::Adventuring);
 });
 
 $levelUp->commands[] = new InputFragment("mp", function($charData, $mapData) {
@@ -29,7 +29,7 @@ $levelUp->commands[] = new InputFragment("mp", function($charData, $mapData) {
 
 	echo "MP increases by 10! to $charData->mp/$charData->mpMax. You go back to Adventuring.\n";
 
-	$charData->state = GameStates::Adventuring;
+	StateManager::ChangeState($charData, GameStates::Adventuring);
 });
 
 // Add unique identifiers to commands.

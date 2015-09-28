@@ -114,10 +114,10 @@ class Spellcasting {
 		if ( $spell->isAbility ) {
 			
 			if ( $outOfCombat ) {
-				$charData->state = GameStates::Adventuring;
+				StateManager::ChangeState($charData, GameStates::Adventuring);
 			}
 			else {
-				$charData->state = GameStates::Combat;
+				StateManager::ChangeState($charData, GameStates::Combat);
 			}
 		}
 		// Damage spells.
@@ -143,7 +143,7 @@ class Spellcasting {
 
 			if ( !$killedEnemy ) {
 
-				$charData->state = GameStates::Combat;
+				StateManager::ChangeState($charData, GameStates::Combat);
 			}
 		}
 		// Healing spells.
@@ -185,12 +185,12 @@ class Spellcasting {
 
 				echo $fightOutput;
 
-				$charData->state = GameStates::Combat;
+				StateManager::ChangeState($charData, GameStates::Combat);
 			}
 			else {
 				echo "$fightOutput\n";
 
-				$charData->state = GameStates::Adventuring;
+				StateManager::ChangeState($charData, GameStates::Adventuring);
 			}
 		}
 
@@ -227,12 +227,12 @@ class Spellcasting {
 			if ( !$outOfCombat ) {
 				echo "You decide against casting a spell, and go back to the fight.\n";
 
-				$charData->state = GameStates::Combat;
+				StateManager::ChangeState($charData, GameStates::Combat);
 			}
 			else {
 				echo "You decide not to cast a spell, and go back to Adventuring.\n";
 
-				$charData->state = GameStates::Adventuring;
+				StateManager::ChangeState($charData, GameStates::Adventuring);
 			}
 		});
 

@@ -309,7 +309,7 @@ function exitCombat(&$charData, &$textOutput) {
 	reduceRage($charData, $fightOutput, 0);
 
 	// Move to the looting state.
-	$charData->state = GameStates::Looting;
+	StateManager::ChangeState($charData, GameStates::Looting);
 	$textOutput 	.= "Check the body for loot!\n";
 }
 
@@ -367,7 +367,7 @@ $combat->commands[] = new InputFragment("magic", function($charData, $mapData) {
 
 	echo $output;
 
-	$charData->state = GameStates::Spellcasting;
+	StateManager::ChangeState($charData, GameStates::Spellcasting);
 });
 
 $combat->commands[] = new InputFragment("run", function($charData, $mapData) use($combat) {
@@ -393,7 +393,7 @@ $combat->commands[] = new InputFragment("run", function($charData, $mapData) use
 		$dummyOutput = "";
 		reduceRage($charData, $dummyOutput, 0);
 
-		$charData->state = GameStates::Adventuring;
+		StateManager::ChangeState($charData, GameStates::Adventuring);
 
 		$mapData->playerX = $mapData->lastPlayerX;
 		$mapData->playerY = $mapData->lastPlayerY;

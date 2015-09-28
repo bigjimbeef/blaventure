@@ -123,7 +123,7 @@ $adventuring->commands[] = new InputFragment("use item", function($charData, $ma
 
 	echo $output;
 
-	$charData->state = GameStates::UsingItem;
+	StateManager::ChangeState($charData, GameStates::UsingItem);
 });
 
 // Check your inventory.
@@ -217,7 +217,7 @@ $adventuring->commands[] = new InputFragment("magic", function($charData, $mapDa
 	echo $output;
 	
 	// Begin non-combat casting.
-	$charData->state = GameStates::NonCombatSpellcasting;
+	StateManager::ChangeState($charData, GameStates::NonCombatSpellcasting);
 });
 
 // Begin resting. 
@@ -253,7 +253,7 @@ $adventuring->commands[] = new InputFragment("rest", function($charData, $mapDat
 			echo "You kneel down on the ground, and pray fervently to your God(s). It will take $restDuration minutes.\n";
 		}
 
-		$charData->state 		= GameStates::Resting;
+		StateManager::ChangeState($charData, GameStates::Resting);
 
 		$date					= new DateTime();
 		$charData->restStart 	= $date->getTimeStamp();
@@ -320,13 +320,13 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 			$moveText .= "and encounter $article level $monster->level $monsterName! It attacks!\n";
 
 			// Combat!
-			$charData->state = GameStates::Combat;
+			StateManager::ChangeState($charData, GameStates::Combat);
 		}
 		else {
 			$moveText .= "and encounter the level $monster->level $monsterName again! It attacks again!\n";
 
 			// Combat!
-			$charData->state = GameStates::Combat;
+			StateManager::ChangeState($charData, GameStates::Combat);
 		}
 	}
 	else {
