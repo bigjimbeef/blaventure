@@ -13,9 +13,23 @@ class Inventory {
 		$this->items[] = $item->name;
 	}
 
-	public function removeItem($itemName) {
+	public function removeItem($input) {
 
-		
+		$targetKey = -1;
+
+		foreach( $this->items as $key => $itemName ) {
+
+			if ( strcasecmp($itemName, $input) == 0 ) {
+
+				$targetKey = $key;
+				break;
+			}
+		}
+
+		if ( $targetKey != -1 ) {
+
+			array_splice($this->items, $targetKey, 1);
+		}
 	}
 
 	public function getContentsAsString() {
@@ -53,6 +67,13 @@ class Inventory {
 	function __construct() {
 
 		$this->items = [];
+
+		$healthPotion = findItem("health potion");
+
+		if ( $healthPotion ) {
+
+			$this->addItem($healthPotion);
+		}
 	}
 }
 

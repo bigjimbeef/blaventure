@@ -6,16 +6,20 @@ class Item {
 	public $useLocation;	// ItemUse
 	public $consumeCallback;
 
-	function __construct($name, $useLocation, $callback) {
+	public $gpCost;
+
+	function __construct($name, $useLocation, $cost, $callback) {
 
 		$this->name = $name;
 		$this->useLocation = $useLocation;
+		$this->gpCost = $cost;
+
 		$this->consumeCallback = $callback;
 	}
 
 	public function useItem(&$charData, &$mapData) {
 		
-		call_user_func($this->consumeCallback, $charData, $mapData);
+		return call_user_func($this->consumeCallback, $charData, $mapData);
 	}
 }
 
@@ -47,12 +51,14 @@ function findItem($itemName) {
 
 // NOTE: Item callbacks return true or false depending on if they were used or not.
 
-$allItems[] = new Item("Health Potion", ItemUse::Either, function($charData) {
+$allItems[] = new Item("Health Potion", ItemUse::Either, 100, function(&$charData) {
+
+	$output = "";
 
 	if ( $charData->hp >= $charData->hpMax ) {
-		echo "You're already at max HP!\n";
+		$output = "You're already at max HP!\n";
 
-		return false;
+		//return array(false, $output);
 	}
 
 	$HEAL_AMOUNT 	= 50;
@@ -63,7 +69,51 @@ $allItems[] = new Item("Health Potion", ItemUse::Either, function($charData) {
 	$charData->hp 	= min($charData->hp, $charData->hpMax);
 	$restoredHP 	= $charData->hp - $currentHP;
 
-	echo "You drink the Health Potion, restoring $restoredHP HP.\n";
+	$output = "You drink the Health Potion, restoring $restoredHP HP.";
 
-	return true;
+	return array(true, $output);
+});
+
+$allItems[] = new Item("Magic Potion", ItemUse::Either, 150, function(&$charData) {
+
+	$output = "";
+
+	if ( $charData->mp >= $charData->mpMax ) {
+		$output = "You're already at max MP!\n";
+
+		return array(false, $output);
+	}
+
+	$HEAL_AMOUNT 	= 50;
+
+	$currentMP 		= $charData->mp;
+	$charData->mp 	+= $HEAL_AMOUNT;
+
+	$charData->mp 	= min($charData->mp, $charData->mpMax);
+	$restoredMP 	= $charData->mp - $currentMP;
+
+	$output = "You drink the Magic Potion, restoring $restoredMP MP.";
+
+	return array(true, $output);
+});
+
+$allItems[] = new Item("Tent", ItemUse::NonCombatOnly, 500, function(&$charData) {
+
+	$output = "";
+
+	$atMaxHP = $charData->hp >= $charData->hpMax;
+	$atMaxMP = $charData->mp >= $charData->mpMax;
+
+	if ( $atMaxMP && $atMaxHP ) {
+		$output = "You don't want to get in your Tent at the minute.\n";
+
+		return array(false, $output);
+	}
+
+	$charData->mp = $charData->mpMax;
+	$charData->hp = $charData->hpMax;
+
+	$output = "You get in your tent and have a nap. A few hours later you emerge, fully rested!";
+
+	return array(true, $output);
 });

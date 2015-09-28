@@ -206,6 +206,23 @@ class Room {
 	}
 }
 
+class Shop {
+
+	public $items = null;
+
+	private function InitItemList() {
+
+		
+	}
+
+	function __construct() {
+
+		$this->items = [];
+
+		$this->InitItemList();
+	}
+}
+
 class Spell {
 
 	public $name;

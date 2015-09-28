@@ -19,12 +19,44 @@ class UsingItem {
 			exit(14);
 		}
 
-		$usedItem = $item->useItem($charData, $mapData);
+		list($wasUsed, $result) = $item->useItem($charData, $mapData);
 
-		if ( $usedItem ) {
+		if ( $wasUsed ) {
 
 			$inventory = $charData->inventory;
+
+			$inventory->removeItem($itemName);
 		}
+
+		// Combat special case.
+		if ( $wasUsed && $charData->previousState == GameStates::Combat ) {
+
+			// Enemy attacks back.
+			global $combat;
+
+			$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
+			$monster 	= $room->occupant;
+
+			$dummyOutput = "";
+			list ($attackType, $damage) = $combat->monsterAttack($charData, $monster, $dummyOutput);
+
+			$result .= " The $monster->name attacks for $damage!\n";
+		}
+
+		echo $result;
+
+		// Only change state if we /use/ an item.
+		if ( $wasUsed ) {
+
+			if ( $charData->previousState == GameStates::Combat ) {
+
+				StateManager::ChangeState($charData, GameStates::Combat);
+			}
+			else {
+
+				StateManager::ChangeState($charData, GameStates::Adventuring);
+			}	
+		}		
 	}
 
 	public function generateInputFragments(&$charData, $nonCombat = false) {
@@ -52,7 +84,8 @@ class UsingItem {
 
 			$this->commands[] = new InputFragment($itemName, function($charData, $mapData) use ($itemName, $nonCombat) {
 				
-				$this->useItem($itemName, $charData, $mapData, $nonCombat);
+				global $usingItem;
+				return $usingItem->useItem($itemName, $charData, $mapData, $nonCombat);
 			});
 		}
 

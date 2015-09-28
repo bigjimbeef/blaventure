@@ -370,6 +370,33 @@ $combat->commands[] = new InputFragment("magic", function($charData, $mapData) {
 	StateManager::ChangeState($charData, GameStates::Spellcasting);
 });
 
+$combat->commands[] = new InputFragment("use item", function($charData, $mapData) {
+
+	$inventory = lazyGetInventory($charData);
+	$items = $inventory->items;
+
+	if ( empty($items) ) {
+		echo "You don't have any items to use!\n";
+		return;
+	}
+
+	$output = "Choose an item to use: ";
+
+	global $usingItem;
+	$usingItem->generateInputFragments($charData, true);
+
+	foreach ( $usingItem->commands as $fragment ) {
+
+		$output .= "$fragment->displayString, ";
+	}
+
+	$output = rtrim($output, ", ") . "\n";
+
+	echo $output;
+
+	StateManager::ChangeState($charData, GameStates::UsingItem);
+});
+
 $combat->commands[] = new InputFragment("run", function($charData, $mapData) use($combat) {
 
 	$chanceInSix = rand(1,6);

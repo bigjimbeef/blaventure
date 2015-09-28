@@ -62,6 +62,11 @@ function getSaveFilePath($nick, $isCharSave) {
 	return $filePath;
 }
 
+function initDynastySaveData($nick) {
+
+	// TODO:
+}
+
 function initCharacterSaveData($nick) {
 
 	DEBUG_echo("initCharacterSave");
