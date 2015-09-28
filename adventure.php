@@ -31,6 +31,7 @@ include_once("combat.php");
 include_once("spellcasting.php");
 include_once("looting.php");
 include_once("levelup.php");
+include_once("usingItem.php");
 
 // DEBUG FLAG
 define("DEBUG", 0);
@@ -331,6 +332,15 @@ function levelUp($input, $charData, $mapData) {
 	checkInputFragments($levelUp->commands, $input, $charData, $mapData);
 }
 
+function usingItem($input, $charData, $mapData, $nonCombat = false) {
+
+	global $usingItem;
+
+	$usingItem->generateInputFragments($charData, $nonCombat);
+
+	checkInputFragments($usingItem->commands, $input, $charData, $mapData);
+}
+
 // Input of the form !adv "action", with nick supplied from args
 function main() {
 
@@ -356,21 +366,21 @@ function main() {
 			exit(3);
 		}
 
+		// Read STDIN for input.
+		$input = readStdin();
+
 		switch ( $charData->state ) {
 
 			case GameStates::NameSelect: {
 
 				DEBUG_echo("NameSelect");
 
-				// Read input into name.
-				$name = readStdin();
-
-				if ( strcmp($name, "") == 0 ) {
+				if ( strcmp($input, "") == 0 ) {
 					echo "Please enter a name!\n";
 					exit(13);
 				}
 
-				$output = "Please choose a class for $name: ";
+				$output = "Please choose a class for $input: ";
 
 				global $classSelect;
 				foreach ( $classSelect->commands as $fragment ) {
@@ -381,7 +391,7 @@ function main() {
 
 				echo $output;
 
-				$charData->name 	= $name;
+				$charData->name 	= $input;
 				$charData->state 	= GameStates::ClassSelect;
 
 				$charDataDirty		= true;
@@ -392,11 +402,9 @@ function main() {
 
 				DEBUG_echo("ClassSelect");
 
-				// Read class choice.
-				$class = readStdin();
-				$class = strtolower($class);
+				$input = strtolower($input);
 
-				$setClass = classSelect($class, $charData, $charData->name);
+				$setClass = classSelect($input, $charData, $charData->name);
 
 				if ( $setClass ) {
 					$charData->state 	= GameStates::FirstPlay;
@@ -420,8 +428,6 @@ function main() {
 
 				DEBUG_echo("Adventuring");
 
-				$input = readStdin();
-
 				adventuring($input, $charData, $mapData);
 
 				$charDataDirty		= true;
@@ -434,8 +440,6 @@ function main() {
 
 				DEBUG_echo("Resting");
 
-				$input = readStdin();
-
 				resting($input, $charData, $mapData);
 
 				$charDataDirty		= true;
@@ -446,8 +450,6 @@ function main() {
 			case GameStates::Combat: {
 
 				DEBUG_echo("Combat");
-
-				$input = readStdin();
 
 				combat($input, $charData, $mapData);
 
@@ -460,8 +462,6 @@ function main() {
 
 				DEBUG_echo("Spellcasting");
 
-				$input = readStdin();
-
 				spellcasting($input, $charData, $mapData);
 
 				$charDataDirty	= true;
@@ -473,8 +473,6 @@ function main() {
 
 				DEBUG_echo("NonCombatSpellcasting");
 
-				$input = readStdin();
-
 				spellcasting($input, $charData, $mapData, true);
 
 				$charDataDirty	= true;
@@ -484,8 +482,6 @@ function main() {
 			case GameStates::Looting: {
 
 				DEBUG_echo("Looting");
-
-				$input = readStdin();
 
 				looting($input, $charData, $mapData);
 
@@ -498,12 +494,21 @@ function main() {
 
 				DEBUG_echo("LevelUp");
 
-				$input = readStdin();
-
 				levelUp($input, $charData, $mapData);
 
 				$charDataDirty	= true;
 			}
+			break;
+
+			case GameStates::UsingItem: {
+
+				DEBUG_echo("UsingItem");
+
+				usingItem($input, $charData, $mapData, true);
+
+				$charDataDirty	= true;
+			}
+			break;
 
 			default:
 			break;

@@ -207,7 +207,7 @@ class Spellcasting {
 			// Can only cast heal spells.
 			if ( $outOfCombat ) {
 
-				$spell = $this->findSpellOrAbility($spellName);
+				$spell = $this->findSpellOrAbility($spellName, $charData);
 
 				if ( !$spell->isHeal ) {
 					continue;

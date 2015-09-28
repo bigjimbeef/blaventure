@@ -9,6 +9,9 @@ include_once("name_generator.php");
 include_once("spell_list.php");
 include_once("spellcasting.php");
 
+include_once("item_list.php");
+include_once("usingItem.php");
+
 include_once("class_traits.php");
 
 class Adventuring {
@@ -17,6 +20,47 @@ class Adventuring {
 }
 
 $adventuring = new Adventuring();
+
+$adventuring->commands[] = new InputFragment("north", function($charData, $mapData) {
+
+	$x = $mapData->playerX;
+	$y = $mapData->playerY;
+
+	$moveText = "You move to the North, ";
+
+	// North means y--
+	moveToRoom($x, $y, 0, -1, $mapData, $charData, $moveText);
+});
+$adventuring->commands[] = new InputFragment("south", function($charData, $mapData) {
+
+	$x = $mapData->playerX;
+	$y = $mapData->playerY;
+
+	$moveText = "You move to the South, ";
+
+	// South means y++
+	moveToRoom($x, $y, 0, 1, $mapData, $charData, $moveText);
+});
+$adventuring->commands[] = new InputFragment("east", function($charData, $mapData) {
+
+	$x = $mapData->playerX;
+	$y = $mapData->playerY;
+	
+	$moveText = "You move to the East, ";
+
+	// East means x++
+	moveToRoom($x, $y, 1, 0, $mapData, $charData, $moveText);
+});
+$adventuring->commands[] = new InputFragment("west", function($charData, $mapData) {
+
+	$x = $mapData->playerX;
+	$y = $mapData->playerY;
+
+	$moveText = "You move to the West, ";
+
+	// West means x--
+	moveToRoom($x, $y, -1, 0, $mapData, $charData, $moveText);
+});
 
 // Get the character status
 // e.g. Level 3 Barbarian    HP 3/10    MP 2/5
@@ -27,8 +71,8 @@ $adventuring->commands[] = new InputFragment("char", function($charData, $mapDat
 	echo $status;
 });
 
-// Get the character inventory
-$adventuring->commands[] = new InputFragment("items", function($charData, $mapData) {
+// Get the character's equipped items
+$adventuring->commands[] = new InputFragment("equipment", function($charData, $mapData) {
 
 	$inventory = "$charData->weapon ($charData->weaponVal)    ";
 
@@ -47,6 +91,49 @@ $adventuring->commands[] = new InputFragment("items", function($charData, $mapDa
 	$inventory .= "    $charData->gold GP\n";
 
 	echo $inventory;
+});
+
+// Use an item from the inventory
+$adventuring->commands[] = new InputFragment("use item", function($charData, $mapData) {
+
+	global $usingItem;
+
+	$output = "Choose an item: ";
+
+	// We are not in combat, hence the "true"
+	$usingItem->generateInputFragments($charData, true);
+
+	foreach ( $usingItem->commands as $fragment ) {
+
+		$item = findItem($fragment->token);
+
+		if ( is_null($item) ) {
+			continue;
+		}
+
+		// Don't show combat-only items.
+		if ( $item->useLocation == ItemUse::CombatOnly ) {
+			continue;
+		}
+
+		$output .= "$fragment->displayString, ";
+	}
+
+	$output = rtrim($output, ", ") . "\n";
+
+	echo $output;
+
+	$charData->state = GameStates::UsingItem;
+});
+
+// Check your inventory.
+$adventuring->commands[] = new InputFragment("inventory", function($charData, $mapData) {
+
+	$inventory = lazyGetInventory($charData);
+
+	$itemStr = $inventory->getContentsAsString();
+
+	echo $itemStr;
 });
 
 // Get the character's spells
@@ -248,47 +335,6 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 
 	echo $moveText;
 }
-
-$adventuring->commands[] = new InputFragment("north", function($charData, $mapData) {
-
-	$x = $mapData->playerX;
-	$y = $mapData->playerY;
-
-	$moveText = "You move to the North, ";
-
-	// North means y--
-	moveToRoom($x, $y, 0, -1, $mapData, $charData, $moveText);
-});
-$adventuring->commands[] = new InputFragment("south", function($charData, $mapData) {
-
-	$x = $mapData->playerX;
-	$y = $mapData->playerY;
-
-	$moveText = "You move to the South, ";
-
-	// South means y++
-	moveToRoom($x, $y, 0, 1, $mapData, $charData, $moveText);
-});
-$adventuring->commands[] = new InputFragment("east", function($charData, $mapData) {
-
-	$x = $mapData->playerX;
-	$y = $mapData->playerY;
-	
-	$moveText = "You move to the East, ";
-
-	// East means x++
-	moveToRoom($x, $y, 1, 0, $mapData, $charData, $moveText);
-});
-$adventuring->commands[] = new InputFragment("west", function($charData, $mapData) {
-
-	$x = $mapData->playerX;
-	$y = $mapData->playerY;
-
-	$moveText = "You move to the West, ";
-
-	// West means x--
-	moveToRoom($x, $y, -1, 0, $mapData, $charData, $moveText);
-});
 
 // Add unique identifiers to commands.
 $allocator = new UIDAllocator($adventuring->commands);

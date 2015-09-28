@@ -17,8 +17,15 @@ abstract class GameStates {
 	const Looting				= 7;
 	const LevelUp				= 8;
 	const NonCombatSpellcasting	= 9;
-
 	const Dead					= 10;
+	const UsingItem				= 11;
+}
+
+// items
+abstract class ItemUse {
+	const Either		= 0;
+	const CombatOnly	= 1;
+	const NonCombatOnly = 2;
 }
 
 // classes
