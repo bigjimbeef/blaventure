@@ -63,12 +63,12 @@ class UsingItem {
 			if ( !$nonCombat ) {
 				echo "You close your bag, and go back to the fight.\n";
 
-				StateManager::ChangeState(GameStates::Combat);
+				StateManager::ChangeState($charData, GameStates::Combat);
 			}
 			else {
 				echo "Deciding against using an item, you go back to Adventuring.\n";
 
-				StateManager::ChangeState(GameStates::Adventuring);
+				StateManager::ChangeState($charData, GameStates::Adventuring);
 			}
 		});
 

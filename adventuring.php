@@ -74,29 +74,37 @@ $adventuring->commands[] = new InputFragment("char", function($charData, $mapDat
 // Get the character's equipped items
 $adventuring->commands[] = new InputFragment("equipment", function($charData, $mapData) {
 
-	$inventory = "$charData->weapon ($charData->weaponVal)    ";
-
 	//---------------------------------------
 	// Barbarian trait.
 	global $traitMap;
 	$isBarbarian = $traitMap->ClassHasTrait($charData, TraitName::DualWield);
 
+	$inventory = "Weapon: $charData->weapon ($charData->weaponVal)    ";
+	if ( $isBarbarian ) {
+		$inventory = "Main-hand " . $inventory;
+	}
+
 	if ( !$isBarbarian ) {
-		$inventory .= "$charData->armour ($charData->armourVal)";
+		$inventory .= "Armour: $charData->armour ($charData->armourVal)";
 	}
 	else {
-		$inventory .= "$charData->weapon2 ($charData->weapon2Val)";
+		$inventory .= "Off-hand Weapon: $charData->weapon2 ($charData->weapon2Val)";
 	}
 
-	$inventory .= "    $charData->gold GP\n";
-
-	echo $inventory;
+	echo $inventory . "\n";
 });
 
 // Use an item from the inventory
 $adventuring->commands[] = new InputFragment("use item", function($charData, $mapData) {
 
 	global $usingItem;
+
+	$inventory = lazyGetInventory($charData);
+	if ( empty($inventory->items) ) {
+
+		echo "After a quick rummage in your bag, it looks like you don't have anything of use.\n";
+		return;
+	}
 
 	$output = "Choose an item: ";
 
@@ -133,7 +141,13 @@ $adventuring->commands[] = new InputFragment("inventory", function($charData, $m
 
 	$itemStr = $inventory->getContentsAsString();
 
-	echo $itemStr;
+	if ( !is_null($itemStr) ) {
+		$itemStr .= ", ";
+	}
+
+	$itemStr .= "$charData->gold GP";
+
+	echo $itemStr . "\n";
 });
 
 // Get the character's spells

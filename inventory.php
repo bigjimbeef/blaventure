@@ -20,6 +20,12 @@ class Inventory {
 
 	public function getContentsAsString() {
 
+		$output = null;
+		if ( empty($this->items) ) {
+
+			return $output;
+		}
+
 		$output = "";
 
 		$itemNames = [];
