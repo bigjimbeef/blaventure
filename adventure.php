@@ -297,6 +297,8 @@ function adventuring($input, $charData, $mapData) {
 
 	global $adventuring;
 
+	addShopFragmentIfNeeded($charData, $mapData);
+
 	checkInputFragments($adventuring->commands, $input, $charData, $mapData);
 }
 

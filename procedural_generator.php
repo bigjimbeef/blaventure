@@ -32,9 +32,10 @@ class ProcGen {
 			// Item shop loot scales with distance from the center.
 			$dist = $this->getMapDist($xVal, $yVal);
 
+			$room->occupant = new Shop($playerLevel, $dist);
 		}
 		// 50% chance to spawn a monster.
-		if ( !$noSpawning && $chanceInHundred > 50 ) {
+		if ( false && !$noSpawning && $chanceInHundred > 50 ) {
 
 			// Monster difficulty scales, in part, with distance from the start.
 			$dist = $this->getMapDist($xVal, $yVal);

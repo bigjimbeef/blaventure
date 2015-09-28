@@ -18,8 +18,9 @@ abstract class GameStates {
 	const LevelUp				= 8;
 	const Dead					= 9;
 	const UsingItem				= 10;
+	const Shopping				= 11;
 
-	const Dynasty				= 11;
+	const Dynasty				= 12;
 }
 
 // items

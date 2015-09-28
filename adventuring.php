@@ -322,8 +322,11 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 	if ( !$seenBefore ) {
 		$room = $procGen->GenerateRoomForMap($mapData->map, $mapData->playerX, $mapData->playerY, $charData->level);		
 	}
+
+	$containsMonster 	= isset($room->occupant) && get_class($room->occupant) == "Monster";
+	$containsShop 		= isset($room->occupant) && get_class($room->occupant) == "Shop";
 	
-	if ( isset($room->occupant) ) {
+	if ( $containsMonster ) {
 
 		$monster 		= $room->occupant;
 		$monsterName 	= $monster->name;
@@ -343,11 +346,49 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 			StateManager::ChangeState($charData, GameStates::Combat);
 		}
 	}
+	else if ( $containsShop ) {
+		$moveText .= "and discover a small shop. \"Feel free to (b)rowse!\", the shopkeeper yells.\n";
+	}
 	else {
 		$moveText .= "but this room appears to be empty.\n";
 	}
 
 	echo $moveText;
+}
+
+//
+// Special case: If we are at a shop, we need to add the "browse" option.
+//
+function addShopFragmentIfNeeded($charData, $mapData) {
+
+	global $adventuring;
+
+	$currentRoom	= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
+	if ( is_null($currentRoom) ) {
+		return;
+	}
+	$containsShop 	= isset($currentRoom->occupant) && get_class($currentRoom->occupant) == "Shop";
+
+	if ( $containsShop ) {
+	
+		$adventuring->commands[] = new InputFragment("browse shop", function($charData, $mapData) use($currentRoom) {
+
+			$shop = $currentRoom->occupant;
+			if ( $shop->isEmpty() ) {
+				echo "\"Sorry, I'm all sold out right now!\"\n";
+				return;
+			}
+
+			$shopContents = $shop->getContentsAsString();
+
+			echo $shopContents . "\n";
+
+			StateManager::ChangeState($charData, GameStates::Shopping);
+		});
+
+		$allocator = new UIDAllocator($adventuring->commands);
+		$allocator->Allocate();
+	}
 }
 
 // Add unique identifiers to commands.

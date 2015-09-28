@@ -71,6 +71,17 @@ class MapSaveData {
 	public $map				= null;		// Map
 }
 
+class DynastySaveData {
+
+	public $level			= 0;
+
+	public $hpBonus 		= 0;
+	public $mpBonus			= 0;
+
+	public $atkBonus		= 0;
+	public $defBonus		= 0;
+}
+
 // Function Matches is called on each InputFragment, and the callback is called if it does match the input.
 class InputFragment {
 
@@ -210,30 +221,66 @@ class Room {
 
 class Shop {
 
-	public $items = null;
+	public $stock = null;
 
-	private function InitItemList() {
+	private function addStockItem($item) {
 
-		global $allItems;
+		$itemName = $item->name;
 
-		// Sort the items into cost order.
-		/*
-		usort($allItems, function($a, $b) {
+		if ( !isset($this->stock[$itemName]) ) {
+			$this->stock[$itemName] = 0;
+		}
 
-			return $a['gpCost'] - $b['gpCost'];
-		});
-		*/
+		$this->stock[$itemName]++;
+	}
+
+	private function InitItemList($playerLevel, $distance) {
+
+		// Every shop has these items...
+		$healthPotion 	= findItem("health potion");
+		$magicPotion 	= findItem("magic potion");
+		$tent			= findItem("tent");
+		
+		// ... but in random quantities.
+		$numInStock 	= rand(1,5);
+
+		for ( $i = 0; $i < $numInStock; ++$i ) {
+
+			$this->addStockItem($healthPotion);
+			$this->addStockItem($magicPotion);
+			$this->addStockItem($tent);
+		}
 
 		// TODO: Random weapons/armour.
 		
-		
 	}
 
-	function __construct() {
+	public function isEmpty() {
 
-		$this->items = [];
+		return empty($this->stock);
+	}
 
-		$this->InitItemList();
+	public function getContentsAsString() {
+
+		$output = "";
+
+		foreach ( $this->stock as $itemName => $quantity ) {
+
+			$item = findItem($itemName);
+
+			$output .= "$quantity $itemName ($item->gpCost), ";
+		}
+
+		$output = rtrim($output, ", ");
+
+		return $output;
+	}
+
+	function __construct($playerLevel, $distance) {
+
+		$this->stock = [];
+
+		$this->InitItemList($playerLevel, $distance);
 	}
 }
 
@@ -292,7 +339,6 @@ class UIDAllocator {
 		foreach( $this->fragments as $fragment ) {
 
 			$fragmentName 	= $fragment->token;
-
 			$uidSet 		= false;
 			$currentChar 	= 0;
 
