@@ -3,6 +3,8 @@
 include_once("name_generator.php");
 include_once("procedural_generator.php");
 
+include_once("item_list.php");
+
 class StateManager {
 
 	static function ChangeState(&$charData, $newState) {
@@ -212,6 +214,18 @@ class Shop {
 
 	private function InitItemList() {
 
+		global $allItems;
+
+		// Sort the items into cost order.
+		/*
+		usort($allItems, function($a, $b) {
+
+			return $a['gpCost'] - $b['gpCost'];
+		});
+		*/
+
+		// TODO: Random weapons/armour.
+		
 		
 	}
 
