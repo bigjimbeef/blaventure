@@ -217,7 +217,7 @@ $adventuring->commands[] = new InputFragment("magic", function($charData, $mapDa
 	echo $output;
 	
 	// Begin non-combat casting.
-	StateManager::ChangeState($charData, GameStates::NonCombatSpellcasting);
+	StateManager::ChangeState($charData, GameStates::Spellcasting);
 });
 
 // Begin resting. 

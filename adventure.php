@@ -462,20 +462,12 @@ function main() {
 
 				DEBUG_echo("Spellcasting");
 
-				spellcasting($input, $charData, $mapData);
+				$nonCombat = isset($charData->previousState) && ( $charData->previousState != GameStates::Combat );
+
+				spellcasting($input, $charData, $mapData, $nonCombat);
 
 				$charDataDirty	= true;
 				$mapDataDirty	= true;
-			}
-			break;
-
-			case GameStates::NonCombatSpellcasting: {
-
-				DEBUG_echo("NonCombatSpellcasting");
-
-				spellcasting($input, $charData, $mapData, true);
-
-				$charDataDirty	= true;
 			}
 			break;
 
