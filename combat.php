@@ -151,17 +151,17 @@ class Combat {
 			$armourVal = 0;
 		}
 
-		$mitigatedDamage = max($damage - $armourVal, 0);
-
 		//---------------------------------------
 		// Fighter trait: yawn, fighters
 		//
 		if ( $traitMap->ClassHasTrait($charData, TraitName::ArmourUp) ) {
 
-			$mitigatedDamage -= $charData->level;
-			$mitigatedDamage = max(0, $mitigatedDamage);
+			// Fighters have 30% more armour.
+			$armourVal = $armourVal + ceil($armourVal * 0.3);
 		}
 		//---------------------------------------
+
+		$mitigatedDamage = max($damage - $armourVal, 0);
 
 		$didPlayerDie = $this->playerDamaged($charData, $mitigatedDamage, $attackType, $fightOutput);
 

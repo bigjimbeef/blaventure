@@ -5,22 +5,12 @@ include_once("spell_list.php");
 class Inventory {
 
 	public $items;			// array of Item names (strings)
-	public $inventorySize;	// int
 
 	public function addItem($item) {
 
-		$addedOk = false;
-
-		if ( count($this->items) < ($this->inventorySize + 1) ) {
-
-			$addedOk = true;
-
-			// We store the item NAME, not the item itself.
-			// This is because we cannot serialise the item callback.
-			$this->items[] = $item->name;
-		}
-
-		return $addedOk;
+		// We store the item NAME, not the item itself.
+		// This is because we cannot serialise the item callback.
+		$this->items[] = $item->name;
 	}
 
 	public function removeItem($itemName) {
@@ -54,24 +44,9 @@ class Inventory {
 		return $output;
 	}
 
-	public function isFull() {
-
-		return count($this->items) >= $this->inventorySize;
-	}
-
 	function __construct() {
 
-		$BASE_SIZE = 5;
-
-		$this->inventorySize = $BASE_SIZE;
 		$this->items = [];
-
-		$healthPotion = findItem("health potion");
-
-		if ( $healthPotion ) {
-
-			$this->addItem($healthPotion);
-		}
 	}
 }
 

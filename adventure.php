@@ -496,7 +496,9 @@ function main() {
 
 				DEBUG_echo("UsingItem");
 
-				usingItem($input, $charData, $mapData, true);
+				$nonCombat = isset($charData->previousState) && ( $charData->previousState != GameStates::Combat );
+
+				usingItem($input, $charData, $mapData, $nonCombat);
 
 				$charDataDirty	= true;
 			}
