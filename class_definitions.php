@@ -34,7 +34,7 @@ class CharacterSaveData {
 
 	public $armour		= null;		// str
 	public $armourVal	= 0;		// int
-	public $gold		= 0;		// int
+	public $gold		= 340;		// int
 	public $inventory	= null;
 
 	public $state			= GameStates::NameSelect;

@@ -92,10 +92,9 @@ class Shopping {
 				}
 
 				$equipString = "You equip your new $equipment->name immediately";
+				$isBarbarian = strcasecmp($charData->class, "Barbarian") == 0;
 				
 				if ( $equipment->type == ShopEquipment::Weapon ) {
-
-					$isBarbarian = strcasecmp($charData->class, "Barbarian") == 0;
 
 					$weapon1Better = $charData->weaponVal >= $equipment->level;
 					$weapon2Better = $charData->weapon2Val >= $equipment->level;
@@ -133,6 +132,19 @@ class Shopping {
 					}
 				}
 				else if ( $equipment->type == ShopEquipment::Armour ) {
+
+					$armourBetter = $charData->armourVal >= $equipment->level;
+
+					if ( $isBarbarian ) {
+
+						echo "\"Not sure you'd know what to do with that!\"\n";
+						return;
+					}
+					else if ( $armourBetter ) {
+						
+						echo "\"No point buying my wares if you've got better yourself!\"\n";
+						return;
+					}
 
 					$charData->armour 		= $equipment->name;
 					$charData->armourVal	= $equipment->level;
