@@ -34,7 +34,7 @@ class CharacterSaveData {
 
 	public $armour		= null;		// str
 	public $armourVal	= 0;		// int
-	public $gold		= 0;		// int
+	public $gold		= 10000;		// int
 	public $inventory	= null;
 
 	public $state			= GameStates::NameSelect;
@@ -52,6 +52,7 @@ class CharacterSaveData {
 	public $kills		= 0;
 
 	public $rageTurns	= 0;
+	public $tentUseCount = 0;
 
 	// Abilities are locked after use in combat (and unlocked on leaving combat)
 	public $lockedAbilities = null;
@@ -225,6 +226,10 @@ class ShopEquipment {
 		$this->type = $type;
 	}
 
+	public function getCost() {
+		return $this->gpCost;
+	}
+
 	const Armour = 0;
 	const Weapon = 1;
 }
@@ -255,7 +260,7 @@ class Shop {
 		return $isItem || $isEquipment;
 	}
 
-	public function getStockDetailsForItem($itemName) {
+	public function getStockDetailsForItem($itemName, $charData) {
 
 		$output = [];
 
@@ -264,7 +269,7 @@ class Shop {
 			$output[] = $this->stock[$itemName];
 
 			$item = findItem($itemName);
-			$output[] = $item->gpCost;
+			$output[] = $item->getCost($charData);
 			$output[] = null;
 		}
 		else if ( isset($this->equipment[$itemName]) ) {
@@ -272,7 +277,7 @@ class Shop {
 			$output[] = 1;
 
 			$shopEquip = $this->equipment[$itemName];
-			$output[] = $shopEquip->gpCost;
+			$output[] = $shopEquip->getCost($charData);
 			$output[] = $shopEquip->level;
 		}
 
@@ -353,17 +358,17 @@ class Shop {
 		$healthPotion 	= findItem("health potion");
 		$magicPotion 	= findItem("magic potion");
 		$tent			= findItem("tent");
-		
+
 		// ... but in random quantities.
-		$numInStock 	= rand(0,5);
+		$numInStock 	= rand(0, 5);
 		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($healthPotion);
 		}
-		$numInStock 	= rand(0,3);
+		$numInStock 	= rand(0, 3);
 		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($magicPotion);
 		}
-		$numInStock 	= rand(1,1);
+		$numInStock 	= rand(1, 1);
 		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($tent);
 		}
@@ -375,29 +380,6 @@ class Shop {
 	public function isEmpty() {
 
 		return empty($this->stock);
-	}
-
-	public function getContentsAsString() {
-
-		$output = "For sale: ";
-
-		// Items.
-		foreach ( $this->stock as $itemName => $quantity ) {
-
-			$item = findItem($itemName);
-
-			$output .= "$quantity $itemName ($item->gpCost GP), ";
-		}
-
-		// Equipment.
-		foreach ( $this->equipment as $item ) {
-
-			$output .= "Level $item->level $item->name ($item->gpCost GP), ";
-		}
-
-		$output = rtrim($output, ", ");
-
-		return $output;
 	}
 
 	function __construct($playerLevel, $distance) {

@@ -25,7 +25,7 @@ class Shopping {
 
 	private function takeMoney($item, $shop, &$charData, $room, $inputString = null) {
 
-		$charData->gold -= $item->gpCost;
+		$charData->gold -= $item->getCost($charData);
 
 		$output = !is_null($inputString) ? $inputString : "";
 
@@ -60,7 +60,7 @@ class Shopping {
 				continue;
 			}
 
-			list($quantity, $cost, $level) = $shop->getStockDetailsForItem($token);
+			list($quantity, $cost, $level) = $shop->getStockDetailsForItem($token, $charData);
 
 			// Item
 			if ( is_null($level) ) {
@@ -103,7 +103,7 @@ class Shopping {
 				
 				global $shopping;
 
-				if ( !$shopping->canAffordItem($charData, $item->gpCost) ) {
+				if ( !$shopping->canAffordItem($charData, $item->getCost($charData)) ) {
 					return;
 				}
 
@@ -125,7 +125,7 @@ class Shopping {
 				global $shopping;
 
 
-				if ( !$shopping->canAffordItem($charData, $equipment->gpCost) ) {
+				if ( !$shopping->canAffordItem($charData, $equipment->getCost($charData)) ) {
 					return;
 				}
 
