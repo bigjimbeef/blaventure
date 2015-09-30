@@ -34,7 +34,7 @@ class CharacterSaveData {
 
 	public $armour		= null;		// str
 	public $armourVal	= 0;		// int
-	public $gold		= 340;		// int
+	public $gold		= 0;		// int
 	public $inventory	= null;
 
 	public $state			= GameStates::NameSelect;
@@ -331,7 +331,7 @@ class Shop {
 		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($magicPotion);
 		}
-		$numInStock 	= rand(0,1);
+		$numInStock 	= rand(1,1);
 		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($tent);
 		}

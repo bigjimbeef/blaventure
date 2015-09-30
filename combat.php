@@ -9,7 +9,7 @@ include_once("class_traits.php");
 include_once("ability_list.php");
 
 define("DEBUG_noEnemyDamage", 0);
-define("DEBUG_noPlayerDamage", 1);
+define("DEBUG_noPlayerDamage", 0);
 
 class Combat {
 
