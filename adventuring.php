@@ -379,9 +379,9 @@ function addShopFragmentIfNeeded($charData, $mapData) {
 				return;
 			}
 
-			$shopContents = $shop->getContentsAsString();
-
-			echo $shopContents . "\n";
+			global $shopping;
+			$shopStr = $shopping->getShopString($shop, $charData, $mapData);
+			echo $shopStr;
 
 			StateManager::ChangeState($charData, GameStates::Shopping);
 		});

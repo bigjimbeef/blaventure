@@ -44,18 +44,56 @@ class Shopping {
 		echo $output;
 	}
 
-	public function generateInputFragments(&$charData, &$mapData) {
+	public function getShopString($shop, $charData, $mapData) {
+
+		if ( empty($this->commands) ) {
+			
+			$this->generateInputFragments($charData, $mapData, true);			
+		}
+
+		$contents = "For sale: ";
+		foreach ( $this->commands as $fragment ) {
+			 
+			$token = $fragment->token;
+
+			if ( !$shop->isItemOrEquipment($token) ) {
+				continue;
+			}
+
+			list($quantity, $cost, $level) = $shop->getStockDetailsForItem($token);
+
+			// Item
+			if ( is_null($level) ) {
+
+				$contents .= "$quantity $fragment->displayString ($cost GP), ";
+			}
+			// Equipment
+			else {
+
+				$contents .= "Level $level $fragment->displayString ($cost GP), ";
+			}
+		}
+
+		$contents = rtrim($contents, ", ") . "\n";
+		return $contents;
+	}
+
+	public function generateInputFragments(&$charData, &$mapData, $justItems = false) {
 
 		// To be in here, we need to have a shop at our current location.
 		$room = $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 		$shop = $room->occupant;
 
-		$this->commands[] = new InputFragment("check", function($charData, $mapData) use ($shop) {
+		if ( !$justItems ) {
 
-			$shopContents = $shop->getContentsAsString();
+			$this->commands[] = new InputFragment("check", function($charData, $mapData) use ($shop) {
 
-			echo $shopContents . "\n";
-		});
+				global $shopping;
+				$shopStr = $shopping->getShopString($shop, $charData, $mapData);
+
+				echo $shopStr;
+			});
+		}
 
 		foreach ( $shop->stock as $itemName => $quantity ) {
 
@@ -159,12 +197,15 @@ class Shopping {
 			});
 		}
 
-		$this->commands[] = new InputFragment("leave", function($charData, $mapData) {
+		if ( !$justItems ) {
 
-			echo "\"Maybe next time, eh?\", the shopkeeper drawls at you as you walk away.\n";
+			$this->commands[] = new InputFragment("leave", function($charData, $mapData) {
 
-			StateManager::ChangeState($charData, GameStates::Adventuring);
-		});
+				echo "\"Maybe next time, eh?\", the shopkeeper drawls at you as you walk away.\n";
+
+				StateManager::ChangeState($charData, GameStates::Adventuring);
+			});
+		}
 
 		// Add unique identifiers to commands.
 		$allocator = new UIDAllocator($this->commands);

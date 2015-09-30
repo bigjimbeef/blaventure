@@ -247,6 +247,38 @@ class Shop {
 	public $stock = null;
 	public $equipment = null;
 
+	public function isItemOrEquipment($itemName) {
+
+		$isItem 		= isset($this->stock[$itemName]);
+		$isEquipment 	= isset($this->equipment[$itemName]);
+
+		return $isItem || $isEquipment;
+	}
+
+	public function getStockDetailsForItem($itemName) {
+
+		$output = [];
+
+		if ( isset($this->stock[$itemName]) ) {
+
+			$output[] = $this->stock[$itemName];
+
+			$item = findItem($itemName);
+			$output[] = $item->gpCost;
+			$output[] = null;
+		}
+		else if ( isset($this->equipment[$itemName]) ) {
+
+			$output[] = 1;
+
+			$shopEquip = $this->equipment[$itemName];
+			$output[] = $shopEquip->gpCost;
+			$output[] = $shopEquip->level;
+		}
+
+		return $output;
+	}
+
 	private function addStockItem($item) {
 
 		$itemName = $item->name;
