@@ -199,7 +199,7 @@ $allItems[] = new Item("Tent", ItemUse::NonCombatOnly,
 		}
 
 		$charData->mp = $charData->mpMax;
-		$charData->hp = 1;//$charData->hpMax;
+		$charData->hp = $charData->hpMax;
 
 		$output = "You get in your tent and have a nap. A few hours later you emerge, fully rested!";
 

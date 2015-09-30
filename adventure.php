@@ -279,7 +279,7 @@ function classSelect($input, $charData, $charName) {
 
 function firstPlay($data) {
 
-	$data->hp = 1;//$data->hpMax;
+	$data->hp = $data->hpMax;
 	$data->mp = $data->mpMax;
 
 	$data->level = 1;

@@ -34,7 +34,7 @@ class CharacterSaveData {
 
 	public $armour		= null;		// str
 	public $armourVal	= 0;		// int
-	public $gold		= 10000;		// int
+	public $gold		= 0;		// int
 	public $inventory	= null;
 
 	public $state			= GameStates::NameSelect;
@@ -352,11 +352,36 @@ class Shop {
 		}
 	}
 
+	private function getPotionPrefix($playerLevel) {
+
+		$prefixes 		= ["minor ", "lesser ", "", "greater ", "major ", "super ", "giant "];
+
+		$prefixIndex 	= floor($playerLevel / 10);
+		$remainder 		= $playerLevel % 10;
+
+		$oneInTen		= rand(1, 10);
+
+		// This is a bit confusing:
+		// If we're at level 14, remainder will be 4, and prefixIndex 1
+		// If we roll less than a 4, we will use prefixIndex 0 instead
+		// Chance to roll >= remainder goes up as level does, so we see higher-level
+		// potions as level increases.
+		if ( $oneInTen < $remainder ) {
+			
+			$prefixIndex = max(0, $prefixIndex - 1);
+		}
+
+		return $prefixes[$prefixIndex];
+	}
+
 	private function InitItemList($playerLevel, $distance) {
 
+		// Potion quality is based on player level.
+		$prefix 		= getPotionPrefix($playerLevel);
+
 		// Every shop has these items...
-		$healthPotion 	= findItem("health potion");
-		$magicPotion 	= findItem("magic potion");
+		$healthPotion 	= findItem($prefix . "health potion");
+		$magicPotion 	= findItem($prefix . "magic potion");
 		$tent			= findItem("tent");
 
 		// ... but in random quantities.
@@ -368,7 +393,7 @@ class Shop {
 		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($magicPotion);
 		}
-		$numInStock 	= rand(1, 1);
+		$numInStock 	= rand(0, 1);
 		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($tent);
 		}
