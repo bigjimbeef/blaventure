@@ -32,6 +32,7 @@ include_once("spellcasting.php");
 include_once("looting.php");
 include_once("levelup.php");
 include_once("usingItem.php");
+include_once("shopping.php");
 
 // DEBUG FLAG
 define("DEBUG", 0);
@@ -348,6 +349,15 @@ function usingItem($input, $charData, $mapData, $nonCombat = false) {
 	checkInputFragments($usingItem->commands, $input, $charData, $mapData);
 }
 
+function shopping($input, $charData, $mapData) {
+
+	global $shopping;
+
+	$shopping->generateInputFragments($charData, $mapData);
+
+	checkInputFragments($shopping->commands, $input, $charData, $mapData);
+}
+
 // Input of the form !adv "action", with nick supplied from args
 function main() {
 
@@ -508,6 +518,17 @@ function main() {
 				usingItem($input, $charData, $mapData, $nonCombat);
 
 				$charDataDirty	= true;
+			}
+			break;
+
+			case GameStates::Shopping: {
+
+				DEBUG_echo("Shopping");
+
+				shopping($input, $charData, $mapData);
+
+				$charDataDirty	= true;
+				$mapDataDirty 	= true;
 			}
 			break;
 

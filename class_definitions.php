@@ -34,7 +34,7 @@ class CharacterSaveData {
 
 	public $armour		= null;		// str
 	public $armourVal	= 0;		// int
-	public $gold		= 0;		// int
+	public $gold		= 1000;		// int
 	public $inventory	= null;
 
 	public $state			= GameStates::NameSelect;
@@ -234,6 +234,17 @@ class Shop {
 		$this->stock[$itemName]++;
 	}
 
+	public function removeStockItem($itemName) {
+
+		$this->stock[$itemName]--;
+
+		if ( $this->stock[$itemName] <= 0 ) {
+
+			// Remove the item from our stock completely if we run out.
+			unset($this->stock[$itemName]);
+		}
+	}
+
 	private function InitItemList($playerLevel, $distance) {
 
 		// Every shop has these items...
@@ -242,12 +253,16 @@ class Shop {
 		$tent			= findItem("tent");
 		
 		// ... but in random quantities.
-		$numInStock 	= rand(1,5);
-
+		$numInStock 	= rand(0,5);
 		for ( $i = 0; $i < $numInStock; ++$i ) {
-
 			$this->addStockItem($healthPotion);
+		}
+		$numInStock 	= rand(0,3);
+		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($magicPotion);
+		}
+		$numInStock 	= rand(0,1);
+		for ( $i = 0; $i < $numInStock; ++$i ) {
 			$this->addStockItem($tent);
 		}
 
@@ -262,13 +277,13 @@ class Shop {
 
 	public function getContentsAsString() {
 
-		$output = "";
+		$output = "For sale: ";
 
 		foreach ( $this->stock as $itemName => $quantity ) {
 
 			$item = findItem($itemName);
 
-			$output .= "$quantity $itemName ($item->gpCost), ";
+			$output .= "$quantity $itemName ($item->gpCost GP), ";
 		}
 
 		$output = rtrim($output, ", ");
