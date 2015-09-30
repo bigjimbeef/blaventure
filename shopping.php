@@ -10,6 +10,40 @@ class Shopping {
 
 	public $commands = [];
 
+	private function canAffordItem(&$charData, $gpCost) {
+
+		$affordable = $gpCost <= $charData->gold;
+		if ( !$affordable ) {
+
+			$goldMissing = $gpCost - $charData->gold;
+			echo "\"Sorry, looks like you'll need another $goldMissing GP for that!\"\n";
+			return false;
+		}
+
+		return true;
+	}
+
+	private function takeMoney($item, $shop, &$charData, $room, $inputString = null) {
+
+		$charData->gold -= $item->gpCost;
+
+		$output = !is_null($inputString) ? $inputString : "";
+
+		if ( !empty($shop->stock) ) {
+			$output .= "\"Aha! A fine purchase! Anything else for you today?\"\n";
+		}
+		else {
+			$output .= "\"You've cleaned me out!\", the shopkeeper says with a grin. It looks like this shop is closed.\n";
+
+			// Remove the shop.
+			unset($room->occupant);
+
+			StateManager::ChangeState($charData, GameStates::Adventuring);
+		}
+
+		echo $output;
+	}
+
 	public function generateInputFragments(&$charData, &$mapData) {
 
 		// To be in here, we need to have a shop at our current location.
@@ -29,12 +63,9 @@ class Shopping {
 
 			$this->commands[] = new InputFragment($itemName, function($charData, $mapData) use ($item, $itemName, $shop, $room) {
 				
-				// Can we afford it?
-				$affordable = $item->gpCost <= $charData->gold;
-				if ( !$affordable ) {
+				global $shopping;
 
-					$goldMissing = $item->gpCost - $charData->gold;
-					echo "\"Sorry, looks like you'll need another $goldMissing GP for that!\"\n";
+				if ( !$shopping->canAffordItem($charData, $item->gpCost) ) {
 					return;
 				}
 
@@ -45,19 +76,71 @@ class Shopping {
 				$inventory = lazyGetInventory($charData);
 				$inventory->addItem($item);
 
-				$charData->gold -= $item->gpCost;
+				$shopping->takeMoney($item, $shop, $charData, $room);
+			});
+		}
 
-				if ( !empty($shop->stock) ) {
-					echo "\"Aha! A fine purchase! Anything else for you today?\"\n";
+		foreach ( $shop->equipment as $equipment ) {
+
+			$this->commands[] = new InputFragment($equipment->name, function($charData, $mapData) use ($equipment, $shop, $room) {
+
+				global $shopping;
+
+
+				if ( !$shopping->canAffordItem($charData, $equipment->gpCost) ) {
+					return;
 				}
-				else {
-					echo "\"You've cleaned me out!\", the shopkeeper says with a grin. It looks like this shop is closed.\n";
 
-					// Remove the shop.
-					unset($room->occupant);
+				$equipString = "You equip your new $equipment->name immediately";
+				
+				if ( $equipment->type == ShopEquipment::Weapon ) {
 
-					StateManager::ChangeState($charData, GameStates::Adventuring);
+					$isBarbarian = strcasecmp($charData->class, "Barbarian") == 0;
+
+					$weapon1Better = $charData->weaponVal >= $equipment->level;
+					$weapon2Better = $charData->weapon2Val >= $equipment->level;
+
+					if ( ( !$isBarbarian && $weapon1Better ) || ( $isBarbarian && $weapon1Better && $weapon2Better ) ) {
+
+						echo "\"No point buying my wares if you've got better yourself!\"\n";
+						return;
+					}
+
+					// Swap Barb main-hand to off-hand if needs be.
+					if ( $isBarbarian ) {
+
+						// Going in the off-hand
+						if ( $weapon1Better ) {
+
+							$charData->weapon2 		= $equipment->name;
+							$charData->weapon2Val	= $equipment->level;	
+						}
+						// Weapon 1 isn't better, so move weapon 1 to weapon 2.
+						else {
+
+							$equipString .= ", moving your $charData->weapon to your off-hand";
+
+							$charData->weapon2 = $charData->weapon;
+							$charData->weapon2Val = $charData->weaponVal;
+						}
+					}
+					else {
+						$charData->weapon 		= $equipment->name;
+						$charData->weaponVal	= $equipment->level;						
+					}
 				}
+				else if ( $equipment->type == ShopEquipment::Armour ) {
+
+					$charData->armour 		= $equipment->name;
+					$charData->armourVal	= $equipment->level;
+				}
+
+				$equipString .= ". ";
+
+				// Remove equipment from shop.
+				$shop->removeEquipment($equipment->name);
+
+				$shopping->takeMoney($equipment, $shop, $charData, $room, $equipString);
 			});
 		}
 

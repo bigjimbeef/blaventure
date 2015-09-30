@@ -142,7 +142,7 @@ $adventuring->commands[] = new InputFragment("inventory", function($charData, $m
 	$itemStr = $inventory->getContentsAsString();
 
 	if ( !is_null($itemStr) ) {
-		$itemStr .= ", ";
+		$itemStr = rtrim($itemStr, "\n") . ", ";
 	}
 
 	$itemStr .= "$charData->gold GP";

@@ -37,7 +37,12 @@ function lootLevel($playerLevel) {
 function giveGold($monster, &$charData) {
 
 	// Gold is very random.
-	$gold = $monster->level * rand(1, 10);
+	$gold = $monster->level * rand(1, 15);
+
+	// Double gold for ELITE stuff.
+	if ( $monster->elite ) {
+		$gold *= 2;
+	}
 
 	$output = "On the corpse of the $monster->name, you find $gold GP! ";
 
@@ -197,12 +202,12 @@ function checkForLootDrop($monster, &$charData) {
 
 		$output = giveLoot($monster, $charData);
 	}
-	// 3,4:	GP
-	else if ( $chanceInSix > 3 ) {
+	// 2,3,4:	GP
+	else if ( $chanceInSix > 1 ) {
 
 		$output = giveGold($monster, $charData);
 	}
-	// 1,2: Sweet fuck all
+	// 1: Sweet fuck all
 	else {
 
 		$output = "You find nothing of note on the $monster->name. ";

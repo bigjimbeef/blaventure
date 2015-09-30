@@ -34,7 +34,7 @@ class CharacterSaveData {
 
 	public $armour		= null;		// str
 	public $armourVal	= 0;		// int
-	public $gold		= 1000;		// int
+	public $gold		= 0;		// int
 	public $inventory	= null;
 
 	public $state			= GameStates::NameSelect;
@@ -212,12 +212,21 @@ class ShopEquipment {
 	public $level;
 	public $gpCost;
 
-	function __construct($name, $level) {
+	public $type;	// ShopEquipment::Armour or ShopEquipment::Weapon
+
+	function __construct($name, $level, $type) {
 		$this->name = $name;
 		$this->level = $level;
 
-		$this->gpCost = 100 * $this->level;
+		// This complicated formula was retrofitted from excel.
+		// ROUND(19*EXP(0.15*B21), -1)
+		$this->gpCost = round(19 * exp(0.15 * $level), -1);
+
+		$this->type = $type;
 	}
+
+	const Armour = 0;
+	const Weapon = 1;
 }
 
 class Room {
@@ -260,9 +269,9 @@ class Shop {
 		}
 	}
 
-	public function addEquipment($itemName, $itemLevel) {
+	public function addEquipment($itemName, $itemLevel, $type) {
 
-		$this->equipment[$itemName] = new ShopEquipment($itemName, $itemLevel);
+		$this->equipment[$itemName] = new ShopEquipment($itemName, $itemLevel, $type);
 	}
 
 	public function removeEquipment($itemName) {
@@ -281,22 +290,28 @@ class Shop {
 
 		// Weapon
 		$oneInHundred	= rand(1, 100);
-		if ( $oneInHundred > 0 ) { //50 ) {
+		if ( true || $oneInHundred > 50 ) {
 
 			$weaponName = NameGenerator::Weapon($playerLevel);
-			$weaponLvl	= rand($playerLevel, $playerLevel + $distanceFactor);
 
-			$this->addEquipment($weaponName, $weaponLvl);
+			$randomFactor	= rand(-2, 2);
+			$weaponLvl		= rand($playerLevel, $playerLevel + $distanceFactor + $randomFactor);
+			$weaponLvl		= max(1, $weaponLvl);
+
+			$this->addEquipment($weaponName, $weaponLvl, ShopEquipment::Weapon);
 		}
 
 		// Armour
 		$oneInHundred	= rand(1, 100);
-		if ( $oneInHundred > 0 )  { //50 ) {
+		if ( $oneInHundred > 50 ) {
 		
 			$armourName = NameGenerator::Armour($playerLevel);
-			$armourLvl	= rand($playerLevel, $playerLevel + $distanceFactor);
 
-			$this->addEquipment($armourName, $armourLvl);
+			$randomFactor	= rand(-2, 2);
+			$armourLvl		= rand($playerLevel, $playerLevel + $distanceFactor + $randomFactor);
+			$armourLvl		= max(1, $armourLvl);
+
+			$this->addEquipment($armourName, $armourLvl, ShopEquipment::Armour);
 		}
 	}
 

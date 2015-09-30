@@ -35,7 +35,7 @@ class ProcGen {
 			$room->occupant = new Shop($playerLevel, $dist);
 		}
 		// 50% chance to spawn a monster.
-		if ( !$noSpawning && $chanceInHundred > 50 ) {
+		else if ( !$noSpawning && $chanceInHundred > 50 ) {
 
 			// Monster difficulty scales, in part, with distance from the start.
 			$dist = $this->getMapDist($xVal, $yVal);

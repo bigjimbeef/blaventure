@@ -8,7 +8,8 @@ include_once("class_traits.php");
 
 include_once("ability_list.php");
 
-define("DEBUG_noDamage", 0);
+define("DEBUG_noEnemyDamage", 0);
+define("DEBUG_noPlayerDamage", 1);
 
 class Combat {
 
@@ -18,7 +19,7 @@ class Combat {
 
 		$survived = true;
 
-		if ( !constant("DEBUG_noDamage") ) {
+		if ( !constant("DEBUG_noEnemyDamage") ) {
 			$monster->hp -= $damage;
 		}
 
@@ -70,7 +71,7 @@ class Combat {
 
 	public function playerDamaged(&$charData, $damage, $attackType, &$fightOutput) {
 
-		if ( !constant("DEBUG_noDamage") ) {
+		if ( !constant("DEBUG_noPlayerDamage") ) {
 			$charData->hp -= $damage;
 		}
 

@@ -67,15 +67,6 @@ class Inventory {
 	function __construct() {
 
 		$this->items = [];
-
-		/*
-		$healthPotion = findItem("health potion");
-
-		if ( $healthPotion ) {
-
-			$this->addItem($healthPotion);
-		}
-		*/
 	}
 }
 
