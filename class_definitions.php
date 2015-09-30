@@ -377,7 +377,7 @@ class Shop {
 	private function InitItemList($playerLevel, $distance) {
 
 		// Potion quality is based on player level.
-		$prefix 		= getPotionPrefix($playerLevel);
+		$prefix 		= $this->getPotionPrefix($playerLevel);
 
 		// Every shop has these items...
 		$healthPotion 	= findItem($prefix . "health potion");
