@@ -58,7 +58,7 @@ $allItems[] = new Item("Health Potion", ItemUse::Either, 100, function(&$charDat
 	if ( $charData->hp >= $charData->hpMax ) {
 		$output = "You're already at max HP!\n";
 
-		//return array(false, $output);
+		return array(false, $output);
 	}
 
 	$HEAL_AMOUNT 	= 50;
@@ -97,7 +97,7 @@ $allItems[] = new Item("Magic Potion", ItemUse::Either, 150, function(&$charData
 	return array(true, $output);
 });
 
-$allItems[] = new Item("Tent", ItemUse::NonCombatOnly, 500, function(&$charData) {
+$allItems[] = new Item("Tent", ItemUse::NonCombatOnly, 1000, function(&$charData) {
 
 	$output = "";
 
