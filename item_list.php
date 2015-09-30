@@ -1,5 +1,8 @@
 <?php
 
+include_once("statics.php");
+include_once("class_definitions.php");
+
 class Item {
 
 	public $name;
