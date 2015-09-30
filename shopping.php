@@ -74,7 +74,10 @@ class Shopping {
 			}
 		}
 
-		$contents = rtrim($contents, ", ") . "\n";
+		$contents = rtrim($contents, ", ");
+
+		$contents .= "  [You have $charData->gold GP]\n";
+
 		return $contents;
 	}
 
