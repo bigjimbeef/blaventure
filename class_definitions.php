@@ -206,6 +206,20 @@ class Map {
 	}
 }
 
+class ShopEquipment {
+
+	public $name;
+	public $level;
+	public $gpCost;
+
+	function __construct($name, $level) {
+		$this->name = $name;
+		$this->level = $level;
+
+		$this->gpCost = 100 * $this->level;
+	}
+}
+
 class Room {
 
 	public 	$x = 0;				// int
@@ -222,6 +236,7 @@ class Room {
 class Shop {
 
 	public $stock = null;
+	public $equipment = null;
 
 	private function addStockItem($item) {
 
@@ -242,6 +257,46 @@ class Shop {
 
 			// Remove the item from our stock completely if we run out.
 			unset($this->stock[$itemName]);
+		}
+	}
+
+	public function addEquipment($itemName, $itemLevel) {
+
+		$this->equipment[$itemName] = new ShopEquipment($itemName, $itemLevel);
+	}
+
+	public function removeEquipment($itemName) {
+
+		unset($this->equipment[$itemName]);
+	}
+
+	private function InitRandomEquipment($playerLevel, $distance) {
+
+		// e.g. 0 at 0 distance, 10 at max distance
+		$mapHalfSize 	= floor(ProcGen::GetMapSize() / 2);	// 50
+		$boundary 		= floor($mapHalfSize / 10);			// 10
+		$distanceFactor = floor($distance / $boundary);
+
+		// NB: Can spawn both armour AND weapon.
+
+		// Weapon
+		$oneInHundred	= rand(1, 100);
+		if ( $oneInHundred > 0 ) { //50 ) {
+
+			$weaponName = NameGenerator::Weapon($playerLevel);
+			$weaponLvl	= rand($playerLevel, $playerLevel + $distanceFactor);
+
+			$this->addEquipment($weaponName, $weaponLvl);
+		}
+
+		// Armour
+		$oneInHundred	= rand(1, 100);
+		if ( $oneInHundred > 0 )  { //50 ) {
+		
+			$armourName = NameGenerator::Armour($playerLevel);
+			$armourLvl	= rand($playerLevel, $playerLevel + $distanceFactor);
+
+			$this->addEquipment($armourName, $armourLvl);
 		}
 	}
 
@@ -266,8 +321,8 @@ class Shop {
 			$this->addStockItem($tent);
 		}
 
-		// TODO: Random weapons/armour.
-		
+		// Random weapons/armour.
+		$this->InitRandomEquipment($playerLevel, $distance);
 	}
 
 	public function isEmpty() {
@@ -279,11 +334,18 @@ class Shop {
 
 		$output = "For sale: ";
 
+		// Items.
 		foreach ( $this->stock as $itemName => $quantity ) {
 
 			$item = findItem($itemName);
 
 			$output .= "$quantity $itemName ($item->gpCost GP), ";
+		}
+
+		// Equipment.
+		foreach ( $this->equipment as $item ) {
+
+			$output .= "Level $item->level $item->name ($item->gpCost GP), ";
 		}
 
 		$output = rtrim($output, ", ");
