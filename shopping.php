@@ -106,7 +106,7 @@ class Shopping {
 						return;
 					}
 
-					// Swap Barb main-hand to off-hand if needs be.
+					// Bloody complicated Barbarians
 					if ( $isBarbarian ) {
 
 						// Going in the off-hand
@@ -122,6 +122,9 @@ class Shopping {
 
 							$charData->weapon2 = $charData->weapon;
 							$charData->weapon2Val = $charData->weaponVal;
+
+							$charData->weapon 		= $equipment->name;
+							$charData->weaponVal	= $equipment->level;
 						}
 					}
 					else {

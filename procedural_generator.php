@@ -27,7 +27,7 @@ class ProcGen {
 		$chanceInHundred = rand(1, 100);
 
 		// 10% chance to spawn an item shop
-		if ( true || !$noSpawning && $chanceInHundred > 90 ) {
+		if ( !$noSpawning && $chanceInHundred > 90 ) {
 
 			// Item shop loot scales with distance from the center.
 			$dist = $this->getMapDist($xVal, $yVal);
