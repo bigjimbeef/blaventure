@@ -9,7 +9,7 @@ include_once("class_traits.php");
 include_once("ability_list.php");
 
 define("DEBUG_noEnemyDamage", 0);
-define("DEBUG_noPlayerDamage", 0);
+define("DEBUG_noPlayerDamage", 1);
 
 class Combat {
 
@@ -88,6 +88,21 @@ class Combat {
 		return $died;
 	}
 
+	public function getMissChance($attackerLevel, $defenderLevel) {
+
+		$levelDiff 	= $defenderLevel - $attackerLevel;
+
+		$perLvlMiss	= 2.5;
+		$missChance = pow(2, $levelDiff) * $perLvlMiss;
+
+		// Round to nearest integer.
+		$missChance = round($missChance, 0);
+
+		//echo "$attackerLevel vs. $defenderLevel: $missChance% to miss.\n";
+
+		return $missChance;
+	}
+
 	// Note: check spreadsheet for reference to these arcane formulae!
 	public function attackDamage($level, $attack, $critThreatOverride = -1, $missChance = 0) { 
 
@@ -123,7 +138,9 @@ class Combat {
 
 	public function monsterAttack(&$charData, $monster, &$fightOutput) {
 
-		list($damage, $crit) = $this->attackDamage($monster->level, $monster->attack);		
+		$missChance = $this->getMissChance($monster->level, $charData->level);
+
+		list($damage, $crit) = $this->attackDamage($monster->level, $monster->attack, -1, $missChance);		
 		$attackType = $crit ? "CRIT" : "hit";
 
 		//---------------------------------------
@@ -172,7 +189,12 @@ class Combat {
 			exit(11);
 		}
 
-		$fightOutput .= (" It $attackType" . "s back for $mitigatedDamage! ($charData->hp/$charData->hpMax)");
+		if ( $damage > 0 ) {
+			$fightOutput .= (" It $attackType" . "s back for $mitigatedDamage! ($charData->hp/$charData->hpMax)");			
+		}
+		else {
+			$fightOutput .= " It flails at you, but misses!";
+		}
 
 		return array($attackType, $mitigatedDamage);
 	}
@@ -199,7 +221,7 @@ class Combat {
 		//---------------------------------------
 
 		$weaponDamage 	= $charData->weaponVal;
-		$missChance		= 0;
+		$missChance		= $this->getMissChance($charData->level, $monster->level);
 
 		if ( $isBarbarian ) {
 
@@ -410,7 +432,12 @@ $combat->commands[] = new InputFragment("run", function($charData, $mapData) use
 		$monster 	= $room->occupant;
 
 		list ($attackType, $damage) = $combat->monsterAttack($charData, $monster, $output);
-		echo "You get caught and $attackType for $damage damage!\n";
+		if ( $damage > 0 ) {
+			echo "You get caught and $attackType for $damage damage!\n";
+		}
+		else {
+			echo "It swipes at you as you run, but it misses!\n";
+		}
 	}
 	else {
 

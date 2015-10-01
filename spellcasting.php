@@ -181,7 +181,12 @@ class Spellcasting {
 
 				list ($attackType, $damage) = $combat->monsterAttack($charData, $monster);
 
-				$fightOutput .= (" It $attackType" . "s back for $damage!\n");
+				if ( $damage > 0 ) {
+					$fightOutput .= (" It $attackType" . "s back for $damage!\n");					
+				}
+				else {
+					$fightOutput .= " It swings at you, but misses!\n";
+				}
 
 				echo $fightOutput;
 

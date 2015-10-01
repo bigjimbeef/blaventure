@@ -40,7 +40,12 @@ class UsingItem {
 			$dummyOutput = "";
 			list ($attackType, $damage) = $combat->monsterAttack($charData, $monster, $dummyOutput);
 
-			$result .= " The $monster->name attacks for $damage!\n";
+			if ( $damage > 0 ) {
+				$result .= " The $monster->name attacks for $damage!\n";
+			}
+			else {
+				$result .= " It swings at you, but misses!\n";
+			}
 		}
 
 		echo $result;
