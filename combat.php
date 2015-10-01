@@ -321,7 +321,9 @@ $combat->commands[] = new InputFragment("check", function($charData, $mapData) {
 	$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 	$monster 	= $room->occupant;
 
-	$status = "Level $monster->level $monster->name ($monster->hp/$monster->hpMax HP)    You ($charData->hp/$charData->hpMax HP  $charData->mp/$charData->mpMax MP)\n";
+	$connedLvl	= $monster->getConnedLevelStr($charData->level);
+
+	$status = "$connedLvl $monster->name ($monster->hp/$monster->hpMax HP)    You ($charData->hp/$charData->hpMax HP  $charData->mp/$charData->mpMax MP)\n";
 
 	echo $status;
 });

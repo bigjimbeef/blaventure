@@ -185,6 +185,26 @@ class Monster {
 		$this->hpMax		= floor(pow($this->level, 1.1) * 10);
 		$this->hp			= $this->hpMax;
 	}
+
+	public function getConnedLevelStr($playerLevel) {
+
+		$colours 	= ["\x039", "\x030", "\x038", "\x038", "\x034", "\x0313"];
+
+		// Will be between -1 and ~8
+		$levelDiff 	= $this->level - $playerLevel;
+		
+		// We want level== and level+1 to look identical
+		if ( $levelDiff == 1 ) {
+			$levelDiff = 0;
+		}
+
+		$maxIndex	= count($colours) - 1;
+
+		$diffIndex	= max(0, min($levelDiff + 1, $maxIndex));
+		$conColour	= $colours[$diffIndex];
+
+		return ($conColour . "Level $this->level\x03");
+	}
 }
 
 class Map {
