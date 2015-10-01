@@ -332,16 +332,16 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 		$monsterName 	= $monster->name;
 
 		$article		= NameGenerator::GetArticle($monsterName);
-		$connedLevel	= $monster->getConnedLevelStr($charData->level);
+		$connedName		= $monster->getConnedNameStr($charData->level);
 
 		if ( !$seenBefore ) {
-			$moveText .= "and encounter $article $connedLevel $monsterName! It attacks!\n";
+			$moveText .= "and encounter a Level $monster->level $connedName! It attacks!\n";
 
 			// Combat!
 			StateManager::ChangeState($charData, GameStates::Combat);
 		}
 		else {
-			$moveText .= "and encounter the $connedLevel $monsterName again! It attacks again!\n";
+			$moveText .= "and encounter the Level $monster->level $connedName again! It attacks again!\n";
 
 			// Combat!
 			StateManager::ChangeState($charData, GameStates::Combat);

@@ -186,7 +186,7 @@ class Monster {
 		$this->hp			= $this->hpMax;
 	}
 
-	public function getConnedLevelStr($playerLevel) {
+	public function getConnedNameStr($playerLevel) {
 
 		$colours 	= ["\x039", "\x030", "\x038", "\x038", "\x034", "\x0313"];
 
@@ -203,7 +203,7 @@ class Monster {
 		$diffIndex	= max(0, min($levelDiff + 1, $maxIndex));
 		$conColour	= $colours[$diffIndex];
 
-		return ($conColour . "Level $this->level\x03");
+		return ($conColour . "$this->name\x03");
 	}
 }
 

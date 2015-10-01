@@ -9,7 +9,7 @@ include_once("class_traits.php");
 include_once("ability_list.php");
 
 define("DEBUG_noEnemyDamage", 0);
-define("DEBUG_noPlayerDamage", 1);
+define("DEBUG_noPlayerDamage", 0);
 
 class Combat {
 
@@ -343,9 +343,9 @@ $combat->commands[] = new InputFragment("check", function($charData, $mapData) {
 	$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 	$monster 	= $room->occupant;
 
-	$connedLvl	= $monster->getConnedLevelStr($charData->level);
+	$connedName	= $monster->getConnedNameStr($charData->level);
 
-	$status = "$connedLvl $monster->name ($monster->hp/$monster->hpMax HP)    You ($charData->hp/$charData->hpMax HP  $charData->mp/$charData->mpMax MP)\n";
+	$status = "Level $monster->level $connedName ($monster->hp/$monster->hpMax HP)    You, Level $charData->level ($charData->hp/$charData->hpMax HP  $charData->mp/$charData->mpMax MP)\n";
 
 	echo $status;
 });
