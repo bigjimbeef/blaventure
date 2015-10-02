@@ -64,10 +64,29 @@ class UsingItem {
 		}		
 	}
 
+	private function deDupeItemFragments($itemName, &$dedupedNames) {
+
+		$existsAlready = false;
+
+		if ( !isset($dedupedNames[$itemName] ) ) {
+
+			$dedupedNames[$itemName] = true;
+		}
+		else {
+
+			$existsAlready = true;
+		}
+
+		return $existsAlready;
+	}
+
 	public function generateInputFragments(&$charData, $nonCombat = false) {
 
 		$inventory 		= lazyGetInventory($charData);
 		$inventoryItems = $inventory->items;
+
+		// We only want one InputFragment per item TYPE.
+		$dedupedNames	= [];
 
 		foreach ( $inventoryItems as $itemName ) {
 
@@ -84,6 +103,10 @@ class UsingItem {
 				continue;
 			}
 			if ( !$nonCombat && $useLocation == ItemUse::NonCombatOnly ) {
+				continue;
+			}
+
+			if ( $this->deDupeItemFragments($itemName, $dedupedNames) ) {
 				continue;
 			}
 

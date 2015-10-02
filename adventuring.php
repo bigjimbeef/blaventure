@@ -16,6 +16,28 @@ include_once("class_traits.php");
 
 class Adventuring {
 
+	public function getEquippedItemsStr($charData) {
+
+		//---------------------------------------
+		// Barbarian trait.
+		global $traitMap;
+		$isBarbarian = $traitMap->ClassHasTrait($charData, TraitName::DualWield);
+
+		$equipment = "Weapon: $charData->weapon ($charData->weaponVal)    ";
+		if ( $isBarbarian ) {
+			$equipment = "Main-hand " . $equipment;
+		}
+
+		if ( !$isBarbarian ) {
+			$equipment .= "Armour: $charData->armour ($charData->armourVal)";
+		}
+		else {
+			$equipment .= "Off-hand Weapon: $charData->weapon2 ($charData->weapon2Val)";
+		}
+
+		return $equipment;
+	}
+
 	public $commands = [];
 }
 
@@ -74,24 +96,10 @@ $adventuring->commands[] = new InputFragment("char", function($charData, $mapDat
 // Get the character's equipped items
 $adventuring->commands[] = new InputFragment("equipment", function($charData, $mapData) {
 
-	//---------------------------------------
-	// Barbarian trait.
-	global $traitMap;
-	$isBarbarian = $traitMap->ClassHasTrait($charData, TraitName::DualWield);
+	global $adventuring;
+	$equipment = $adventuring->getEquippedItemsStr($charData);
 
-	$inventory = "Weapon: $charData->weapon ($charData->weaponVal)    ";
-	if ( $isBarbarian ) {
-		$inventory = "Main-hand " . $inventory;
-	}
-
-	if ( !$isBarbarian ) {
-		$inventory .= "Armour: $charData->armour ($charData->armourVal)";
-	}
-	else {
-		$inventory .= "Off-hand Weapon: $charData->weapon2 ($charData->weapon2Val)";
-	}
-
-	echo $inventory . "\n";
+	echo $equipment . "\n";
 });
 
 // Use an item from the inventory
@@ -348,7 +356,7 @@ function moveToRoom($x, $y, $xDelta, $yDelta, $mapData, $charData, $moveText) {
 		}
 	}
 	else if ( $containsShop ) {
-		$moveText .= "and discover a small shop. \"Feel free to (b)rowse!\", the shopkeeper yells.\n";
+		$moveText .= "and discover a small shop. \"Feel free to br(o)wse!\", the shopkeeper yells.\n";
 	}
 	else {
 		$moveText .= "but this room appears to be empty.\n";

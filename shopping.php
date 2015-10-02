@@ -5,6 +5,7 @@ include_once("class_definitions.php");
 
 include_once("class_traits.php");
 include_once("inventory.php");
+include_once("adventuring.php");
 
 class Shopping {
 
@@ -89,12 +90,31 @@ class Shopping {
 
 		if ( !$justItems ) {
 
-			$this->commands[] = new InputFragment("check", function($charData, $mapData) use ($shop) {
+			$this->commands[] = new InputFragment("check stock", function($charData, $mapData) use ($shop) {
 
 				global $shopping;
 				$shopStr = $shopping->getShopString($shop, $charData, $mapData);
 
 				echo $shopStr;
+			});
+		}
+		if ( !$justItems ) {
+
+			$this->commands[] = new InputFragment("leave", function($charData, $mapData) {
+
+				echo "\"Maybe next time, eh?\", the shopkeeper drawls at you as you walk away.\n";
+
+				StateManager::ChangeState($charData, GameStates::Adventuring);
+			});
+		}
+		if ( !$justItems ) {
+
+			$this->commands[] = new InputFragment("equipment", function($charData, $mapData) {
+
+				global $adventuring;
+				$equipment = $adventuring->getEquippedItemsStr($charData);
+
+				echo $equipment . "\n";
 			});
 		}
 
@@ -197,16 +217,6 @@ class Shopping {
 				$shop->removeEquipment($equipment->name);
 
 				$shopping->takeMoney($equipment, $shop, $charData, $room, $equipString);
-			});
-		}
-
-		if ( !$justItems ) {
-
-			$this->commands[] = new InputFragment("leave", function($charData, $mapData) {
-
-				echo "\"Maybe next time, eh?\", the shopkeeper drawls at you as you walk away.\n";
-
-				StateManager::ChangeState($charData, GameStates::Adventuring);
 			});
 		}
 
