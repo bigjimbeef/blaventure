@@ -203,7 +203,7 @@ class Monster {
 		$diffIndex	= max(0, min($levelDiff + 1, $maxIndex));
 		$conColour	= $colours[$diffIndex];
 
-		return ($conColour . "$this->name\x03");
+		return ($conColour . "$this->name\x03\x03");
 	}
 }
 
