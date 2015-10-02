@@ -137,9 +137,11 @@ class Spellcasting {
 
 			$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 			$monster 	= $room->occupant;
+			$connedName	= $monster->getConnedNameStr($charData->level);
 
-			$spellText = "You cast $spellName on the $monster->name for $spellDmg damage!";
-			$killedEnemy = $combat->playerAttack($charData, $room, $monster, $spellDmg, $spellText);
+			$spellText = "You cast $spellName on the $connedName for $spellDmg damage!";
+			$spellMiss = "You try to cast $spellName on the $connedName, but it fizzles out!";
+			$killedEnemy = $combat->playerAttack($charData, $room, $monster, $spellDmg, $spellText, $spellMiss);
 
 			if ( !$killedEnemy ) {
 

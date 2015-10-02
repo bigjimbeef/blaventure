@@ -199,7 +199,7 @@ class Combat {
 		return array($attackType, $mitigatedDamage);
 	}
 
-	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null) {
+	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null, $spellMissText = null) {
 
 		global $traitMap;
 
@@ -208,6 +208,7 @@ class Combat {
 
 		$isBarbarian		= $traitMap->ClassHasTrait($charData, TraitName::DualWield);
 		$isAngryBarbarian 	= $charData->rageTurns > 0;
+		$isSpell			= !is_null($spellDmg);
 
 		//---------------------------------------
 		// Rogue trait.
@@ -229,7 +230,8 @@ class Combat {
 		}
 		if ( $isAngryBarbarian ) {
 
-			$missChance		= 33;
+			// MUCH more likely to miss.
+			$missChance		= min($missChance + 33, 100);
 		}
 
 		list($damage, $crit) = $this->attackDamage($charData->level, $weaponDamage, $critThreatOverride, $missChance);
@@ -240,18 +242,21 @@ class Combat {
 		}
 
 		// Used when spellcasting.
-		if ( !is_null($spellDmg) ) {
+		if ( $isSpell && $damage > 0 ) {
+			
 			$damage = $spellDmg;
 		}
+
+		$connedName	= $monster->getConnedNameStr($charData->level);
 
 		if ( $damage > 0 ) {
 
 			$attackType 	= $crit ? "CRIT" : "hit";
-			$fightOutput 	= "You $attackType the $monster->name for $damage!";
+			$fightOutput 	= "You $attackType the $connedName for $damage!";
 		}
 		else {
 
-			$fightOutput	= "You swing wildly at the $monster->name, but miss!";
+			$fightOutput	= "You swing wildly at the $connedName, but miss!";
 		}
 
 		//---------------------------------------
@@ -274,7 +279,13 @@ class Combat {
 
 		// Used when spellcasting.
 		if ( $spellText ) {
-			$fightOutput = $spellText;
+
+			if ( $damage > 0 ) {
+				$fightOutput = $spellText;				
+			}
+			else {
+				$fightOutput = $spellMissText;
+			}
 		}
 
 		if ( $this->monsterDamaged($monster, $room, $damage, $charData) ) {
