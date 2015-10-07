@@ -37,7 +37,7 @@ class Spellcasting {
 			$trait 			= $traitMap->GetTrait($charData, TraitName::PalmLvlScale);
 			$mpReduction 	= $trait->GetScaledValue($charData);
 
-			if ( strcasecmp($spellName, $quiveringPalm->name) == 0 ){
+			if ( strcasecmp($spell->name, $quiveringPalm->name) == 0 ){
 
 				$spell->mpCost = max($spell->mpCost - $mpReduction, 0);
 			}
@@ -50,7 +50,7 @@ class Spellcasting {
 			$trait 			= $traitMap->GetTrait($charData, TraitName::StabLvlScale);
 			$mpReduction 	= $trait->GetScaledValue($charData);
 
-			if ( strcasecmp($spellName, $backstab->name) == 0 ){
+			if ( strcasecmp($spell->name, $backstab->name) == 0 ){
 
 				$spell->mpCost = max($spell->mpCost - $mpReduction, 0);
 			}
@@ -141,7 +141,7 @@ class Spellcasting {
 
 			$spellText = "You cast $spellName on the $connedName for $spellDmg damage!";
 			$spellMiss = "You try to cast $spellName on the $connedName, but it fizzles out!";
-			$killedEnemy = $combat->playerAttack($charData, $room, $monster, $spellDmg, $spellText, $spellMiss);
+			$killedEnemy = $combat->playerAttack($charData, $mapData, $room, $monster, $spellDmg, $spellText, $spellMiss);
 
 			if ( !$killedEnemy ) {
 
