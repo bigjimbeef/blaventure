@@ -44,6 +44,11 @@ function giveGold($monster, &$charData) {
 		$gold *= 2;
 	}
 
+	// Apply streak multiplication.
+	$streak = $charData->lazyGetStreak();
+	
+	$gold 	= round($gold * $streak->getStreakMultiplier(), 0);
+
 	$output = "On the corpse of the $monster->name, you find $gold GP! ";
 
 	$charData->gold += $gold;

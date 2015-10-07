@@ -265,14 +265,13 @@ $adventuring->commands[] = new InputFragment("rest", function($charData, $mapDat
 	}
 	else {
 
-		$restDuration 		= $hpDeficit > $mpDeficit ? $hpDeficit : $mpDeficit;
+		// Target output:
+		// HP, MP, coords, rest time (mins), wakeup time (hh:mm)
 
-		if ( !$isPray ) {
-			echo "You curl up in a ball and go to sleep. It will take $restDuration minutes to fully restore.\n";
-		}
-		else {
+		$restString 		= "";
+		$restDuration 		= $hpDeficit > $mpDeficit ? $hpDeficit : $mpDeficit;
+		if ( $isPray ) {
 			$restDuration	= ceil($restDuration / 2);
-			echo "You kneel down on the ground, and pray fervently to your God(s). It will take $restDuration minutes.\n";
 		}
 
 		StateManager::ChangeState($charData, GameStates::Resting);
@@ -282,7 +281,27 @@ $adventuring->commands[] = new InputFragment("rest", function($charData, $mapDat
 		$date->add(new DateInterval('PT' . $restDuration . 'M'));
 
 		$charData->restEnd		= $date->getTimeStamp();
+		
+		$wakeUpTime = $date->format("H:i");
+		if ( !$isPray ) {
+			$restString = "You go to sleep for $restDuration minutes. You will awake at $wakeUpTime.";
+		}
+		else {
+			$restString = "You begin praying for $restDuration minutes. You will finish at $wakeUpTime.";
+		}
+
+		$restString .= "  $charData->hp/$charData->hpMax HP  $charData->mp/$charData->mpMax MP @[$mapData->playerX, $mapData->playerY]";
+
+		echo $restString . "\n";
 	}
+});
+
+$adventuring->commands[] = new InputFragment("streak", function($charData, $mapData) {
+
+	$streak 	= $charData->lazyGetStreak();
+	$streakStr 	= $streak->getStreakString();
+
+	echo "$streakStr\n";
 });
 
 //

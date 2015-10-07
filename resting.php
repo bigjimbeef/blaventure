@@ -62,12 +62,17 @@ $resting->commands[] = new InputFragment("wake", function($charData, $mapData) {
 
 	global $traitMap;
 	$isPray		= $traitMap->ClassHasTrait($charData, TraitName::Pray);
+
+	$restString = "";
+
 	if ( !$isPray ) {
-		echo "You wake up, ready to start the new day. (" . getCurrentStats($charData, true, $isPray) . ")\n";
+		$restString = "You wake up, ready to start the new day. (" . getCurrentStats($charData, true, $isPray) . ")";
 	}
 	else {
-		echo "You stand up, feeling thoroughly refreshed. (" . getCurrentStats($charData, true, $isPray) . ")\n";
+		$restString = "You stand up, feeling thoroughly refreshed. (" . getCurrentStats($charData, true, $isPray) . ")";
 	}
+
+	echo $restString . "\n";
 
 	$charData->restStart	= 0;
 	$charData->restEnd		= 0;

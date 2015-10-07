@@ -199,7 +199,7 @@ class Combat {
 		return array($attackType, $mitigatedDamage);
 	}
 
-	public function playerAttack(&$charData, &$room, &$monster, $spellDmg = null, $spellText = null, $spellMissText = null) {
+	public function playerAttack(&$charData, &$mapData, &$room, &$monster, $spellDmg = null, $spellText = null, $spellMissText = null) {
 
 		global $traitMap;
 
@@ -298,7 +298,7 @@ class Combat {
 		}
 		else {
 
-			exitCombat($charData, $fightOutput);
+			exitCombat($charData, $mapData, $fightOutput);
 
 			$changedState = true;
 		}
@@ -307,6 +307,26 @@ class Combat {
 		echo $fightOutput;
 
 		return $changedState;
+	}
+}
+
+function alterStreak(&$charData, &$mapData, $shouldDecrease = false) {
+
+	$streak 	= $charData->lazyGetStreak();
+
+	if ( !$shouldDecrease ) {
+
+		$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
+		$monster 	= $room->occupant;
+
+		$alteration	= $monster->level - $charData->level;
+
+		$streak->increase($alteration, $monster->elite);
+	}
+	else {
+
+		// TODO: Is this right? Decrease by one for running?
+		$streak->decrease(1);
 	}
 }
 
@@ -330,7 +350,7 @@ function reduceRage(&$charData, &$textOutput, $setValue = -1) {
 	}
 }
 
-function exitCombat(&$charData, &$textOutput) {
+function exitCombat(&$charData, &$mapData, &$textOutput) {
 
 	// We killed the enemy.
 	$textOutput .= " It dies! ";
@@ -341,6 +361,16 @@ function exitCombat(&$charData, &$textOutput) {
 
 	// Calm down the Barbarians.
 	reduceRage($charData, $fightOutput, 0);
+
+	// Streak management.
+	$streak 		= $charData->lazyGetStreak();
+	$currentStreak 	= $streak->currentValue;
+	alterStreak($charData, $mapData);
+	$newStreak 		= $streak->currentValue;
+	if ( floor( $newStreak / 5 ) > floor( $currentStreak / 5 ) ) {
+
+		$textOutput .= "STREAK UP! ";
+	}
 
 	// Move to the looting state.
 	StateManager::ChangeState($charData, GameStates::Looting);
@@ -368,7 +398,7 @@ $combat->commands[] = new InputFragment("attack", function($charData, $mapData) 
 	// Must have an occupant to be in combat.
 	$monster = $room->occupant;
 	
-	$combat->playerAttack($charData, $room, $monster);
+	$combat->playerAttack($charData, $mapData, $room, $monster);
 });
 
 $combat->commands[] = new InputFragment("magic", function($charData, $mapData) {
@@ -461,11 +491,22 @@ $combat->commands[] = new InputFragment("run", function($charData, $mapData) use
 		$dummyOutput = "";
 		reduceRage($charData, $dummyOutput, 0);
 
+		// Decrease the streak.
+		alterStreak($charData, $mapData, true);
+
 		StateManager::ChangeState($charData, GameStates::Adventuring);
 
 		$mapData->playerX = $mapData->lastPlayerX;
 		$mapData->playerY = $mapData->lastPlayerY;
 	}
+});
+
+$combat->commands[] = new InputFragment("streak", function($charData, $mapData) {
+
+	$streak 	= $charData->lazyGetStreak();
+	$streakStr 	= $streak->getStreakString();
+
+	echo "$streakStr\n";
 });
 
 // Add unique identifiers to commands.

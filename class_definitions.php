@@ -58,6 +58,16 @@ class CharacterSaveData {
 	public $lockedAbilities = null;
 
 	public $manaCostReductions = null;
+
+	public $streak = null;
+	public function lazyGetStreak() {
+
+		if ( is_null($this->streak) ) {
+			$this->streak = new Streak();
+		}
+
+		return $this->streak;
+	}
 }
 
 class MapSaveData {
@@ -471,6 +481,86 @@ class Ability extends Spell {
 		$this->damageCallback 	= $damageCallback;
 		
 		$this->isAbility 		= true;
+	}
+}
+
+class Streak {
+
+	public $currentValue = 0;
+	const MAX_STREAK = 10;
+
+	public function increase($levelDiff, $isElite = false) {
+
+		$increaseVal = 0;
+
+		if ( $levelDiff >= 0 ) {
+
+			// ==, +1, +2, +3, +4, +5
+			$streakIncreases 	= [1, 1, 1, 2, 3, 5];
+			$maxIndex			= count($streakIncreases) - 1;
+
+			$levelDiffIndex		= min($levelDiff, $maxIndex);
+
+			$increaseVal 		= $streakIncreases[$levelDiffIndex];
+
+			// Elite monsters give us a double contribution.
+			if ( $isElite ) {
+
+				$increaseVal	*= 2;
+			}
+		}
+
+		$this->currentValue += $increaseVal;
+	}
+
+	public function reset() {
+
+		$this->currentValue = 0;
+	}
+
+	public function decrease($decVal) {
+
+		$this->currentValue -= $decVal;
+
+		$this->currentValue = max(0, $this->currentValue);
+	}
+
+	public function getStreakMultiplier() {
+
+		// MIN(POWER(BASE, LEVEL), 10)
+		$STREAK_BASE = 1.1;
+
+		return min(round(pow($STREAK_BASE, $this->currentValue), 1), Streak::MAX_STREAK);
+	}
+
+	public function getStreakString() {
+
+		$streakVal = $this->currentValue;
+		$streakMul = $this->getStreakMultiplier();
+
+		$streakStr = "";
+		if ( $streakVal >= 25 ) {
+			$streakStr = "YOU'RE ON A FUCKING RAMPAGE! ";
+		}
+		else if ( $streakVal >= 20 ) {
+			$streakStr = "You're really causing havoc! ";
+		}
+		else if ( $streakVal >= 15 ) {
+			$streakStr = "You're making a proper mess! ";
+		}
+		else if ( $streakVal >= 10 ) {
+			$streakStr = "You're beginning to believe! ";
+		}
+		else if ( $streakVal >= 5 ) {
+			$streakStr = "You're getting warmed up! ";
+		}
+		else {
+			$streakStr = "You're just getting started! ";
+		}
+		
+		$streakStr .= " ($streakVal kills, ${streakMul}x GP)";
+
+		return $streakStr;
 	}
 }
 
