@@ -39,6 +39,9 @@ class CharacterSaveData {
 
 	public $state			= GameStates::NameSelect;
 	public $previousState	= null;
+	// Used when patching in new features in order to not lose last state.
+	public $patchState		= null;
+	public $patchPrevState	= null;
 
 	// Used for procedural generation.
 	public $randomSeed 	= 0;		// int
@@ -84,13 +87,18 @@ class MapSaveData {
 
 class DynastySaveData {
 
+	public $name			= "";
+
+	public $gold			= 0;
 	public $level			= 0;
 
 	public $hpBonus 		= 0;
 	public $mpBonus			= 0;
-
 	public $atkBonus		= 0;
 	public $defBonus		= 0;
+	public $hitBonus		= 0;
+	public $critBonus		= 0;
+	public $dodgeBonus		= 0;
 }
 
 // Function Matches is called on each InputFragment, and the callback is called if it does match the input.
@@ -109,9 +117,9 @@ class InputFragment {
 		return $tokenMatch || $uidMatch;
 	}
 
-	public function FireCallback($charData, $mapData) {
+	public function FireCallback($charData, $mapData, $dynData) {
 
-		call_user_func($this->callback, $charData, $mapData);
+		call_user_func($this->callback, $charData, $mapData, $dynData);
 	}
 
 	// ctor

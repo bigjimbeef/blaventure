@@ -86,9 +86,11 @@ $adventuring->commands[] = new InputFragment("west", function($charData, $mapDat
 
 // Get the character status
 // e.g. Level 3 Barbarian    HP 3/10    MP 2/5
-$adventuring->commands[] = new InputFragment("char", function($charData, $mapData) {
+$adventuring->commands[] = new InputFragment("char", function($charData, $mapData, $dynData) {
 
-	$status = "Level $charData->level $charData->class    HP $charData->hp/$charData->hpMax    MP $charData->mp/$charData->mpMax    @[$mapData->playerX, $mapData->playerY]\n";
+	$characterName = "$charData->name $dynData->name";
+
+	$status = "$characterName, Level $charData->level $charData->class    HP $charData->hp/$charData->hpMax    MP $charData->mp/$charData->mpMax    @[$mapData->playerX, $mapData->playerY]\n";
 
 	echo $status;
 });

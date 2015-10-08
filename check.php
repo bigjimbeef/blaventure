@@ -11,12 +11,18 @@ $mapData	= unserialize($map);
 $sb 		= file_get_contents("/home/minikeen/.blaventure/minikeen.scoreboard");
 $sbData		= unserialize($sb);
 
+$dyn 		= file_get_contents("/home/minikeen/.blaventure/minikeen.dynasty");
+$dynData	= unserialize($dyn);
+
 if ( $argv[1] == "char" ) {
-	print_r($charData);	
+	print_r($charData);
 }
 if ( $argv[1] == "map" ) {
-	print_r($mapData);	
+	print_r($mapData);
 }
 if ( $argv[1] == "scoreboard" ) {
-	print_r($sbData);	
+	print_r($sbData);
+}
+if ( $argv[1] == "dyn" ) {
+	print_r($dynData);
 }

@@ -3,6 +3,7 @@
 abstract class SaveFileType {
 	const Character	= "char";
 	const Map		= "map";
+	const Dynasty	= "dynasty";
 }
 
 // game state
@@ -20,7 +21,9 @@ abstract class GameStates {
 	const UsingItem				= 10;
 	const Shopping				= 11;
 
-	const Dynasty				= 12;
+	const DynastySplash			= 12;
+	const DynastyInit			= 13;
+	const Dynasty				= 14;
 }
 
 // items

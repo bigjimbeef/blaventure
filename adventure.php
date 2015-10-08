@@ -35,7 +35,7 @@ include_once("usingItem.php");
 include_once("shopping.php");
 
 // DEBUG FLAG
-define("DEBUG", 0);
+define("DEBUG", 1);
 
 // We're in Europe!
 date_default_timezone_set("Europe/London");
@@ -47,25 +47,21 @@ function DEBUG_echo($string) {
 	}
 }
 
-function getSaveFilePath($nick, $isCharSave) {
-
-	$saveSuffix = null;
-	if ( $isCharSave ) {
-		$saveSuffix = SaveFileType::Character;
-	}
-	else {
-		$saveSuffix = SaveFileType::Map;
-	}
+function getSaveFilePath($nick, $saveFileType) {
 
 	$home 		= getenv("HOME");
-	$filePath 	= "$home/.blaventure/$nick.$saveSuffix";
+	$filePath 	= "$home/.blaventure/$nick.$saveFileType";
 
 	return $filePath;
 }
 
 function initDynastySaveData($nick) {
 
-	// TODO:
+	DEBUG_echo("initDynastySave");
+
+	$initialSaveData = new DynastySaveData();
+
+	return $initialSaveData;
 }
 
 function initCharacterSaveData($nick) {
@@ -128,25 +124,46 @@ function readSave($filePath) {
 
 function checkIfNewGame($nick) {
 
-	$charFilePath 	= getSaveFilePath($nick, true);
-	$mapFilePath 	= getSaveFilePath($nick, false);
+	$charFilePath 	= getSaveFilePath($nick, SaveFileType::Character);
+	$mapFilePath 	= getSaveFilePath($nick, SaveFileType::Map);
+	$dynFilePath 	= getSaveFilePath($nick, SaveFileType::Dynasty);
 
-	return !file_exists($charFilePath) || !file_exists($mapFilePath);
+	return !file_exists($charFilePath) || !file_exists($mapFilePath) || !file_exists($dynFilePath);
 }
 
 /*
  *	Called every time the player moves, or gains an item.
  * 	Writes to two files at $HOME/.blaventure/$nick.[char/map]
  */
-function saveGame($nick, $isCharSave, $data = null) {
+function saveGame($nick, $saveFileType, $data = null) {
 
 	$saveData	= null;
 	
 	$newGame	= checkIfNewGame($nick);
-	$filePath 	= getSaveFilePath($nick, $isCharSave);
+	$filePath 	= getSaveFilePath($nick, $saveFileType);
 
 	if ( $newGame ) {
-		$saveData = $isCharSave ? initCharacterSaveData($nick) : initMapSaveData($nick);
+
+		switch ( $saveFileType ) {
+
+			case SaveFileType::Character: {
+				$saveData = initCharacterSaveData($nick);
+			}
+			break;
+
+			case SaveFileType::Map: {
+				$saveData = initMapSaveData($nick);
+			}
+			break;
+
+			case SaveFileType::Dynasty: {
+				$saveData = initDynastySaveData($nick);
+			}
+			break;
+
+			default:
+			break;
+		}
 	}
 	else {
 		
@@ -158,7 +175,9 @@ function saveGame($nick, $isCharSave, $data = null) {
 		$saveData = $data;
 	}
 
-	writeSave($saveData, $filePath);
+	if ( !is_null($saveData) ) {
+		writeSave($saveData, $filePath);		
+	}
 }
 
 
@@ -191,7 +210,7 @@ function readStdin() {
 	return $input;
 }
 
-function checkInputFragments( $fragments, $input, $charData, $mapData ) {
+function checkInputFragments( $fragments, $input, $charData, $mapData, $dynData = null) {
 
 	$match	= false;
 
@@ -201,7 +220,7 @@ function checkInputFragments( $fragments, $input, $charData, $mapData ) {
 
 		if ( !$isHelp && $fragment->Matches($input, $charData) ) {
 
-			$fragment->FireCallback($charData, $mapData, $key);
+			$fragment->FireCallback($charData, $mapData, $dynData);
 			$match = true;
 
 			break;
@@ -294,13 +313,13 @@ function firstPlay($data) {
 	$data->weapon2Val = 1;
 }
 
-function adventuring($input, $charData, $mapData) {
+function adventuring($input, $charData, $mapData, $dynData) {
 
 	global $adventuring;
 
 	addShopFragmentIfNeeded($charData, $mapData);
 
-	checkInputFragments($adventuring->commands, $input, $charData, $mapData);
+	checkInputFragments($adventuring->commands, $input, $charData, $mapData, $dynData);
 }
 
 function resting($input, $charData, $mapData) {
@@ -365,17 +384,49 @@ function main() {
 	$mapData 	= null;
 	$charData 	= null;
 
+	// This will force everyone into creating a Dynasty save.
+	// We patching shit, yo.
+	$dynPatch	= false;
+
+	$dynPath 	= getSaveFilePath($nick, SaveFileType::Dynasty);
+	if ( !file_exists($dynPath) ) {
+
+		saveGame($nick, SaveFileType::Dynasty);
+
+		$dynPatch = true;
+	}
+
 	if ( !checkIfNewGame($nick) ) {
 
 		// Load character save data.
-		$charFilePath 	= getSaveFilePath($nick, true);
+		$charFilePath 	= getSaveFilePath($nick, SaveFileType::Character);
 		$charData 		= readSave($charFilePath);
 		$charDataDirty	= false;
 
 		// Load map save data.
-		$mapFilePath 	= getSaveFilePath($nick, false);
+		$mapFilePath 	= getSaveFilePath($nick, SaveFileType::Map);
 		$mapData 		= readSave($mapFilePath);
 		$mapDataDirty	= false;
+
+		// Load dynasty save data.
+		$dynFilePath 	= getSaveFilePath($nick, SaveFileType::Dynasty);
+		$dynData 		= readSave($dynFilePath);
+		$dynDataDirty	= false;
+
+		// Put everyone into the dynasty initialisation state, just this once.
+		$noName 	= strcasecmp($dynData->name, "") == 0;
+		$wrongState = $charData->state != GameStates::DynastyInit;
+
+		if ( empty($dynData) || ( $noName && $wrongState ) ) {
+
+			if ( is_null($charData->patchState) ) {
+				$charData->patchState 		= $charData->state;
+				$charData->patchPrevState 	= $charData->previousState;				
+			}
+
+			DEBUG_echo("Dynasty patching...");
+			StateManager::ChangeState($charData, GameStates::DynastySplash);
+		}
 
 		// Ensure it's sane.
 		if ( empty($charData) || empty($mapData) ) {
@@ -387,6 +438,43 @@ function main() {
 		$input = readStdin();
 
 		switch ( $charData->state ) {
+
+			case GameStates::DynastySplash: {
+				
+				DEBUG_echo("DynastySplash");
+
+				echo "You Dynasty begins, and needs a name. Choose your name wisely - you cannot alter history.\n";
+
+				StateManager::ChangeState($charData, GameStates::DynastyInit);
+
+				$charDataDirty = true;
+			}
+			break;
+
+			case GameStates::DynastyInit: {
+				
+				DEBUG_echo("DynastyInit");
+
+				// Validate input.
+				$validName = preg_match("/^[a-zA-Z]{1,16}$/", $input, $output);
+
+				if ( !$validName ) {
+					echo "Please enter a valid name. Letters only, between 1 and 16 characters.\n";
+					return;
+				}
+
+				$dynData->name = $input;
+
+				echo "The Dynasty of $input begins! Onwards, to adventure!\n";
+
+				// Hook back up to where we were.
+				$charData->state 			= $charData->patchState;
+				$charData->previousState 	= $charData->patchPrevState;
+
+				$charDataDirty 	= true;
+				$dynDataDirty	= true;
+			}
+			break;
 
 			case GameStates::NameSelect: {
 
@@ -445,7 +533,7 @@ function main() {
 
 				DEBUG_echo("Adventuring");
 
-				adventuring($input, $charData, $mapData);
+				adventuring($input, $charData, $mapData, $dynData);
 
 				$charDataDirty		= true;
 				$mapDataDirty		= true;
@@ -538,10 +626,10 @@ function main() {
 	}
 	else {
 		// Initialise the character save.
-		saveGame($nick, true);
+		saveGame($nick, SaveFileType::Character);
 
 		// Initialise the map save.
-		saveGame($nick, false);
+		saveGame($nick, SaveFileType::Map);
 
 		// Prompt for name select.
 		echo "Welcome, $nick! Please choose a name for your character:\n";
@@ -552,11 +640,15 @@ function main() {
 		// Regenerate health based on time since last input.
 		passiveHealthRegen($charData);
 
-		saveGame($nick, true, $charData);
+		saveGame($nick, SaveFileType::Character, $charData);
 	}
 	if ( isset($mapData) && $mapDataDirty ) {
 
-		saveGame($nick, false, $mapData);
+		saveGame($nick, SaveFileType::Map, $mapData);
+	}
+	if ( isset($dynData) && $dynDataDirty ) {
+
+		saveGame($nick, SaveFileType::Dynasty, $dynData);
 	}
 }
 

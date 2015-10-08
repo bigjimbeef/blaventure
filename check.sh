@@ -18,7 +18,11 @@ case $1 in
 		php check.php scoreboard  > DEBUG/_sb
 		less DEBUG/_sb
 	;;
+	"dyn")
+		php check.php dyn  > DEBUG/_sb
+		less DEBUG/_sb
+	;;
 	*)
-		echo "Enter either 'map' or 'char'"
+		echo "Enter 'map','char','dyn' or 'sb'."
 	;;
 esac
