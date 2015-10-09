@@ -47,10 +47,22 @@ class Combat {
 		$thisCharGold	= $charData->gold;
 		$dynData->gold += $thisCharGold;
 
+		$dynFilePath 	= "$home/.blaventure/$charData->nick.dynasty";
+		if ( file_exists($dynFilePath) ) {
+
+			$handle		= fopen($dynFilePath, "w");
+			$serialData = serialize($dynData);
+
+			fwrite($handle, $serialData);
+
+			fclose($handle);
+		}
+
 		// Scoreboard management.
 		$currentTop = null;
 
 		if ( file_exists($filePath) ) {
+
 			$handle		= fopen($filePath, "r");
 			$contents	= fread($handle, filesize($filePath));
 
@@ -72,10 +84,10 @@ class Combat {
 			$textOutput .= " HIGH SCORE!";
 		}
 
-		return "$textOutput\n";
+		return "$textOutput";
 	}
 
-	public function playerDamaged(&$charData, $damage, $attackType, &$fightOutput) {
+	public function playerDamaged(&$charData, &$dynData, $damage, $attackType, &$fightOutput) {
 
 		if ( !constant("DEBUG_noPlayerDamage") ) {
 			$charData->hp -= $damage;
@@ -86,7 +98,7 @@ class Combat {
 		if ( $charData->hp <= 0 ) {
 
 			$fightOutput .= " Oh no! It $attackType you for $damage, killing you!";
-			$fightOutput .= $this->appendScoreboardInfo($charData);
+			$fightOutput .= $this->appendScoreboardInfo($charData, $dynData);
 
 			$died = true;
 		}
@@ -187,7 +199,7 @@ class Combat {
 
 		$mitigatedDamage = max($damage - $armourVal, 0);
 
-		$didPlayerDie = $this->playerDamaged($charData, $mitigatedDamage, $attackType, $fightOutput);
+		$didPlayerDie = $this->playerDamaged($charData, $dynData, $mitigatedDamage, $attackType, $fightOutput);
 
 		if ( $didPlayerDie ) {
 

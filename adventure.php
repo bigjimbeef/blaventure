@@ -278,7 +278,7 @@ function passiveHealthRegen( &$charData ) {
 	$charData->lastInputD 	= $timestamp;
 }
 
-function classSelect($input, $charData, $charName) {
+function classSelect($input, $charData, $dynData, $charName) {
 
 	global $classSelect;
 
@@ -289,7 +289,7 @@ function classSelect($input, $charData, $charName) {
 	// This should be set in a callback.
 	if ( isset($charData->class) ) {
 
-		echo "Greetings $charName, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
+		echo "Greetings $charName $dynData->name, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
 		$setClass = true;
 	}
 
@@ -329,11 +329,11 @@ function resting($input, $charData, $mapData) {
 	checkInputFragments($resting->commands, $input, $charData, $mapData);
 }
 
-function combat($input, $charData, $mapData) {
+function combat($input, $charData, $mapData, $dynData) {
 
 	global $combat;
 
-	checkInputFragments($combat->commands, $input, $charData, $mapData);
+	checkInputFragments($combat->commands, $input, $charData, $mapData, $dynData);
 }
 
 function spellcasting($input, $charData, $mapData, $nonCombat = false) {
@@ -485,7 +485,7 @@ function main() {
 					exit(13);
 				}
 
-				$output = "Please choose a class for $input: ";
+				$output = "Please choose a class for $input $dynData->name: ";
 
 				global $classSelect;
 				foreach ( $classSelect->commands as $fragment ) {
@@ -509,7 +509,7 @@ function main() {
 
 				$input = strtolower($input);
 
-				$setClass = classSelect($input, $charData, $charData->name);
+				$setClass = classSelect($input, $charData, $dynData, $charData->name);
 
 				if ( $setClass ) {
 					StateManager::ChangeState($charData, GameStates::FirstPlay);
@@ -556,7 +556,7 @@ function main() {
 
 				DEBUG_echo("Combat");
 
-				combat($input, $charData, $mapData);
+				combat($input, $charData, $mapData, $dynData);
 
 				$charDataDirty	= true;
 				$mapDataDirty	= true;
