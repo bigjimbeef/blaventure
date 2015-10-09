@@ -31,7 +31,7 @@ class Combat {
 		return $survived;
 	}
 
-	public function appendScoreboardInfo(&$charData) {
+	public function appendScoreboardInfo(&$charData, &$dynData) {
 
 		$home 		= getenv("HOME");
 		$filePath 	= "$home/.blaventure/$charData->nick.scoreboard";
@@ -43,6 +43,11 @@ class Combat {
 		unlink($charFilePath);
 		unlink($mapFilePath);
 
+		// Dynasty management.
+		$thisCharGold	= $charData->gold;
+		$dynData->gold += $thisCharGold;
+
+		// Scoreboard management.
 		$currentTop = null;
 
 		if ( file_exists($filePath) ) {
@@ -53,6 +58,8 @@ class Combat {
 			fclose($handle);
 		}
 
+		$textOutput = " You gained $thisCharGold GP for your Dynasty!";
+
 		if ( is_null($currentTop) || $charData->level > $currentTop->level ) {
 
 			$handle		= fopen($filePath, "w");
@@ -62,11 +69,10 @@ class Combat {
 
 			fclose($handle);
 
-			return " On the plus side, you set a new personal best!\n";
+			$textOutput .= " HIGH SCORE!";
 		}
 
-		// Must be a loser
-		return " That wasn't your best.\n";
+		return "$textOutput\n";
 	}
 
 	public function playerDamaged(&$charData, $damage, $attackType, &$fightOutput) {
