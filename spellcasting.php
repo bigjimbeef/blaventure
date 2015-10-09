@@ -99,7 +99,7 @@ class Spellcasting {
 		return $canCast;
 	}
 
-	private function castSpell($spellName, $charData, $mapData, $outOfCombat) {
+	private function castSpell($spellName, $charData, $mapData, $dynData, $outOfCombat) {
 
 		$spell = $this->findSpellOrAbility($spellName, $charData);
 
@@ -141,7 +141,7 @@ class Spellcasting {
 
 			$spellText = "You cast $spellName on the $connedName for $spellDmg damage!";
 			$spellMiss = "You try to cast $spellName on the $connedName, but it fizzles out!";
-			$killedEnemy = $combat->playerAttack($charData, $mapData, $room, $monster, $spellDmg, $spellText, $spellMiss);
+			$killedEnemy = $combat->playerAttack($charData, $mapData, $dynData, $room, $monster, $spellDmg, $spellText, $spellMiss);
 
 			if ( !$killedEnemy ) {
 
@@ -181,7 +181,7 @@ class Spellcasting {
 				$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 				$monster 	= $room->occupant;
 
-				list ($attackType, $damage) = $combat->monsterAttack($charData, $monster);
+				list ($attackType, $damage) = $combat->monsterAttack($charData, $dynData, $monster);
 
 				if ( $damage > 0 ) {
 					$fightOutput .= (" It $attackType" . "s back for $damage!\n");					
@@ -221,9 +221,9 @@ class Spellcasting {
 				}
 			}
 
-			$this->commands[] = new InputFragment($spellName, function($charData, $mapData) use ($spellName, $outOfCombat) {
+			$this->commands[] = new InputFragment($spellName, function($charData, $mapData, $dynData) use ($spellName, $outOfCombat) {
 				
-				$this->castSpell($spellName, $charData, $mapData, $outOfCombat);
+				$this->castSpell($spellName, $charData, $mapData, $dynData, $outOfCombat);
 			});
 
 			++$spellNum;

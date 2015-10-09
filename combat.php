@@ -136,7 +136,7 @@ class Combat {
 		return array($damage, $crit);
 	}
 
-	public function monsterAttack(&$charData, $monster, &$fightOutput) {
+	public function monsterAttack(&$charData, &$dynData, $monster, &$fightOutput) {
 
 		$missChance = $this->getMissChance($monster->level, $charData->level);
 
@@ -199,7 +199,7 @@ class Combat {
 		return array($attackType, $mitigatedDamage);
 	}
 
-	public function playerAttack(&$charData, &$mapData, &$room, &$monster, $spellDmg = null, $spellText = null, $spellMissText = null) {
+	public function playerAttack(&$charData, &$mapData, &$dynData, &$room, &$monster, $spellDmg = null, $spellText = null, $spellMissText = null) {
 
 		global $traitMap;
 
@@ -291,7 +291,7 @@ class Combat {
 		if ( $this->monsterDamaged($monster, $room, $damage, $charData) ) {
 
 			// It survived. Attacks back.
-			$this->monsterAttack($charData, $monster, $fightOutput);
+			$this->monsterAttack($charData, $dynData, $monster, $fightOutput);
 
 			// Barbarians get a little less angry
 			reduceRage($charData, $fightOutput);
@@ -391,14 +391,14 @@ $combat->commands[] = new InputFragment("check", function($charData, $mapData) {
 	echo $status;
 });
 
-$combat->commands[] = new InputFragment("attack", function($charData, $mapData) use($combat) {
+$combat->commands[] = new InputFragment("attack", function($charData, $mapData, $dynData) use($combat) {
 
 	$room = $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 
 	// Must have an occupant to be in combat.
 	$monster = $room->occupant;
 	
-	$combat->playerAttack($charData, $mapData, $room, $monster);
+	$combat->playerAttack($charData, $mapData, $dynData, $room, $monster);
 });
 
 $combat->commands[] = new InputFragment("magic", function($charData, $mapData) {
@@ -463,7 +463,7 @@ $combat->commands[] = new InputFragment("use item", function($charData, $mapData
 	StateManager::ChangeState($charData, GameStates::UsingItem);
 });
 
-$combat->commands[] = new InputFragment("run", function($charData, $mapData) use($combat) {
+$combat->commands[] = new InputFragment("run", function($charData, $mapData, $dynData) use($combat) {
 
 	$chanceInSix = rand(1,6);
 	// 5+ to escape
@@ -472,7 +472,7 @@ $combat->commands[] = new InputFragment("run", function($charData, $mapData) use
 		$room 		= $mapData->map->GetRoom($mapData->playerX, $mapData->playerY);
 		$monster 	= $room->occupant;
 
-		list ($attackType, $damage) = $combat->monsterAttack($charData, $monster, $output);
+		list ($attackType, $damage) = $combat->monsterAttack($charData, $dynData, $monster, $output);
 		if ( $damage > 0 ) {
 			echo "You get caught and $attackType for $damage damage!\n";
 		}
