@@ -67,6 +67,17 @@ abstract class Wizard {
 	const MP		= 90;
 }
 
+abstract class PersonaMultiplier {
+
+	const Precision	= 5;
+	const Endurance	= 10;
+	const Reflexes	= 2;
+	const Strength	= 1;
+	const Oddness	= 10;
+	const Nerve		= 1;
+	const Acuity	= 2;
+}
+
 abstract class StatPatcher {
 
 	static function FixUpPERSONA(&$charData) {

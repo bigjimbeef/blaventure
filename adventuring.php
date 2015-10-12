@@ -88,7 +88,7 @@ $adventuring->commands[] = new InputFragment("west", function($charData, $mapDat
 // e.g. Level 3 Barbarian    HP 3/10    MP 2/5
 $adventuring->commands[] = new InputFragment("char", function($charData, $mapData, $dynData) {
 
-	$char		= "$charData->name $dynData->name, Level $charData->level $charData->class. ";
+	$char		= "$charData->name $dynData->name, Level $charData->level $charData->class, $charData->hp/$charData->hpMax HP $charData->mp/$charData->mpMax MP. ";
 	$persona 	= "P($charData->precision), E($charData->endurance), R($charData->reflexes), S($charData->strength), O($charData->oddness), N($charData->nerve), A($charData->acuity)";
 	$location	= "  @[$mapData->playerX, $mapData->playerY]\n";
 

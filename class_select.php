@@ -13,6 +13,25 @@ class ClassSelect {
 // This will be accessed via "global" in the main file. Because lol.
 $classSelect = new ClassSelect();
 
+function getHPByClass($className) {
+
+	global $personaList;
+
+	$persona = $personaList->getPersona($className);
+	$hp = $persona->endurance * PersonaMultiplier::Endurance;
+
+	return $hp;
+}
+function getMPByClass($className) {
+
+	global $personaList;
+
+	$persona = $personaList->getPersona($className);
+	$mp = $persona->oddness * PersonaMultiplier::Oddness;
+
+	return $mp;
+}
+
 $classSelect->commands[] = new InputFragment("barbarian", function($charData, $mapData) {
 
 	if ( !property_exists($charData, "class") ) {
@@ -21,8 +40,8 @@ $classSelect->commands[] = new InputFragment("barbarian", function($charData, $m
 	}
 
 	$charData->class = Barbarian::Name;
-	$charData->hpMax = Barbarian::HP;
-	$charData->mpMax = Barbarian::MP;
+	$charData->hpMax = getHPByClass(Barbarian::Name);
+	$charData->mpMax = getMPByClass(Barbarian::Name);
 
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Barbarian::Name];
@@ -35,8 +54,8 @@ $classSelect->commands[] = new InputFragment("cleric", function($charData, $mapD
 	}
 
 	$charData->class = Cleric::Name;
-	$charData->hpMax = Cleric::HP;
-	$charData->mpMax = Cleric::MP;
+	$charData->hpMax = getHPByClass(Cleric::Name);
+	$charData->mpMax = getMPByClass(Cleric::Name);
 
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Cleric::Name];
@@ -49,8 +68,8 @@ $classSelect->commands[] = new InputFragment("fighter", function($charData, $map
 	}
 
 	$charData->class = Fighter::Name;
-	$charData->hpMax = Fighter::HP;
-	$charData->mpMax = Fighter::MP;
+	$charData->hpMax = getHPByClass(Fighter::Name);
+	$charData->mpMax = getMPByClass(Fighter::Name);
 
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Fighter::Name];
@@ -63,8 +82,8 @@ $classSelect->commands[] = new InputFragment("monk", function($charData, $mapDat
 	}
 
 	$charData->class = Monk::Name;
-	$charData->hpMax = Monk::HP;
-	$charData->mpMax = Monk::MP;
+	$charData->hpMax = getHPByClass(Monk::Name);
+	$charData->mpMax = getMPByClass(Monk::Name);
 
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Monk::Name];
@@ -77,8 +96,8 @@ $classSelect->commands[] = new InputFragment("rogue", function($charData, $mapDa
 	}
 
 	$charData->class = Rogue::Name;
-	$charData->hpMax = Rogue::HP;
-	$charData->mpMax = Rogue::MP;
+	$charData->hpMax = getHPByClass(Rogue::Name);
+	$charData->mpMax = getMPByClass(Rogue::Name);
 
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Rogue::Name];
@@ -91,8 +110,8 @@ $classSelect->commands[] = new InputFragment("wizard", function($charData, $mapD
 	}
 
 	$charData->class = Wizard::Name;
-	$charData->hpMax = Wizard::HP;
-	$charData->mpMax = Wizard::MP;
+	$charData->hpMax = getHPByClass(Wizard::Name);
+	$charData->mpMax = getMPByClass(Wizard::Name);
 
 	global $defaultSpells;
 	$charData->spellbook = $defaultSpells[Wizard::Name];

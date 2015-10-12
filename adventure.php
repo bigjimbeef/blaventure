@@ -424,6 +424,16 @@ function dynasty($input, $charData, $mapData, $dynData) {
 
 function doStatPatchIfNeeded($charData) {
 
+	// If we've got a NULL endurance, we're not at the point where we need to patch yet.
+	if ( is_null($charData->endurance) ) {
+		return;
+	}
+
+	// If we don't have a class yet, we don't need to patch in the changes.
+	if ( strcasecmp($charData->class, "") == 0 ) {
+		return;
+	}
+
 	// If we've set the endurance of the character, then we are definitely a patched file.
 	if ( $charData->endurance > 0 ) {
 		return;

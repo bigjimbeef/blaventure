@@ -106,7 +106,7 @@ class Combat {
 		return $died;
 	}
 
-	public function getMissChance($attackerLevel, $defenderLevel) {
+	public function getMissChance($attackerLevel, $defenderLevel, $dynData = null) {
 
 		$levelDiff 	= $defenderLevel - $attackerLevel;
 
@@ -116,28 +116,50 @@ class Combat {
 		// Round to nearest integer.
 		$missChance = round($missChance, 0);
 
+		// Reduce our miss percentage by a factor of our precision.
+		if ( !is_null($dynData) ) {
+
+			$missChance -= ( $dynData->precision * PersonaMultiplier::Precision );
+
+			$missChance = max(0, $missChance);
+		}
+
 		//echo "$attackerLevel vs. $defenderLevel: $missChance% to miss.\n";
 
 		return $missChance;
 	}
 
 	// Note: check spreadsheet for reference to these arcane formulae!
-	public function attackDamage($level, $attack, $critThreatOverride = -1, $missChance = 0) { 
+
+	public function playerAttackDamage($level, $attack, $critChanceOverride = -1, $missChance = 0) {
 
 		$minDamage = floor(1.5 * ($level + 1)) + $attack;
 		$maxDamage = (2 * ($level + 1)) + $attack;
 
+		return $this->attackDamageInternal($minDamage, $maxDamage, $critChanceOverride, $missChance);
+	}
+
+	public function monsterAttackDamage($level, $attack, $critChanceOverride = -1, $missChance = 0) {
+
+		$minDamage	= floor(pow($level, 1.2));
+		$maxDamage	= floor(pow($level, 1.3));
+
+		return $this->attackDamageInternal($minDamage, $maxDamage, $critChanceOverride, $missChance);
+	}
+
+	private function attackDamageInternal($minDamage, $maxDamage, $critChanceOverride = -1, $missChance = 0) {
+
 		$damage		= rand($minDamage, $maxDamage);
 		$crit		= false;
 
-		$chanceIn20	= rand(1, 20);
-
-		$critNumber = 20;
-		if ( $critThreatOverride > 0 ) {
-			$critNumber = $critThreatOverride;
+		$critChance 	= 5;
+		if ( $critChanceOverride > 0 ) {
+			$critChance = $critChanceOverride;
 		}
 
-		if ( $chanceIn20 >= $critNumber ) {
+		$oneInHundred 	= rand(1, 100);
+
+		if ( $oneInHundred <= $critChance ) {
 			$crit = true;
 
 			$critDmgMultiplier = 2;
@@ -154,12 +176,9 @@ class Combat {
 		return array($damage, $crit);
 	}
 
-	public function monsterAttack(&$charData, &$dynData, $monster, &$fightOutput) {
+	public function dodgeMonsterAttack(&$charData, &$dynData) {
 
-		$missChance = $this->getMissChance($monster->level, $charData->level);
-
-		list($damage, $crit) = $this->attackDamage($monster->level, $monster->attack, -1, $missChance);		
-		$attackType = $crit ? "CRIT" : "hit";
+		$dodgePerc = $charData->reflexes * PersonaMultiplier::Reflexes;
 
 		//---------------------------------------
 		// Monk trait: dodge, duck, dip, dive, dodge
@@ -168,17 +187,31 @@ class Combat {
 		if ( $traitMap->ClassHasTrait($charData, TraitName::Dodge) ) {
 
 			$trait 		= $traitMap->GetTrait($charData, TraitName::Dodge);
-			$dodgePerc 	= $trait->GetScaledValue($charData);
-
-			$oneInHundred = rand(1, 100);
-
-			if ( $oneInHundred <= $dodgePerc ) {
-
-				$fightOutput .= " You dodge its return strike!\nn";
-				return;
-			}
+			$dodgePerc 	+= $trait->GetScaledValue($charData);
 		}
 		//---------------------------------------
+
+		// Cap dodge chance at 80%.
+		$dodgePerc = min(80, $dodgePerc);
+
+		$oneInHundred = rand(1, 100);
+		return $oneInHundred <= $dodgePerc;
+	}
+
+	public function monsterAttack(&$charData, &$dynData, $monster, &$fightOutput) {
+
+		global $traitMap;
+
+		$missChance = $this->getMissChance($monster->level, $charData->level);
+
+		list($damage, $crit) = $this->monsterAttackDamage($monster->level, $monster->attack, -1, $missChance);		
+		$attackType = $crit ? "CRIT" : "hit";
+
+		if ( $this->dodgeMonsterAttack($charData, $dynData) ) {
+
+			$fightOutput .= " You dodge its return strike!\n";
+			return;
+		}
 
 		// Barbarians don't use armour.
 		$armourVal = $charData->armourVal;
@@ -197,7 +230,10 @@ class Combat {
 		}
 		//---------------------------------------
 
-		$mitigatedDamage = max($damage - $armourVal, 0);
+		// Reduce damage with Nerve.
+		$damageReduction = ($charData->nerve * PersonaMultiplier::Nerve) + $armourVal;
+
+		$mitigatedDamage = max($damage - $damageReduction, 0);
 
 		$didPlayerDie = $this->playerDamaged($charData, $dynData, $mitigatedDamage, $attackType, $fightOutput);
 
@@ -222,7 +258,9 @@ class Combat {
 		global $traitMap;
 
 		$changedState = false;
-		$critThreatOverride = null;
+
+		// Our crit % goes up by a factor of our Acuity.
+		$critChanceOverride = ( $charData->acuity * PersonaMultiplier::Acuity );
 
 		$isBarbarian		= $traitMap->ClassHasTrait($charData, TraitName::DualWield);
 		$isAngryBarbarian 	= $charData->rageTurns > 0;
@@ -235,16 +273,16 @@ class Combat {
 
 			$trait = $traitMap->GetTrait($charData, TraitName::CritLvlScale);
 			
-			$critThreatOverride = 20 - $trait->GetScaledValue($charData);
+			$critChanceOverride = 5 * $trait->GetScaledValue($charData);
 		}
 		//---------------------------------------
 
-		$weaponDamage 	= $charData->weaponVal;
-		$missChance		= $this->getMissChance($charData->level, $monster->level);
+		$attackDamage 	= $charData->weaponVal;
+		$missChance		= $this->getMissChance($charData->level, $monster->level, $dynData);
 
 		if ( $isBarbarian ) {
 
-			$weaponDamage += $charData->weapon2Val;
+			$attackDamage += $charData->weapon2Val;
 		}
 		if ( $isAngryBarbarian ) {
 
@@ -252,7 +290,10 @@ class Combat {
 			$missChance		= min($missChance + 33, 100);
 		}
 
-		list($damage, $crit) = $this->attackDamage($charData->level, $weaponDamage, $critThreatOverride, $missChance);
+		// Add Strength to attack damage.
+		$attackDamage 	+= ($charData->strength * PersonaMultiplier::Strength);
+
+		list($damage, $crit) = $this->playerAttackDamage($charData->level, $attackDamage, $critChanceOverride, $missChance);
 
 		if ( $isAngryBarbarian ) {
 

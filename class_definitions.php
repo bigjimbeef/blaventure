@@ -208,7 +208,7 @@ class Monster {
 		}
 
 		// Monsters scale in a very slightly non-linear way.
-		$this->hpMax		= floor(pow($this->level, 1.1) * 10);
+		$this->hpMax		= floor(pow($this->level, 1.4) * 10);
 		$this->hp			= $this->hpMax;
 	}
 

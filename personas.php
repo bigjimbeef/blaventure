@@ -1,6 +1,7 @@
 <?php
 
 class Persona {
+
 	public $name		= 0;
 
 	public $precision	= 0;
