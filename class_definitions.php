@@ -37,7 +37,7 @@ class CharacterSaveData {
 	public $gold		= 0;		// int
 	public $inventory	= null;
 
-	public $state			= GameStates::NameSelect;
+	public $state			= GameStates::Dynasty;
 	public $previousState	= null;
 	// Used when patching in new features in order to not lose last state.
 	public $patchState		= null;
@@ -92,13 +92,13 @@ class DynastySaveData {
 	public $gold			= 0;
 	public $level			= 0;
 
-	public $hpBonus 		= 0;
-	public $mpBonus			= 0;
-	public $atkBonus		= 0;
-	public $defBonus		= 0;
-	public $hitBonus		= 0;
-	public $critBonus		= 0;
-	public $dodgeBonus		= 0;
+	public $precision		= 0;
+	public $endurance		= 0;
+	public $reflexes		= 0;
+	public $strength		= 0;
+	public $oddness			= 0;
+	public $nerve			= 0;
+	public $acuity			= 0;
 }
 
 // Function Matches is called on each InputFragment, and the callback is called if it does match the input.

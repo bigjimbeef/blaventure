@@ -33,6 +33,7 @@ include_once("looting.php");
 include_once("levelup.php");
 include_once("usingItem.php");
 include_once("shopping.php");
+include_once("dynasty.php");
 
 // DEBUG FLAG
 define("DEBUG", 1);
@@ -122,13 +123,20 @@ function readSave($filePath) {
 	return $saveData;
 }
 
+function checkIfFileExists($nick, $fileType) {
+
+	$filePath = getSaveFilePath($nick, $fileType);
+
+	return file_exists($filePath);
+}
+
 function checkIfNewGame($nick) {
 
-	$charFilePath 	= getSaveFilePath($nick, SaveFileType::Character);
-	$mapFilePath 	= getSaveFilePath($nick, SaveFileType::Map);
-	$dynFilePath 	= getSaveFilePath($nick, SaveFileType::Dynasty);
+	$characterFileExists 	= checkIfFileExists($nick, SaveFileType::Character);
+	$mapFileExists 			= checkIfFileExists($nick, SaveFileType::Map);
+	$dynastyFileExists 		= checkIfFileExists($nick, SaveFileType::Dynasty);
 
-	return !file_exists($charFilePath) || !file_exists($mapFilePath) || !file_exists($dynFilePath);
+	return !$characterFileExists || !$mapFileExists || !$dynastyFileExists;
 }
 
 /*
@@ -377,6 +385,15 @@ function shopping($input, $charData, $mapData) {
 	checkInputFragments($shopping->commands, $input, $charData, $mapData);
 }
 
+function dynasty($input, $charData, $mapData, $dynData) {
+
+	global $dynasty;
+
+	$dynasty->generateInputFragments($charData, $dynData);
+
+	checkInputFragments($dynasty->commands, $input, $charData, $mapData, $dynData);
+}
+
 // Input of the form !adv "action", with nick supplied from args
 function main() {
 
@@ -425,7 +442,7 @@ function main() {
 			}
 
 			DEBUG_echo("Dynasty patching...");
-			StateManager::ChangeState($charData, GameStates::DynastySplash);
+			StateManager::ChangeState($charData, GameStates::DynastyInit);
 		}
 
 		// Ensure it's sane.
@@ -443,7 +460,7 @@ function main() {
 				
 				DEBUG_echo("DynastySplash");
 
-				echo "You Dynasty begins, and needs a name. Choose your name wisely - you cannot alter history.\n";
+				echo "Your Dynasty begins, and needs a name. Choose your name wisely - you cannot alter history.\n";
 
 				StateManager::ChangeState($charData, GameStates::DynastyInit);
 
@@ -465,7 +482,12 @@ function main() {
 
 				$dynData->name = $input;
 
-				echo "The Dynasty of $input begins! Onwards, to adventure!\n";
+				$output = "The Dynasty of $input begins! Onwards, to adventure!";
+				if ( strcasecmp($charData->name, $nick) == 0 ) {
+					$output .= " Please choose a name for your character!";
+				}
+
+				echo "$output\n";
 
 				// Hook back up to where we were.
 				$charData->state 			= $charData->patchState;
@@ -620,6 +642,17 @@ function main() {
 			}
 			break;
 
+			case GameStates::Dynasty: {
+
+				DEBUG_echo("Dynasty");
+
+				dynasty($input, $charData, $mapData, $dynData);
+
+				$charDataDirty	= true;
+				$dynDataDirty	= true;
+			}
+			break;
+
 			default:
 			break;
 		}
@@ -631,8 +664,13 @@ function main() {
 		// Initialise the map save.
 		saveGame($nick, SaveFileType::Map);
 
-		// Prompt for name select.
-		echo "Welcome, $nick! Please choose a name for your character:\n";
+		// Prompt for name/dynasty select.
+		if ( !$dynPatch ) {
+			echo "Welcome! Please choose a name for your character:\n";			
+		}
+		else {
+			echo "Your Dynasty begins, and needs a name. Choose your name wisely - you cannot alter history.\n";
+		}
 	}
 
 	if ( isset($charData) && $charDataDirty ) {

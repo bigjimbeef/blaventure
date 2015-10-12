@@ -1,5 +1,7 @@
 <?php
 
+
+
 abstract class SaveFileType {
 	const Character	= "char";
 	const Map		= "map";
