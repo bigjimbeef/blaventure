@@ -22,6 +22,7 @@
 include_once("statics.php");
 include_once("class_definitions.php");
 include_once("procedural_generator.php");
+include_once("personas.php");
 
 // Game mode InputFragments.
 include_once("class_select.php");
@@ -77,6 +78,21 @@ function initCharacterSaveData($nick) {
 
 	$initialSaveData->randomSeed = rand();
 	$procGen->InitFromSeed($initialSaveData->randomSeed);
+
+	// Alter our character based on our dynasty.
+	if ( checkIfFileExists($nick, SaveFileType::Dynasty) ) {
+
+		$dynPath = getSaveFilePath($nick, SaveFileType::Dynasty);
+		$dynData = readSave($dynPath);
+
+		$initialSaveData->precision	+= $dynData->precision;
+		$initialSaveData->endurance	+= $dynData->endurance;
+		$initialSaveData->reflexes	+= $dynData->reflexes;
+		$initialSaveData->strength	+= $dynData->strength;
+		$initialSaveData->oddness	+= $dynData->oddness;
+		$initialSaveData->nerve		+= $dynData->nerve;
+		$initialSaveData->acuity	+= $dynData->acuity;
+	}
 
 	return $initialSaveData;
 }
@@ -299,6 +315,18 @@ function classSelect($input, $charData, $dynData, $charName) {
 
 		echo "Greetings $charName $dynData->name, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
 		$setClass = true;
+
+		// Populate our stats from the class' persona.
+		global $personaList;
+		$persona = $personaList->getPersona($charData->class);
+
+		$charData->precision	+= $persona->precision;
+		$charData->endurance	+= $persona->endurance;
+		$charData->reflexes		+= $persona->reflexes;
+		$charData->strength		+= $persona->strength;
+		$charData->oddness		+= $persona->oddness;
+		$charData->nerve		+= $persona->nerve;
+		$charData->acuity		+= $persona->acuity;
 	}
 
 	return $setClass;
@@ -394,6 +422,16 @@ function dynasty($input, $charData, $mapData, $dynData) {
 	checkInputFragments($dynasty->commands, $input, $charData, $mapData, $dynData);
 }
 
+function doStatPatchIfNeeded($charData) {
+
+	// If we've set the endurance of the character, then we are definitely a patched file.
+	if ( $charData->endurance > 0 ) {
+		return;
+	}
+
+	StatPatcher::FixUpPERSONA($charData);
+}
+
 // Input of the form !adv "action", with nick supplied from args
 function main() {
 
@@ -444,6 +482,9 @@ function main() {
 			DEBUG_echo("Dynasty patching...");
 			StateManager::ChangeState($charData, GameStates::DynastyInit);
 		}
+
+		// Patch the stat changes in.
+		doStatPatchIfNeeded($charData);
 
 		// Ensure it's sane.
 		if ( empty($charData) || empty($mapData) ) {

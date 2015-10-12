@@ -28,6 +28,14 @@ class CharacterSaveData {
 	public $weapon		= null;		// str
 	public $weaponVal	= 0;		// int
 
+	public $precision	= 0;
+	public $endurance	= 0;
+	public $reflexes	= 0;
+	public $strength	= 0;
+	public $oddness		= 0;
+	public $nerve		= 0;
+	public $acuity		= 0;
+
 	// Used for Barbarians
 	public $weapon2		= null;		// str
 	public $weapon2Val	= 0;

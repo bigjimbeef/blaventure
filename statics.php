@@ -1,6 +1,6 @@
 <?php
 
-
+include_once("personas.php");
 
 abstract class SaveFileType {
 	const Character	= "char";
@@ -65,4 +65,26 @@ abstract class Wizard {
 	const Name		= "Wizard";
 	const HP		= 10;
 	const MP		= 90;
+}
+
+abstract class StatPatcher {
+
+	static function FixUpPERSONA(&$charData) {
+
+		global $personaList;
+
+		$charClass 	= $charData->class;
+		$persona	= $personaList->getPersona($charClass);
+
+		// Base stats.
+		$charData->precision 	= $persona->precision;
+		$charData->reflexes 	= $persona->reflexes;
+		$charData->strength 	= $persona->strength;
+		$charData->nerve 		= $persona->nerve;
+		$charData->acuity 		= $persona->acuity;
+
+		// Previously-altered stats (E, O)
+		$charData->endurance 	= $charData->hpMax / 10;
+		$charData->oddness 		= $charData->mpMax / 10;
+	}
 }

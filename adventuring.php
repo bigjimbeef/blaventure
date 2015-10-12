@@ -88,11 +88,11 @@ $adventuring->commands[] = new InputFragment("west", function($charData, $mapDat
 // e.g. Level 3 Barbarian    HP 3/10    MP 2/5
 $adventuring->commands[] = new InputFragment("char", function($charData, $mapData, $dynData) {
 
-	$characterName = "$charData->name $dynData->name";
+	$char		= "$charData->name $dynData->name, Level $charData->level $charData->class. ";
+	$persona 	= "P($charData->precision), E($charData->endurance), R($charData->reflexes), S($charData->strength), O($charData->oddness), N($charData->nerve), A($charData->acuity)";
+	$location	= "  @[$mapData->playerX, $mapData->playerY]\n";
 
-	$status = "$characterName, Level $charData->level $charData->class    HP $charData->hp/$charData->hpMax    MP $charData->mp/$charData->mpMax    @[$mapData->playerX, $mapData->playerY]\n";
-
-	echo $status;
+	echo ($char . $persona . $location);
 });
 
 // Get the character's equipped items
