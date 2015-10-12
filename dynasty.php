@@ -103,6 +103,21 @@ class Dynasty {
 		$allocator = new UIDAllocator($this->commands);
 		$allocator->Allocate();
 	}
+
+	public function getMatchingInputFragmentDisplayString($statName) {
+
+		$output = null;
+
+		foreach( $this->commands as $fragment ) {
+
+			if ( strcasecmp($fragment->token, $statName) == 0 ) {
+				$output = $fragment->displayString;
+				break;
+			}
+		}
+
+		return $output;
+	}
 }
 
 $dynasty = new Dynasty();
@@ -177,11 +192,17 @@ function increaseStat($statName, $amount, &$dynData) {
 // Returns string, or null if no stat increase available
 function getSingleStatString($statName, $dynData) {
 	
+	global $dynasty;
+
 	if ( !isStatLevelAvailable($statName, $dynData) ) {
 		return null;
 	}
 
 	$outString		= ucfirst($statName);
+	$displayString	= $dynasty->getMatchingInputFragmentDisplayString($statName);
+	if ( !is_null($displayString) ) {
+		$outString 	= $displayString;
+	}
 
 	// Add stat level info.
 	global $dynasty;
@@ -202,7 +223,7 @@ function getSingleStatString($statName, $dynData) {
 //
 $dynasty->commands[] = new InputFragment("check", function($charData, $mapData, $dynData) {
 
-	$outString 			= "";
+	$outString 			= "$dynData->name Dynasty, level $dynData->level: ";
 
 	$precisionString	= getSingleStatString("precision", $dynData);
 	if ( !is_null($precisionString) ) {

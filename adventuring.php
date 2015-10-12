@@ -276,6 +276,9 @@ $adventuring->commands[] = new InputFragment("rest", function($charData, $mapDat
 			$restDuration	= ceil($restDuration / 2);
 		}
 
+		// Reset the streak.
+		$charData->streak = 0;
+
 		StateManager::ChangeState($charData, GameStates::Resting);
 
 		$date					= new DateTime();

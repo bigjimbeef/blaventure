@@ -666,7 +666,7 @@ function main() {
 
 		// Prompt for name/dynasty select.
 		if ( !$dynPatch ) {
-			echo "Welcome! Please choose a name for your character:\n";			
+			echo "How do you want to alter your Dynasty?\n";
 		}
 		else {
 			echo "Your Dynasty begins, and needs a name. Choose your name wisely - you cannot alter history.\n";
