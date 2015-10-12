@@ -88,8 +88,34 @@ $adventuring->commands[] = new InputFragment("west", function($charData, $mapDat
 // e.g. Level 3 Barbarian    HP 3/10    MP 2/5
 $adventuring->commands[] = new InputFragment("char", function($charData, $mapData, $dynData) {
 
+	function getColouredStats($statName, $charData, $dynData) {
+
+		// This /includes/ the bonus from our dynasty...
+		$charStat	= $charData->{$statName};
+		$outStr		= $charStat;
+
+		// ... so we remove it if needs be.
+		$dynStat	= $dynData->{$statName};
+		if ( $dynStat > 0 ) {
+			$charStat	-= $dynStat;
+
+			$outStr		= "$charStat \0x0311+$dynStat\0x03\0x03";
+		}
+
+		return $outStr;
+	}
+
 	$char		= "$charData->name $dynData->name, Level $charData->level $charData->class, $charData->hp/$charData->hpMax HP $charData->mp/$charData->mpMax MP. ";
-	$persona 	= "P($charData->precision), E($charData->endurance), R($charData->reflexes), S($charData->strength), O($charData->oddness), N($charData->nerve), A($charData->acuity)";
+
+	$persona 	= "";
+	$persona	.= ( "P(" . getColouredStats("precision", $charData, $dynData) . "), " );
+	$persona	.= ( "E(" . getColouredStats("endurance", $charData, $dynData) . "), " );
+	$persona	.= ( "R(" . getColouredStats("reflexes", $charData, $dynData) . "), " );
+	$persona	.= ( "S(" . getColouredStats("strength", $charData, $dynData) . "), " );
+	$persona	.= ( "O(" . getColouredStats("oddness", $charData, $dynData) . "), " );
+	$persona	.= ( "N(" . getColouredStats("nerve", $charData, $dynData) . "), " );
+	$persona	.= ( "A(" . getColouredStats("acuity", $charData, $dynData) . ")" );
+
 	$location	= "  @[$mapData->playerX, $mapData->playerY]\n";
 
 	echo ($char . $persona . $location);

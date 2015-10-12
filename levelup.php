@@ -3,6 +3,8 @@
 include_once("statics.php");
 include_once("class_definitions.php");
 
+include_once("personas.php");
+
 class LevelUp {
 
 	public $commands = [];
@@ -10,26 +12,92 @@ class LevelUp {
 
 $levelUp = new LevelUp();
 
-$PER_LEVEL_INCREASE = 10;
+function getStatEquivalent($statName) {
 
-$levelUp->commands[] = new InputFragment("hp", function($charData, $mapData) {
+	$outString = "";
 
-	$charData->hp 		+= 10;
-	$charData->hpMax 	+= 10;
+	switch ( $statName ) {
+		case "precision": {
+			$outString = "hit chance";
+		}
+		break;
+		case "endurance": {
+			$outString = "HP";
+		}
+		break;
+		case "reflexes": {
+			$outString = "dodge chance";
+		}
+		break;
+		case "strength": {
+			$outString = "attack damage";
+		}
+		break;
+		case "oddness": {
+			$outString = "MP";
+		}
+		break;
+		case "nerve": {
+			$outString = "defense";
+		}
+		break;
+		case "acuity": {
+			$outString = "crit chance";
+		}
+		break;
+		default:
+		break;
+	}
 
-	echo "HP increases by 10 to $charData->hp/$charData->hpMax. You go back to Adventuring.\n";
+	return $outString;
+}
+
+function consumeStatIncrease($charData, $statName) {
+
+	$charData->{$statName}++;
+
+	$statEquivalent = getStatEquivalent($statName);
+
+	echo "Your $statName increases, improving your $statEquivalent. You go back to Adventuring.\n";
 
 	StateManager::ChangeState($charData, GameStates::Adventuring);
+}
+
+$levelUp->commands[] = new InputFragment("precision", function($charData, $mapData) {
+
+	consumeStatIncrease($charData, "precision");
 });
+$levelUp->commands[] = new InputFragment("endurance", function($charData, $mapData) {
 
-$levelUp->commands[] = new InputFragment("mp", function($charData, $mapData) {
+	// Increase HP.
+	$charData->hp 		+= PersonaMultiplier::Endurance;
+	$charData->hpMax 	+= PersonaMultiplier::Endurance;
 
-	$charData->mp 		+= 10;
-	$charData->mpMax 	+= 10;
+	consumeStatIncrease($charData, "endurance");
+});
+$levelUp->commands[] = new InputFragment("reflexes", function($charData, $mapData) {
 
-	echo "MP increases by 10! to $charData->mp/$charData->mpMax. You go back to Adventuring.\n";
+	consumeStatIncrease($charData, "reflexes");
+});
+$levelUp->commands[] = new InputFragment("strength", function($charData, $mapData) {
 
-	StateManager::ChangeState($charData, GameStates::Adventuring);
+	consumeStatIncrease($charData, "strength");
+});
+$levelUp->commands[] = new InputFragment("oddness", function($charData, $mapData) {
+
+	// Increase MP.
+	$charData->mp 		+= PersonaMultiplier::Oddness;
+	$charData->mpMax 	+= PersonaMultiplier::Oddness;
+
+	consumeStatIncrease($charData, "oddness");
+});
+$levelUp->commands[] = new InputFragment("nerve", function($charData, $mapData) {
+
+	consumeStatIncrease($charData, "nerve");
+});
+$levelUp->commands[] = new InputFragment("acuity", function($charData, $mapData) {
+
+	consumeStatIncrease($charData, "acuity");
 });
 
 // Add unique identifiers to commands.

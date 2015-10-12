@@ -439,6 +439,10 @@ function doStatPatchIfNeeded($charData) {
 		return;
 	}
 
+	echo "STAT PATCHING\n";
+	echo "STAT PATCHING\n";
+	echo "STAT PATCHING\n";
+
 	StatPatcher::FixUpPERSONA($charData);
 }
 

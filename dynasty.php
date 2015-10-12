@@ -34,8 +34,7 @@ class Dynasty {
 
 			$this->commands[] = new InputFragment($precision, function($charData, $mapData, $dynData) use($precision) {
 
-				$AMOUNT = 10;	
-				increaseStat($precision, $AMOUNT, $dynData);
+				increaseStatRank($precision, $dynData, $charData);
 			});
 		}
 
@@ -44,8 +43,7 @@ class Dynasty {
 
 			$this->commands[] = new InputFragment($endurance, function($charData, $mapData, $dynData) use($endurance) {
 
-				$AMOUNT = 5;
-				increaseStat($endurance, $AMOUNT, $dynData);
+				increaseStatRank($endurance, $dynData, $charData);
 			});
 		}
 
@@ -54,8 +52,7 @@ class Dynasty {
 
 			$this->commands[] = new InputFragment($reflexes, function($charData, $mapData, $dynData) use($reflexes) {
 
-				$AMOUNT = 2;
-				increaseStat($reflexes, $AMOUNT, $dynData);
+				increaseStatRank($reflexes, $dynData, $charData);
 			});
 		}
 
@@ -64,8 +61,7 @@ class Dynasty {
 
 			$this->commands[] = new InputFragment($strength, function($charData, $mapData, $dynData) use($strength) {
 
-				$AMOUNT = 2;
-				increaseStat($strength, $AMOUNT, $dynData);
+				increaseStatRank($strength, $dynData, $charData);
 			});
 		}
 
@@ -74,8 +70,7 @@ class Dynasty {
 
 			$this->commands[] = new InputFragment($oddness, function($charData, $mapData, $dynData) use($oddness) {
 
-				$AMOUNT = 5;
-				increaseStat($oddness, $AMOUNT, $dynData);
+				increaseStatRank($oddness, $dynData, $charData);
 			});
 		}
 
@@ -84,8 +79,7 @@ class Dynasty {
 
 			$this->commands[] = new InputFragment($nerve, function($charData, $mapData, $dynData) use($nerve) {
 
-				$AMOUNT = 2;
-				increaseStat($nerve, $AMOUNT, $dynData);
+				increaseStatRank($nerve, $dynData, $charData);
 			});
 		}
 
@@ -94,8 +88,7 @@ class Dynasty {
 
 			$this->commands[] = new InputFragment($acuity, function($charData, $mapData, $dynData) use($acuity) {
 
-				$AMOUNT = 2;
-				increaseStat($acuity, $AMOUNT, $dynData);
+				increaseStatRank($acuity, $dynData, $charData);
 			});
 		}
 
@@ -174,16 +167,19 @@ function canAffordStat($statName, $dynData) {
 	return $currentGold >= $increaseCost;
 }
 
-function increaseStat($statName, $amount, &$dynData) {
+function increaseStatRank($statName, &$dynData, &$charData) {
 
 	$increaseText = strcasecmp($statName, "reflexes") != 0 ? "increases" : "increase";
-	echo "The $statName of your progeny $increaseText by $amount.\n";
+	echo "The $statName of your progeny $increaseText.\n";
 
 	$upgradeCost = getStatIncreaseCost($statName, $dynData);
 	$dynData->gold -= $upgradeCost;
 
 	// Increase the stat level.
 	$dynData->{$statName}++;
+
+	// Also increase the stat level in the charData, as the character already exists at this point.
+	$charData->{$statName}++;
 
 	// Increase overall Dynasty level.
 	$dynData->level++;
