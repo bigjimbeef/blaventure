@@ -89,7 +89,7 @@ class DynastySaveData {
 
 	public $name			= "";
 
-	public $gold			= 0;
+	public $gold			= 10000;
 	public $level			= 0;
 
 	public $precision		= 0;

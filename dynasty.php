@@ -32,7 +32,7 @@ class Dynasty {
 		$precision = "precision";
 		if ( isStatLevelAvailable($precision, $dynData) && canAffordStat($precision, $dynData) ) {
 
-			$this->commands[] = new InputFragment($precision, function($charData, $mapData, $dynData) {
+			$this->commands[] = new InputFragment($precision, function($charData, $mapData, $dynData) use($precision) {
 
 				$AMOUNT = 10;	
 				increaseStat($precision, $AMOUNT, $dynData);
@@ -42,7 +42,7 @@ class Dynasty {
 		$endurance = "endurance";
 		if ( isStatLevelAvailable($endurance, $dynData) && canAffordStat($endurance, $dynData) ) {
 
-			$this->commands[] = new InputFragment($endurance, function($charData, $mapData, $dynData) {
+			$this->commands[] = new InputFragment($endurance, function($charData, $mapData, $dynData) use($endurance) {
 
 				$AMOUNT = 5;
 				increaseStat($endurance, $AMOUNT, $dynData);
@@ -52,7 +52,7 @@ class Dynasty {
 		$reflexes = "reflexes";
 		if ( isStatLevelAvailable($reflexes, $dynData) && canAffordStat($reflexes, $dynData) ) {
 
-			$this->commands[] = new InputFragment($reflexes, function($charData, $mapData, $dynData) {
+			$this->commands[] = new InputFragment($reflexes, function($charData, $mapData, $dynData) use($reflexes) {
 
 				$AMOUNT = 2;
 				increaseStat($reflexes, $AMOUNT, $dynData);
@@ -62,7 +62,7 @@ class Dynasty {
 		$strength = "strength";
 		if ( isStatLevelAvailable($strength, $dynData) && canAffordStat($strength, $dynData) ) {
 
-			$this->commands[] = new InputFragment($strength, function($charData, $mapData, $dynData) {
+			$this->commands[] = new InputFragment($strength, function($charData, $mapData, $dynData) use($strength) {
 
 				$AMOUNT = 2;
 				increaseStat($strength, $AMOUNT, $dynData);
@@ -72,7 +72,7 @@ class Dynasty {
 		$oddness = "oddness";
 		if ( isStatLevelAvailable($oddness, $dynData) && canAffordStat($oddness, $dynData) ) {
 
-			$this->commands[] = new InputFragment($oddness, function($charData, $mapData, $dynData) {
+			$this->commands[] = new InputFragment($oddness, function($charData, $mapData, $dynData) use($oddness) {
 
 				$AMOUNT = 5;
 				increaseStat($oddness, $AMOUNT, $dynData);
@@ -82,7 +82,7 @@ class Dynasty {
 		$nerve = "nerve";
 		if ( isStatLevelAvailable($nerve, $dynData) && canAffordStat($nerve, $dynData) ) {
 
-			$this->commands[] = new InputFragment($nerve, function($charData, $mapData, $dynData) {
+			$this->commands[] = new InputFragment($nerve, function($charData, $mapData, $dynData) use($nerve) {
 
 				$AMOUNT = 2;
 				increaseStat($nerve, $AMOUNT, $dynData);
@@ -92,7 +92,7 @@ class Dynasty {
 		$acuity = "acuity";
 		if ( isStatLevelAvailable($acuity, $dynData) && canAffordStat($acuity, $dynData) ) {
 
-			$this->commands[] = new InputFragment($acuity, function($charData, $mapData, $dynData) {
+			$this->commands[] = new InputFragment($acuity, function($charData, $mapData, $dynData) use($acuity) {
 
 				$AMOUNT = 2;
 				increaseStat($acuity, $AMOUNT, $dynData);
@@ -148,8 +148,6 @@ function getStatIncreaseCost($statName, $dynData) {
 	$currentLevel	= $dynData->{$statName};
 	$upgradeCost	= pow($COST_POWER, $currentLevel) * $baseCost;
 
-	echo "level: $levelCost, up: $upgradeCost\n";
-
 	return ($levelCost + $upgradeCost);
 }
 
@@ -166,7 +164,14 @@ function increaseStat($statName, $amount, &$dynData) {
 	$increaseText = strcasecmp($statName, "reflexes") != 0 ? "increases" : "increase";
 	echo "The $statName of your progeny $increaseText by $amount.\n";
 
-	$dynData->{$statName} += $amount;
+	$upgradeCost = getStatIncreaseCost($statName, $dynData);
+	$dynData->gold -= $upgradeCost;
+
+	// Increase the stat level.
+	$dynData->{$statName}++;
+
+	// Increase overall Dynasty level.
+	$dynData->level++;
 }
 
 // Returns string, or null if no stat increase available
@@ -204,37 +209,40 @@ $dynasty->commands[] = new InputFragment("check", function($charData, $mapData, 
 		$outString .= $precisionString . ", ";
 	}
 	$enduranceString	= getSingleStatString("endurance", $dynData);
-	if ( !is_null($precisionString) ) {
+	if ( !is_null($enduranceString) ) {
 		$outString .= $enduranceString . ", ";
 	}
 	$reflexesString		= getSingleStatString("reflexes", $dynData);
-	if ( !is_null($precisionString) ) {
+	if ( !is_null($reflexesString) ) {
 		$outString .= $reflexesString . ", ";
 	}
 	$strengthString		= getSingleStatString("strength", $dynData);
-	if ( !is_null($precisionString) ) {
+	if ( !is_null($strengthString) ) {
 		$outString .= $strengthString . ", ";
 	}
 	$oddnessString		= getSingleStatString("oddness", $dynData);
-	if ( !is_null($precisionString) ) {
+	if ( !is_null($oddnessString) ) {
 		$outString .= $oddnessString . ", ";
 	}
 	$nerveString		= getSingleStatString("nerve", $dynData);
-	if ( !is_null($precisionString) ) {
+	if ( !is_null($nerveString) ) {
 		$outString .= $nerveString . ", ";
 	}
 	$acuityString		= getSingleStatString("acuity", $dynData);
-	if ( !is_null($precisionString) ) {
+	if ( !is_null($acuityString) ) {
 		$outString .= $acuityString . ", ";
 	}
 
-	$outString = rtrim($outString, ", ") . "\n";
+	$outString 	= rtrim($outString, ", ");
+
+	$gold 		= $dynData->gold;
+	$outString .= " [You have ${gold}GP]\n";
 
 	echo $outString;
 });
 
 // Start the game already.
-$dynasty->commands[] = new InputFragment("begin", function($charData, $mapData, $dynData) {
+$dynasty->commands[] = new InputFragment("begin game", function($charData, $mapData, $dynData) {
 
 	echo "Welcome! Please choose a name for your character:\n";
 
