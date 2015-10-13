@@ -47,7 +47,7 @@ $powerAttack = new Spell("Power Attack", 10, false, function($charData) {
 	global $combat;
 
 	// Either does damage * 1.5, or misses 1 in 3.
-	list($damage, $crit) = $combat->attackDamage($charData->level, $charData->weaponVal);
+	list($damage, $crit) = $combat->playerAttackDamage($charData->level, $charData->weaponVal);
 
 	$damage = ceil($damage * 1.5);
 	$oneInThree = rand(1, 3);
@@ -81,7 +81,7 @@ $backstab = new Spell("Backstab", 10, false, function($charData) {
 	// Does weapon damage with a 1 in 3 chance for double damage.
 	$oneInThree = rand(1, 3);
 	
-	list($damage, $crit) = $combat->attackDamage($charData->level, $charData->weaponVal);
+	list($damage, $crit) = $combat->playerAttackDamage($charData->level, $charData->weaponVal);
 	if ( $oneInThree == 3 ) {
 		$damage *= 2;
 	}
