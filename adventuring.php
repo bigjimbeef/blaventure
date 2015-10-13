@@ -99,7 +99,8 @@ $adventuring->commands[] = new InputFragment("char", function($charData, $mapDat
 		if ( $dynStat > 0 ) {
 			$charStat	-= $dynStat;
 
-			$outStr		= "$charStat \0x0311+$dynStat\0x03\0x03";
+			
+			$outStr		= "$charStat\x0311+$dynStat\x03\x03";
 		}
 
 		return $outStr;

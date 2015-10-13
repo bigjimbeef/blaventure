@@ -37,7 +37,7 @@ include_once("shopping.php");
 include_once("dynasty.php");
 
 // DEBUG FLAG
-define("DEBUG", 1);
+define("DEBUG", 0);
 
 // We're in Europe!
 date_default_timezone_set("Europe/London");
@@ -538,10 +538,6 @@ function main() {
 				$dynData->name = $input;
 
 				$output = "The Dynasty of $input begins! Onwards, to adventure!";
-				if ( strcasecmp($charData->name, $nick) == 0 ) {
-					$output .= " Please choose a name for your character!";
-				}
-
 				echo "$output\n";
 
 				// Hook back up to where we were.
@@ -557,8 +553,10 @@ function main() {
 
 				DEBUG_echo("NameSelect");
 
-				if ( strcmp($input, "") == 0 ) {
-					echo "Please enter a name!\n";
+				$validName = preg_match("/^[a-zA-Z]{1,16}$/", $input, $output);
+
+				if ( !$validName ) {
+					echo "Please enter a valid name. Letters only, between 1 and 16 characters.\n";
 					exit(13);
 				}
 
