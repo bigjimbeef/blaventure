@@ -304,7 +304,8 @@ $adventuring->commands[] = new InputFragment("rest", function($charData, $mapDat
 		}
 
 		// Reset the streak.
-		$charData->streak = 0;
+		$streak	= $charData->lazyGetStreak();
+		$streak->reset();
 
 		StateManager::ChangeState($charData, GameStates::Resting);
 

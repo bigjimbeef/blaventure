@@ -73,7 +73,10 @@ class CharacterSaveData {
 	public $streak = null;
 	public function lazyGetStreak() {
 
-		if ( is_null($this->streak) ) {
+		// Check for broken streak data.
+		$isBorked = is_numeric($this->streak);
+
+		if ( is_null($this->streak) || $isBorked ) {
 			$this->streak = new Streak();
 		}
 
