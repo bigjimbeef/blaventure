@@ -37,7 +37,7 @@ include_once("shopping.php");
 include_once("dynasty.php");
 
 // DEBUG FLAG
-define("DEBUG", 0);
+define("DEBUG", 1);
 
 // We're in Europe!
 date_default_timezone_set("Europe/London");
@@ -483,18 +483,16 @@ function main() {
 		$dynDataDirty	= false;
 
 		// Put everyone into the dynasty initialisation state, just this once.
-		$noName 	= strcasecmp($dynData->name, "") == 0;
-		$wrongState = $charData->state != GameStates::DynastyInit;
+		$notYetPatched	= !isset($charData->patched);
+		$notPatching	= $charData->state != GameStates::DynastyInit;
 
-		if ( empty($dynData) || ( $noName && $wrongState ) ) {
+		if ( empty($dynData) || ( $notYetPatched && $notPatching ) ) {
 
-			if ( is_null($charData->patchState) ) {
-				$charData->patchState 		= $charData->state;
-				$charData->patchPrevState 	= $charData->previousState;				
-			}
+			$charData->patchState 		= $charData->state;
+			$charData->patchPrevState 	= $charData->previousState;
 
-			DEBUG_echo("Dynasty patching...");
-			StateManager::ChangeState($charData, GameStates::DynastyInit);
+			DEBUG_echo("Patching in Dynasty...");
+			StateManager::ChangeState($charData, GameStates::DynastySplash);
 		}
 
 		// Patch the stat changes in.
@@ -518,6 +516,8 @@ function main() {
 				echo "Your Dynasty begins, and needs a name. Choose your name wisely - you cannot alter history.\n";
 
 				StateManager::ChangeState($charData, GameStates::DynastyInit);
+
+				$charData->patched = true;
 
 				$charDataDirty = true;
 			}
@@ -722,7 +722,7 @@ function main() {
 			echo "How do you want to alter your Dynasty?\n";
 		}
 		else {
-			echo "Your Dynasty begins, and needs a name. Choose your name wisely - you cannot alter history.\n";
+			echo "Welcome to blaventure!\n";
 		}
 	}
 
