@@ -37,7 +37,7 @@ include_once("shopping.php");
 include_once("dynasty.php");
 
 // DEBUG FLAG
-define("DEBUG", 1);
+define("DEBUG", 0);
 
 // We're in Europe!
 date_default_timezone_set("Europe/London");
@@ -483,7 +483,8 @@ function main() {
 		$dynDataDirty	= false;
 
 		// Put everyone into the dynasty initialisation state, just this once.
-		$notYetPatched	= !isset($charData->patched);
+		//$notYetPatched	= !isset($charData->patched);
+		$notYetPatched	= !isset($dynData->initialised);
 		$notPatching	= $charData->state != GameStates::DynastyInit;
 
 		if ( empty($dynData) || ( $notYetPatched && $notPatching ) ) {
@@ -517,9 +518,10 @@ function main() {
 
 				StateManager::ChangeState($charData, GameStates::DynastyInit);
 
-				$charData->patched = true;
+				$dynData->initialised = true;
 
-				$charDataDirty = true;
+				$charDataDirty 	= true;
+				$dynDataDirty	= true;
 			}
 			break;
 
