@@ -268,6 +268,7 @@ function checkInputFragments( $fragments, $input, $charData, $mapData, $dynData 
 	return $match;
 }
 
+/*
 function passiveHealthRegen( &$charData ) {
 
 	// We don't passively regenerate in combat.
@@ -301,6 +302,7 @@ function passiveHealthRegen( &$charData ) {
 	// Mark when we last interacted.
 	$charData->lastInputD 	= $timestamp;
 }
+*/
 
 function classSelect($input, $charData, $dynData, $charName) {
 
@@ -310,7 +312,6 @@ function classSelect($input, $charData, $dynData, $charName) {
 
 	$setClass = false;
 
-	// This should be set in a callback.
 	if ( isset($charData->class) ) {
 
 		echo "Greetings $charName $dynData->name, the level 1 $charData->class! Your adventure begins now! ('help' for commands)\n";
@@ -332,21 +333,21 @@ function classSelect($input, $charData, $dynData, $charName) {
 	return $setClass;
 }
 
-function firstPlay($data) {
+function firstPlay($charData) {
 
-	$data->hp = $data->hpMax;
-	$data->mp = $data->mpMax;
+	$charData->hp = $charData->hpMax = ($charData->endurance * PersonaMultiplier::Endurance);
+	$charData->mp = $charData->mpMax = ($charData->oddness * PersonaMultiplier::Oddness);
 
-	$data->level = 1;
+	$charData->level = 1;
 
-	$data->weapon = "Stick";
-	$data->weaponVal = 1;
+	$charData->weapon = "Stick";
+	$charData->weaponVal = 1;
 	
-	$data->armour = "Skin";
-	$data->armourVal = 1;
+	$charData->armour = "Skin";
+	$charData->armourVal = 1;
 
-	$data->weapon2 = "Smaller Stick";
-	$data->weapon2Val = 1;
+	$charData->weapon2 = "Smaller Stick";
+	$charData->weapon2Val = 1;
 }
 
 function adventuring($input, $charData, $mapData, $dynData) {
@@ -596,7 +597,7 @@ function main() {
 
 				DEBUG_echo("FirstPlay");
 
-				firstPlay($charData);
+				firstPlay($charData, $dynData);
 
 				StateManager::ChangeState($charData, GameStates::Adventuring);
 			} // purposeful fall-through!
@@ -725,9 +726,6 @@ function main() {
 	}
 
 	if ( isset($charData) && $charDataDirty ) {
-
-		// Regenerate health based on time since last input.
-		passiveHealthRegen($charData);
 
 		saveGame($nick, SaveFileType::Character, $charData);
 	}
