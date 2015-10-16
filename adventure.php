@@ -24,6 +24,8 @@ include_once("class_definitions.php");
 include_once("procedural_generator.php");
 include_once("personas.php");
 
+include_once("file_io.php");
+
 // Game mode InputFragments.
 include_once("class_select.php");
 include_once("adventuring.php");
@@ -49,10 +51,16 @@ function DEBUG_echo($string) {
 	}
 }
 
+function getSaveFileDir() {
+	$home 		= getenv("HOME");
+	$dirPath 	= "$home/.blaventure";
+
+	return $dirPath;
+}
+
 function getSaveFilePath($nick, $saveFileType) {
 
-	$home 		= getenv("HOME");
-	$filePath 	= "$home/.blaventure/$nick.$saveFileType";
+	$filePath = getSaveFileDir() . "/$nick.$saveFileType";
 
 	return $filePath;
 }
@@ -83,7 +91,7 @@ function initCharacterSaveData($nick) {
 	if ( checkIfFileExists($nick, SaveFileType::Dynasty) ) {
 
 		$dynPath = getSaveFilePath($nick, SaveFileType::Dynasty);
-		$dynData = readSave($dynPath);
+		$dynData = FileIO::UnserializeFile($dynPath);
 
 		$initialSaveData->precision	+= $dynData->precision;
 		$initialSaveData->endurance	+= $dynData->endurance;
@@ -115,28 +123,6 @@ function initMapSaveData($nick) {
 	$initialSaveData->map		= $map;
 
 	return $initialSaveData;
-}
-
-function writeSave($saveData, $filePath) {
-
-	$handle		= fopen($filePath, "w");
-	$serialData = serialize($saveData);
-
-	fwrite($handle, $serialData);
-
-	fclose($handle);
-}
-
-function readSave($filePath) {
-
-	$handle		= fopen($filePath, "r");
-	$serialData = fread($handle, filesize($filePath));
-
-	$saveData 	= unserialize($serialData);
-
-	fclose($handle);
-
-	return $saveData;
 }
 
 function checkIfFileExists($nick, $fileType) {
@@ -200,7 +186,8 @@ function saveGame($nick, $saveFileType, $data = null) {
 	}
 
 	if ( !is_null($saveData) ) {
-		writeSave($saveData, $filePath);		
+
+		FileIO::WriteFile($saveData, $filePath);		
 	}
 }
 
@@ -466,17 +453,17 @@ function main() {
 
 		// Load character save data.
 		$charFilePath 	= getSaveFilePath($nick, SaveFileType::Character);
-		$charData 		= readSave($charFilePath);
+		$charData 		= FileIO::UnserializeFile($charFilePath);
 		$charDataDirty	= false;
 
 		// Load map save data.
 		$mapFilePath 	= getSaveFilePath($nick, SaveFileType::Map);
-		$mapData 		= readSave($mapFilePath);
+		$mapData 		= FileIO::UnserializeFile($mapFilePath);
 		$mapDataDirty	= false;
 
 		// Load dynasty save data.
 		$dynFilePath 	= getSaveFilePath($nick, SaveFileType::Dynasty);
-		$dynData 		= readSave($dynFilePath);
+		$dynData 		= FileIO::UnserializeFile($dynFilePath);
 		$dynDataDirty	= false;
 
 		// Put everyone into the dynasty initialisation state, just this once.

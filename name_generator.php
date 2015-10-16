@@ -1,5 +1,7 @@
 <?php
 
+include_once("file_io.php");
+
 // Names are "higher level" the further down the file we go.
 // i.e. line 1 monster is a Rat, line 30 monster a Tiny Dragon
 class NameGenerator {
@@ -48,9 +50,7 @@ class NameGenerator {
 
 	private static function GetLinesFromFile($filePath) {
 
-		$handle = fopen($filePath, "r");
-		$data	= fread($handle, filesize($filePath));
-		fclose($handle);
+		$data	= FileIO::ReadFile($filePath);
 
 		$lines	= explode(PHP_EOL, $data);
 

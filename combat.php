@@ -50,12 +50,7 @@ class Combat {
 		$dynFilePath 	= "$home/.blaventure/$charData->nick.dynasty";
 		if ( file_exists($dynFilePath) ) {
 
-			$handle		= fopen($dynFilePath, "w");
-			$serialData = serialize($dynData);
-
-			fwrite($handle, $serialData);
-
-			fclose($handle);
+			FileIO::WriteFile($dynData, $dynFilePath);
 		}
 
 		// Scoreboard management.
@@ -63,23 +58,14 @@ class Combat {
 
 		if ( file_exists($filePath) ) {
 
-			$handle		= fopen($filePath, "r");
-			$contents	= fread($handle, filesize($filePath));
-
-			$currentTop = unserialize($contents);
-			fclose($handle);
+			$currentTop = FileIO::UnserializeFile($filePath);
 		}
 
 		$textOutput = " You gained $thisCharGold GP for your Dynasty!";
 
 		if ( is_null($currentTop) || $charData->level > $currentTop->level ) {
 
-			$handle		= fopen($filePath, "w");
-			$winner		= serialize($charData);
-
-			fwrite($handle, $winner);
-
-			fclose($handle);
+			FileIO::WriteFile($charData, $filePath);
 
 			$textOutput .= " HIGH SCORE!";
 		}
