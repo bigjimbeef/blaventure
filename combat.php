@@ -212,7 +212,7 @@ class Combat {
 		if ( $traitMap->ClassHasTrait($charData, TraitName::ArmourUp) ) {
 
 			// Fighters have 30% more armour.
-			$armourVal = $armourVal + ceil($armourVal * 0.3);
+//			$armourVal = $armourVal + ceil($armourVal * 0.3);
 		}
 		//---------------------------------------
 
